@@ -1,0 +1,47 @@
+.containerPrincipal, .containerFooter {
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.containerSuperior {
+    height: 50%;
+    width: 100vw;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.containerCenter{
+    height: 100%;
+    width: 60%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.separator {
+    width: 90%;
+    height: 3%;
+    border: 2px solid black;
+}
+
+.containerContactos, .containerInformacion{
+    height: 100%;
+    width: 20%;
+}
+
+.containerContactos, .containerDerechos {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+}
+
+.containerInformacion, .containerPolicy {
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+}

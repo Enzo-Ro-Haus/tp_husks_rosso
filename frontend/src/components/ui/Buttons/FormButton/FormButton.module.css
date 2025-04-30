@@ -1,0 +1,22 @@
+.buttonLogin{
+    width: 10vw;
+    height: 8vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 5px;
+    background-color: #231f20;
+    color: #f2f2f2;
+    border: #231f20 4px solid;
+    font-size: 1rem;
+    border-radius: 50px;
+    font-weight: 500;
+    gap: 0.5rem;
+    font-family: "Assistant", sans-serif;
+    transition: transform 0.5s ease-in-out;
+}
+
+.buttonLogin:hover {
+    border: #5a4c4f 4px solid;
+    background-color: #5a4c4f ;  
+  }

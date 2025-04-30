@@ -1,20 +1,29 @@
+import { FormButton } from "../../ui/Buttons/FormButton/FormButton";
 import { Footer } from "../../ui/Footer/Footer";
 import { Header } from "../../ui/Header/Header";
-import style from "../GenericStyle.module.css";
+import style from "./Login.module.css";
 
 export const Login = () => {
   return (
-    <div className={style.containerPrincipalPage}>
-      <Header />
+    <div className={style.containerPrincipalLogin}>
+      <div>
+        <Header />
+      </div>
       <div className={style.containerForm}>
-        <form>
-          <label htmlFor="">Email</label>
-          <input type="text" />
-          <label htmlFor="">Password</label>
-          <input type="password" />
+        <h2>LOGIN</h2>
+        <form className={style.Form}>
+          <div className={style.Input}>
+            <input type="text" placeholder="Name" />
+          </div>
+          <div className={style.Input}>
+            <input type="password" placeholder="Email" />
+          </div>
+          <FormButton />
         </form>
       </div>
-      <Footer />
+      <div>
+        <Footer />
+      </div>
     </div>
   );
 };

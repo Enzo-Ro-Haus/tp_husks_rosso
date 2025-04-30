@@ -3,11 +3,13 @@ import { Landingpage } from "./components/screens/Landing/Landingpage"
 import { Login } from "./components/screens/Login/Login"
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import { NotFound } from "./components/screens/NotFound/NotFound";
+import { Admin } from "./components/screens/Admin/Admin";
 
 const router = createBrowserRouter([
   {path:"/", element: <Landingpage/>},
   {path:"/catalog", element: <Catalog/>},
   {path:"/login", element: <Login/>},
+  {path:"/admin", element: <Admin/>},
   {path:"*", element: <NotFound/>},
 ]);
 

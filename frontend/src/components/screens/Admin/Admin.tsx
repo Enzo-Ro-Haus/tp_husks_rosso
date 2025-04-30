@@ -7,7 +7,7 @@ export const Admin = () => {
     <div>
       <Header />
       <div>
-        <AdminSideBar />
+        {/*<AdminSideBar /> */}
       </div>
       <Footer />
     </div>

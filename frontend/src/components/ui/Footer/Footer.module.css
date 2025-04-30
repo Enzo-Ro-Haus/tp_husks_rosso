@@ -1,0 +1,117 @@
+.containerPrincipalFooter{
+    width: 98vw;
+    height:100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color: #f2f2f2;
+    font-family: 'Assistant', sans-serif;
+}
+
+
+.containerSuperior{
+    height: 50%;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: last baseline;
+    padding: 1rem;
+}
+
+.containerContactos{
+    width: 30%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 0.3rem;
+}
+
+.containerRedesSociales ul{
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;     
+}
+
+.containerInformacion{
+    width: 30%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+}
+.containerCenter{
+    width: 40%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    
+}
+
+.containerCenter p{
+    width: 90%;
+    height: 100%;
+    text-align: center;
+    font-size: small;
+}
+
+.containerInformacion ul{
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;   
+}
+
+.separator{
+    width: 95vw;
+    height: 0%;
+    border: 1px solid black;
+}
+
+.containerInferior{
+    font-size: small;
+    width: 100%;
+    height: 50%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+}
+
+.containerDerechos{
+    width: 30%;
+    height: 100%;
+    display: flex;
+    justify-content:center;
+    align-items: flex-start;
+
+}
+
+.containerPolicy{
+    width: 40%;
+    height: 100%;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+}
+
+.containerPolicy ul{
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+}
+
+.containerPolicy li{
+    width: 100%;
+    height: 100%;
+}

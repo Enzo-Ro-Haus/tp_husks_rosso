@@ -1,0 +1,32 @@
+.containerPrincipalCard{
+    width: 25%;
+    height: 70vh;
+    background-color: transparent;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.cardImg {
+    width: 90%;
+    height: 60%;
+}
+
+.cardInfo {
+    width: 90%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 0.5rem
+}
+
+.cardInfo > h3 {
+    color: #231f20;
+}
+
+.cardInfo > p {
+    color: #5e5f5a;
+}

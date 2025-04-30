@@ -1,0 +1,59 @@
+.containerHeader{
+    width: 98vw;
+    height: 15vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: 'Assistant', sans-serif;
+    background-color: #f2f2f2;
+}   
+
+.title{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 5%;
+    font-weight: 600;
+    font-size: 500;
+    color: #231f20;
+    margin: 0 18vw;
+}
+
+h1:hover{
+    color: #706366;
+    cursor: pointer;
+}
+
+.leftNav,  
+.rightNav{
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    width: 15%;
+    color: #706366;
+}
+
+
+.rightNav{
+    align-items: flex-end;
+}
+
+.list{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+}
+
+li {
+    margin: 0% 15%;
+    list-style: none;
+    width: 100%;
+}
+
+li:hover{
+    color: #231f20;
+    cursor: pointer;
+    text-decoration: underline;
+}

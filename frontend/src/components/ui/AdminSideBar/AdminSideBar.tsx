@@ -1,5 +1,5 @@
 import { NewProductButton } from "../Buttons/NewProductButton/NewProductButton";
-import style from "./AdminSideBar.module.css";
+//import style from "./AdminSideBar.module.css";
 
 export const AdminSideBar = () => {
   return (

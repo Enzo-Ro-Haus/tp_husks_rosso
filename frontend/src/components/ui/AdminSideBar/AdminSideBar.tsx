@@ -1,9 +1,9 @@
 import { NewProductButton } from "../Buttons/NewProductButton/NewProductButton";
-//import style from "./AdminSideBar.module.css";
+import style from "./AdminSideBar.module.css";
 
 export const AdminSideBar = () => {
   return (
-    <div>
+    <div className={style.containerSideBar}>
         <h2>Admin</h2>
         <h3>Products/TSHIRT</h3>
       <div>

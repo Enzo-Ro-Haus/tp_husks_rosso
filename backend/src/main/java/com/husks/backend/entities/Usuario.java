@@ -12,7 +12,7 @@ import java.util.Collection;
 import java.util.List;
 
 @Entity
-@Table(name = "Usuario", uniqueConstraints = {@UniqueConstraint(columnNames = {"username"})})
+@Table(name = "Usuario", uniqueConstraints = {@UniqueConstraint(columnNames = {"nombre"})})
 @Getter @Setter
 @NoArgsConstructor
 @AllArgsConstructor

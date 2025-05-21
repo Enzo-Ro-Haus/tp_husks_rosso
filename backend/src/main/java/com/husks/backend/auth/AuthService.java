@@ -34,7 +34,7 @@ public class AuthService {
     public AuthResponse register(RegisterRequest  request){
         Usuario usuario = Usuario.builder()
                 .nombre(request.getNombre())
-                .contrasenia(request.getContrasenia())
+                .contrasenia(passwordEncoder.encode(request.getContrasenia()))
                 .email(request.getEmail())
                 .rol(Rol.admin)
                 .build();

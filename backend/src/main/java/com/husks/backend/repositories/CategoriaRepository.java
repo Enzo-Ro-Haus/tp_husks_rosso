@@ -2,13 +2,10 @@ package com.husks.backend.repositories;
 
 import com.husks.backend.entities.Categoria;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
-
-import java.util.List;
 
 @Repository
 public interface CategoriaRepository extends JpaRepository<Categoria, Long> {
-    @Query("SELECT c FROM Categoria c WHERE c.tipo.id = :tipoId")
-    List<Categoria> findByTipoId(Long tipoId);
+    // En caso de querer listar por tipo:
+    // List<Categoria> findByTipoId(Long tipoId);
 }

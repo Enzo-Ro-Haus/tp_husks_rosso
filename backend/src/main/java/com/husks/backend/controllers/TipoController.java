@@ -1,33 +1,62 @@
 package com.husks.backend.controllers;
 
-import com.husks.backend.dtos.*;
-import com.husks.backend.services.*;
-import jakarta.validation.Valid;
-import lombok.*;
-import org.springframework.http.*;
+import com.husks.backend.entities.Tipo;
+import com.husks.backend.services.TipoService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/tipos")
-@RequiredArgsConstructor
+@RequestMapping("/tipo")
 public class TipoController {
 
-    private final TipoService tipoService;
+    @Autowired
+    private TipoService tipoService;
 
-    @PostMapping
-    public ResponseEntity<TipoResponseDTO> crearTipo(@Valid @RequestBody TipoRequestDTO dto) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(tipoService.crearTipo(dto));
+    // GET /tipo
+    @GetMapping
+    public List<Tipo> listar() {
+        return tipoService.listarTipos();
     }
 
+    // GET /tipo/{id}
     @GetMapping("/{id}")
-    public ResponseEntity<TipoResponseDTO> obtenerTipo(@PathVariable Long id) {
-        return ResponseEntity.ok(tipoService.obtenerTipoPorId(id));
+    public ResponseEntity<Tipo> obtener(@PathVariable Long id) {
+        return tipoService.buscarPorId(id)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    @GetMapping("/{id}/categorias")
-    public ResponseEntity<List<CategoriaResponseDTO>> obtenerCategoriasPorTipo(@PathVariable Long id) {
-        return ResponseEntity.ok(tipoService.obtenerCategoriasPorTipo(id));
+    // POST /tipo
+    @PostMapping
+    public ResponseEntity<Tipo> crear(@RequestBody Tipo tipo) {
+        Tipo creado = tipoService.guardarTipo(tipo);
+        return ResponseEntity.ok(creado);
+    }
+
+    // PUT /tipo/{id}
+    @PutMapping("/{id}")
+    public ResponseEntity<Tipo> actualizar(
+            @PathVariable Long id,
+            @RequestBody Tipo datos) {
+        return tipoService.buscarPorId(id)
+                .map(t -> {
+                    t.setNombre(datos.getNombre());
+                    // las categorías asociadas se gestionan por cascade desde Categoria
+                    Tipo actualizado = tipoService.guardarTipo(t);
+                    return ResponseEntity.ok(actualizado);
+                })
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    // DELETE /tipo/{id}
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> borrar(@PathVariable Long id) {
+        if (tipoService.eliminarTipo(id)) {
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.notFound().build();
     }
 }

@@ -23,7 +23,5 @@ public class Tipo {
     private String nombre;
 
     @OneToMany(mappedBy = "tipo", cascade = CascadeType.ALL)
-    @ToString.Exclude
-    @EqualsAndHashCode.Exclude
     private List<Categoria> categorias = new ArrayList<>();
 }

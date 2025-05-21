@@ -1,14 +1,36 @@
 package com.husks.backend.services;
 
-import com.husks.backend.dtos.*;
+import com.husks.backend.entities.*;
+import com.husks.backend.repositories.*;
+import org.springframework.beans.factory.annotation.*;
+import org.springframework.stereotype.Service;
 
-import java.util.List;
+import java.util.*;
 
-public interface UsuarioService {
-    UsuarioResponseDTO registrarUsuario(UsuarioRequestDTO dto);
-    UsuarioResponseDTO actualizarUsuario(Long id, UsuarioRequestDTO dto);
-    UsuarioResponseDTO obtenerUsuarioPorId(Long id);
-    void desactivarUsuario(Long id);
-    void agregarDireccion(Long usuarioId, DireccionRequestDTO dto);
-    List<OrdenCompraResponseDTO> obtenerHistorialCompras(Long usuarioId);
+@Service
+public class UsuarioService {
+
+    @Autowired
+    UsuarioRepository usuarioRepository;
+
+    //Traer todos los usuarios
+    public List<Usuario> listarUsuario(){
+        return usuarioRepository.findAll();
+    }
+
+    //Crear un usuario
+    public Usuario crearUsuario(Usuario usuario){
+        return usuarioRepository.save(usuario);
+    }
+
+    //Eliminar un usuario
+    public void borrarUsuario(Long id){
+        usuarioRepository.deleteById(id);
+    }
+
+    //Buscar usuario por id
+    public Usuario buscarUsuarioPorId(Long id){
+        return usuarioRepository.findById(id).orElse(null);
+    }
+
 }

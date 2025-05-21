@@ -3,8 +3,7 @@ package com.husks.backend.entities;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 @Entity
 @Table(name = "Direccion")
@@ -27,7 +26,5 @@ public class Direccion {
     private String cp;
 
     @OneToMany(mappedBy = "direccion")
-    @ToString.Exclude
-    @EqualsAndHashCode.Exclude
     private List<UsuarioDireccion> usuarios = new ArrayList<>();
 }

@@ -6,5 +6,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface TipoRepository extends JpaRepository<Tipo, Long> {
-    boolean existsByNombre(String nombre);
+    // Si en el futuro necesitas buscar por nombre:
+    // Optional<Tipo> findByNombre(String nombre);
 }

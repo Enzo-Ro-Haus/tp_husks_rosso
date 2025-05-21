@@ -1,26 +1,40 @@
 package com.husks.backend.controllers;
 
-import com.husks.backend.dtos.*;
-import com.husks.backend.services.*;
-import jakarta.validation.Valid;
-import lombok.*;
-import org.springframework.http.*;
+import com.husks.backend.entities.Usuario;
+import com.husks.backend.services.UsuarioService;
+import org.springframework.beans.factory.annotation.*;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
-@RequestMapping("/api/usuarios")
-@RequiredArgsConstructor
+@RequestMapping("/usuario")
 public class UsuarioController {
 
-    private final UsuarioService usuarioService;
+    @Autowired
+    UsuarioService usuarioService;
 
-    @PostMapping("/registro")
-    public ResponseEntity<UsuarioResponseDTO> registrarUsuario(@Valid @RequestBody UsuarioRequestDTO dto) {
-        return new ResponseEntity<>(usuarioService.registrarUsuario(dto), HttpStatus.CREATED);
+    @GetMapping
+    @ResponseBody
+    public List<Usuario> listaUsuario(){
+        return usuarioService.listarUsuario();
     }
 
-   /* @GetMapping("/{id}/direcciones")
-    public ResponseEntity<List<DireccionResponseDTO>> obtenerDireccionesUsuario(@PathVariable Long id) {
-        return ResponseEntity.ok(usuarioService.obtenerDireccionesUsuario(id));
-    }*/
+    @PostMapping
+    @ResponseBody
+    public Usuario crearUsuario(@RequestBody Usuario usuario){
+        return usuarioService.crearUsuario(usuario);
+    }
+
+    @DeleteMapping("/{id}")
+    public void borrarUsuario(@PathVariable Long id){
+         usuarioService.borrarUsuario(id);
+    }
+
+    @GetMapping("/{id}")
+    @ResponseBody
+    public Usuario buscarUsuarioPorId(@PathVariable Long id){
+        return usuarioService.buscarUsuarioPorId(id);
+    }
+
 }

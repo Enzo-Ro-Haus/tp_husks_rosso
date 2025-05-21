@@ -1,30 +1,51 @@
 package com.husks.backend.controllers;
 
-import com.husks.backend.dtos.*;
-import com.husks.backend.enums.EstadoOrden;
-import com.husks.backend.services.*;
-import jakarta.validation.Valid;
-import lombok.*;
-import org.springframework.http.*;
+import com.husks.backend.entities.OrdenCompra;
+import com.husks.backend.services.OrdenCompraService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
-@RequestMapping("/api/ordenes")
-@RequiredArgsConstructor
+@RequestMapping("/orden-compra")
 public class OrdenCompraController {
 
-    private final OrdenCompraService ordenService;
+    @Autowired
+    private OrdenCompraService ordenCompraService;
 
-    @PostMapping
-    public ResponseEntity<OrdenCompraResponseDTO> crearOrden(@Valid @RequestBody OrdenCompraRequestDTO dto) {
-        return new ResponseEntity<>(ordenService.crearOrden(dto), HttpStatus.CREATED);
+    // GET /orden-compra
+    @GetMapping
+    public List<OrdenCompra> listarTodas() {
+        return ordenCompraService.listarOrdenes();
     }
 
-    @PatchMapping("/{id}/estado")
-    public ResponseEntity<OrdenCompraResponseDTO> actualizarEstado(
-            @PathVariable Long id,
-            @RequestParam EstadoOrden nuevoEstado
-    ) {
-        return ResponseEntity.ok(ordenService.actualizarEstadoOrden(id, nuevoEstado));
+    // GET /orden-compra/{id}
+    @GetMapping("/{id}")
+    public OrdenCompra buscarPorId(@PathVariable Long id) {
+        return ordenCompraService.buscarPorId(id).orElse(null);
+    }
+
+    // POST /orden-compra
+    @PostMapping
+    public ResponseEntity<OrdenCompra> crear(@RequestBody OrdenCompra orden) {
+        OrdenCompra creada = ordenCompraService.crearOrden(orden);
+        return ResponseEntity.ok(creada);
+    }
+
+    // PUT /orden-compra/{id}
+    @PutMapping("/{id}")
+    public OrdenCompra actualizarPorId(@PathVariable Long id, @RequestBody OrdenCompra datos) {
+        return ordenCompraService.actualizarOrden(id, datos);
+    }
+
+    // DELETE /orden-compra/{id}
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> borrar(@PathVariable Long id) {
+        if (ordenCompraService.eliminarOrden(id)) {
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.notFound().build();
     }
 }

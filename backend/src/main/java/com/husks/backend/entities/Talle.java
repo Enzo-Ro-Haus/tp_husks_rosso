@@ -29,7 +29,5 @@ public class Talle {
     private String valor;
 
     @ManyToMany(mappedBy = "tallesDisponibles")
-    @ToString.Exclude
-    @EqualsAndHashCode.Exclude
     private Set<Producto> productos = new HashSet<>();
 }

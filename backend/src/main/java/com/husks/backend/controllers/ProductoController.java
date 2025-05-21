@@ -1,43 +1,62 @@
 package com.husks.backend.controllers;
 
-
-import org.springframework.http.*;
+import com.husks.backend.entities.Producto;
+import com.husks.backend.services.ProductoService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import com.husks.backend.dtos.ProductoRequestDTO;
-import com.husks.backend.dtos.ProductoResponseDTO;
-import com.husks.backend.services.ProductoServiceImp;
+
 import java.util.List;
 
 @RestController
-@RequestMapping("/productos")
+@RequestMapping("/producto")
 public class ProductoController {
 
-    private final ProductoServiceImp service;
+    @Autowired
+    private ProductoService productoService;
 
-    public ProductoController(ProductoServiceImp service) {
-        this.service = service;
+    @GetMapping
+    public List<Producto> listar() {
+        return productoService.listarProductos();
     }
 
     @PostMapping
-    public ResponseEntity<ProductoResponseDTO> crear(@RequestBody ProductoRequestDTO dto) {
-        ProductoResponseDTO creado = service.crear(dto);
-        return new ResponseEntity<>(creado, HttpStatus.CREATED);
+    public Producto crear(@RequestBody Producto producto) {
+        return productoService.guardarProducto(producto);
     }
 
-    @GetMapping
-    public List<ProductoResponseDTO> listar() {
-        return service.listarTodos();
+    @PutMapping("/{id}")
+    public ResponseEntity<Producto> actualizar(
+            @PathVariable Long id,
+            @RequestBody Producto datosProducto) {
+        return productoService.buscarPorId(id)
+                .map(prod -> {
+                    prod.setNombre(datosProducto.getNombre());
+                    prod.setPrecio(datosProducto.getPrecio());
+                    prod.setCantidad(datosProducto.getCantidad());
+                    prod.setDescripcion(datosProducto.getDescripcion());
+                    prod.setColor(datosProducto.getColor());
+                    prod.setCategoria(datosProducto.getCategoria());
+                    prod.setTallesDisponibles(datosProducto.getTallesDisponibles());
+                    Producto actualizado = productoService.guardarProducto(prod);
+                    return ResponseEntity.ok(actualizado);
+                })
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ProductoResponseDTO> obtener(@PathVariable Long id) {
-        ProductoResponseDTO dto = service.obtenerPorId(id);
-        return ResponseEntity.ok(dto);
+    public ResponseEntity<Producto> obtener(@PathVariable Long id) {
+        return productoService.buscarPorId(id)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> eliminar(@PathVariable Long id) {
-        service.eliminar(id);
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<Void> borrar(@PathVariable Long id) {
+        if (productoService.buscarPorId(id).isPresent()) {
+            productoService.eliminarProducto(id);
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.notFound().build();
     }
 }

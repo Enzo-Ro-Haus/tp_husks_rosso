@@ -30,29 +30,21 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter { // Interface
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
         final String token = getTokenFromRequest(request);
-        final String nombre;
 
-        if(token == null){
-            filterChain.doFilter(request, response);
-            return;
-        }
-
-        nombre =jwtService.getUserNameFromToken(token);
-        filterChain.doFilter(request, response);
-
-        if(nombre != null && SecurityContextHolder.getContext().getAuthentication() == null){
-            UserDetails userDetail=userDetailsService.loadUserByUsername(nombre);
-
-            if(jwtService.isTokenValid(token, userDetail)){
-                UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                        userDetail, null, userDetail.getAuthorities()
-                );
-
-                authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-
-                SecurityContextHolder.getContext().setAuthentication(authToken);
+        if (token != null) {
+            String username = jwtService.getUserNameFromToken(token);
+            if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                UserDetails user = userDetailsService.loadUserByUsername(username);
+                if (jwtService.isTokenValid(token, user)) {
+                    UsernamePasswordAuthenticationToken authToken =
+                            new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
+                    authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                    SecurityContextHolder.getContext().setAuthentication(authToken);
+                }
             }
         }
+
+        filterChain.doFilter(request, response);
     }
 
     private String getTokenFromRequest(HttpServletRequest request) {
@@ -66,3 +58,4 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter { // Interface
     }
 
 }
+

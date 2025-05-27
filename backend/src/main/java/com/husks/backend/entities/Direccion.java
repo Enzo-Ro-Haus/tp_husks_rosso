@@ -7,14 +7,11 @@ import java.util.*;
 
 @Entity
 @Table(name = "Direccion")
-@Data
+@Getter @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Direccion {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+public class Direccion extends Base{
 
     @Column(nullable = false, length = 100)
     private String calle;

@@ -7,14 +7,11 @@ import java.util.List;
 
 @Entity
 @Table(name = "Categoria")
-@Data
+@Getter @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Categoria {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+public class Categoria extends Base {
 
     @Column(nullable = false, length = 50)
     private String nombre;

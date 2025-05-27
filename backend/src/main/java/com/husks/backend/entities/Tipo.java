@@ -9,15 +9,11 @@ import java.util.List;
 
 @Entity
 @Table(name = "Tipo")
-@Data
+@Getter @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Tipo {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id_tipo")
-    private Long id;
+public class Tipo extends Base{
 
     @Column(nullable = false, length = 20)
     private String nombre;

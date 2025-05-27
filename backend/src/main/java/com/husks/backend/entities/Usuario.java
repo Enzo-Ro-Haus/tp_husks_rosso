@@ -12,15 +12,12 @@ import java.util.Collection;
 import java.util.List;
 
 @Entity
-@Table(name = "Usuario", uniqueConstraints = {@UniqueConstraint(columnNames = {"username"})})
+@Table(name = "Usuario")
 @Getter @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Usuario implements UserDetails {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+public class Usuario extends Base implements UserDetails {
 
     @Column(nullable = false, length = 100)
     private String nombre;
@@ -28,18 +25,18 @@ public class Usuario implements UserDetails {
     @Column(unique = true, nullable = false, length = 100)
     private String email;
 
-    @Column(nullable = false, length = 64)
+    @Column(name = "contrasenia", nullable = false, length = 64)
     private String contrasenia;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private Rol rol = Rol.cliente;
+    private Rol rol = Rol.admin;
 
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL)
     private List<UsuarioDireccion> direcciones = new ArrayList<>();
 
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL)
-    private List<OrdenCompra> ordenes = new ArrayList<>();
+    private List<OrdenDeCompra> ordenes = new ArrayList<>();
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -48,12 +45,12 @@ public class Usuario implements UserDetails {
 
     @Override
     public String getPassword() {
-        return "";
+        return this.contrasenia;
     }
 
     @Override
     public String getUsername() {
-        return "";
+        return this.nombre;
     }
 
     @Override

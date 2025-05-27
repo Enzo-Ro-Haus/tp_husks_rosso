@@ -12,10 +12,7 @@ import java.util.Set;
 @AllArgsConstructor
 @Builder
 @Getter @Setter
-public class Producto {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+public class Producto extends Base{
 
     @Column(nullable = false, length = 100)
     private String nombre;

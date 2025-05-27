@@ -9,14 +9,11 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 @Getter @Setter
-public class Detalle {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+public class Detalle extends Base{
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_orden_compra", nullable = false)
-    private OrdenCompra ordenCompra;
+    private OrdenDeCompra ordenDeCompra;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_producto", nullable = false)

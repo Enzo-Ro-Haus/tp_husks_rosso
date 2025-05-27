@@ -9,6 +9,8 @@ import io.jsonwebtoken.security.Keys;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
+import com.husks.backend.entities.Usuario;
+
 import java.security.Key;
 import java.util.Date;
 import java.util.HashMap;
@@ -25,13 +27,17 @@ public class JwtService {
     }
 
     public String getToken(Map<String, Object> extraClaims, UserDetails user){
+        if(user instanceof Usuario){
+            Usuario u = (Usuario) user;
+            extraClaims.put("role", u.getRol().name());
+         }
         return Jwts
                 .builder()
                 .setClaims(extraClaims)
                 .setSubject(user.getUsername())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis()+1000*60*24))
-                .signWith(getKey(), SignatureAlgorithm.ES256)
+                .signWith(getKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
 
@@ -40,8 +46,13 @@ public class JwtService {
         return Keys.hmacShaKeyFor(keyBytes);
     }
 
+
     public String getUserNameFromToken(String token) {
         return getClaim(token, Claims::getSubject);
+    }
+
+    public String getRoleFromToken(String token) {
+        return getClaim(token, claims -> claims.get("role", String.class));
     }
 
     public boolean isTokenValid(String token, UserDetails userDetail) {
@@ -58,12 +69,11 @@ public class JwtService {
     }
 
 
-
     private Claims getAllClaims(String token){
         return Jwts.parserBuilder()
                 .setSigningKey(getKey())
                 .build()
-                .parseClaimsJwt(token)
+                .parseClaimsJws(token)
                 .getBody();
     }
 

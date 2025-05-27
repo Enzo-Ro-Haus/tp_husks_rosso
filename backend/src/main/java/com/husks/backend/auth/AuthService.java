@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -21,22 +22,26 @@ public class AuthService {
     private final AuthenticationManager authenticationManager;
 
     public AuthResponse login(LoginRequest request){
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(request.getNombre(), request.getContrasenia())
+        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.getNombre(), request.getContrasenia())
         );
-        UserDetails usuario = usuarioRepository.findByNombre(request.getNombre()).orElseThrow();
-        String token=jwtService.getToken(usuario);
+        Usuario usuario = usuarioRepository
+                .findByNombre(request.getNombre())
+                .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado"));
+       
+        String token = jwtService.getToken(usuario);
+
         return AuthResponse.builder()
                 .token(token)
                 .build();
     }
 
-    public AuthResponse register(RegisterRequest  request){
+    public AuthResponse register(RegisterRequest request){
         Usuario usuario = Usuario.builder()
+                //.username(request.getUserName())
                 .nombre(request.getNombre())
-                .contrasenia(request.getContrasenia())
+                .contrasenia(passwordEncoder.encode(request.getContrasenia()))
                 .email(request.getEmail())
-                .rol(Rol.admin)
+                .rol(Rol.cliente)
                 .build();
 
         usuarioRepository.save(usuario);

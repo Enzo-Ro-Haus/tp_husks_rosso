@@ -17,11 +17,7 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 @Getter @Setter
-
-public class OrdenCompra {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+public class OrdenDeCompra extends Base{
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "usuario", nullable = false)
@@ -45,6 +41,6 @@ public class OrdenCompra {
     @Column(nullable = false)
     private EstadoOrden estado = EstadoOrden.En_proceso;
 
-    @OneToMany(mappedBy = "ordenCompra", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "ordenDeCompra", cascade = CascadeType.ALL)
     private List<Detalle> detalles = new ArrayList<>();
 }

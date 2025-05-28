@@ -16,7 +16,7 @@
     transition: transform 0.5s ease-in-out;
 }
 
-.buttonLogin:hover {
+.buttonNewProduct:hover {
     border: #5a4c4f 4px solid;
     background-color: #5a4c4f ;  
 }

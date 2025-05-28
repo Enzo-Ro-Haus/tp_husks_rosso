@@ -4,21 +4,27 @@ export const ListCard = () => {
   return (
     <div className={style.containerPrincipalListCard}>
       <div className={style.ListCard}>
-        <img className={style.listCardImg} src={'/home/enzo/Escritorio/TUP/metodo_chiroli/tp_husks_rosso/frontend/src/assets/landingimgs/image.png'}></img>
+        <img className={style.listCardImg} src={"/src/assets/landings/image.png"}></img>
         <div className={style.ClotheInfo}>
-          <h4>Nombre de la prenda</h4>
+          <h4 className={style.ClotheInfoTitle}>Nombre de la prenda</h4>
           <div className={style.ClotheDetail}>
             <p>Size: </p>
             <p>Color: </p>
           </div>
         </div>
-        <div className={style.buttonContainer}>{/*Cantidad */}</div>
-        <div className={style.ClothePrice}>
-          <p>$40</p>
+        <div className={style.buttonQuantity}>
+            <button> +  4  - </button>
         </div>
-        <div>
-          <button>Edit</button>
-          <button>Delete</button>
+        <div className={style.ClothePrice}>
+          <p className={style.Price}>$40</p>
+        </div>
+        <div className={style.Botones}>
+          <button className={style.CardButtons}><span className="material-symbols-outlined">
+edit
+</span></button>
+          <button className={style.CardButtons}><span className="material-symbols-outlined">
+delete
+</span></button>
         </div>
       </div>
     </div>

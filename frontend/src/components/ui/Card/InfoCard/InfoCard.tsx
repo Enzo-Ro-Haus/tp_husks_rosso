@@ -1,5 +1,5 @@
 import styles from "./InfoCard.module.css";
-import production from "../../../../assets/landingimgs/production.png";
+import production from "../../../../assets/landings/production.png";
 
 export const InfoCard = () => {
   return (

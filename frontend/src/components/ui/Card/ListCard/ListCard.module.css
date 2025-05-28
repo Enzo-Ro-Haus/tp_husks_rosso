@@ -1,0 +1,100 @@
+.containerPrincipalListCard{
+    width: 98%;
+    height: 40%;
+    display: flex;
+    flex-direction: row;
+    justify-content: center ;
+    align-items: center;
+    border: 1px solid black;
+    border-radius: 20px;
+    padding: 0.5rem;
+}
+
+.ListCard{
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: space  -between;
+    align-items: center;
+}
+
+.listCardImg{
+    width: 20%;
+    height: 98%;
+    border-radius: 20px;
+}
+
+.ClotheInfo{
+    width: 100%;
+    height: 98%;
+}
+
+.CardButtons{
+    width: 30%;
+    height: 98%;
+}
+
+.listCardImg, .buttonQuantity, .ClothePrice, .CardButtons{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.ClotheInfoTitle{
+    height: 20%;
+    width: 100%;
+}
+
+.ClotheDetail{
+    height: 70%;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.ClotheInfo{
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: flex-start;
+    width: 30%;
+    margin-left: 2rem;
+    margin-right: 2rem;
+}
+
+.buttonQuantity{
+    width: 10%;
+    height: 98%;
+    margin-right: 0rem;
+}
+
+.ClothePrice{
+    width: 10%;
+    height: 98%;
+}
+
+.Botones{
+    width: 20%;
+    height: 98%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 2rem;
+    margin-left: 1rem;
+}
+
+.Price{
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.CardButtons{
+    width: 50%;
+    height: 50%;
+}

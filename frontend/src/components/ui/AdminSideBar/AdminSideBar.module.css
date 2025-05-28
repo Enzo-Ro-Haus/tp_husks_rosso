@@ -6,7 +6,7 @@
     align-items: center;
     width: 20%;
     height: 100%;
-    background-color: #7D6757;
+    background-color: #f2f2f2;;
 }
 
 .containerSideBarTitle, .containerSideBarSubTitle{
@@ -17,12 +17,11 @@
 .containerButtons{
     margin: 1rem;
     width: 95%;
-    height: 30%;
+    height: 35%;
     display: flex;
     flex-direction: column;
     align-items: flex-start;
     justify-content: space-between;
-    border: 2px solid red;
 }
 
 .containerButton{
@@ -33,14 +32,14 @@
 .clothButton{
     width: 100%;
     height: 100%;
-    background-color: gray;
+    background-color: rgb(65, 64, 64);
     border: none;
     color: black;
     font-size: 10pt;
 }
 
 .clothButton:hover{
-    background-color: whitesmoke;
+    background-color: rgb(107, 100, 100);
     cursor: pointer;
 }
 

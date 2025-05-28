@@ -1,5 +1,5 @@
 import styles from "./ClotheCard.module.css";
-import tshirt from '../../../../assets/landingimgs/image.png'
+import tshirt from '../../../../assets/landings/image.png'
 
 export const ClotheCard = () => {
   return (

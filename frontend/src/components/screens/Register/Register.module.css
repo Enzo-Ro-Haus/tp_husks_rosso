@@ -1,0 +1,50 @@
+.containerPrincipalRegister{
+    background-color: white;
+    height: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    font-family: 'Assistant', sans-serif;
+}
+
+.containerForm{
+    width: 40vw;
+    height: 55vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2rem;
+}
+
+.containerForm h2 {
+    font-size: 2rem;
+}
+
+.Form {
+    width: 50vw;
+    height: 25vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+}
+
+.Input {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+}
+
+.Input input{
+    width: 80%;
+    height: 100%;
+    margin: 5px;
+    padding-left: 1rem;
+}

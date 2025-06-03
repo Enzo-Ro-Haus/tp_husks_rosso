@@ -5,6 +5,8 @@ import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import { NotFound } from "./components/screens/NotFound/NotFound";
 import { Admin } from "./components/screens/Admin/Admin";
 import { Register } from "./components/screens/Register/Register";
+import { Cart } from "./components/screens/Cart/Cart";
+import { AboutUs } from "./components/screens/AboutUs/AboutUs";
 
 const router = createBrowserRouter([
   {path:"/", element: <Landingpage/>},
@@ -12,6 +14,8 @@ const router = createBrowserRouter([
   {path:"/login", element: <Login/>},
   {path:"/register", element: <Register/>},
   {path:"/admin", element: <Admin/>},
+  {path:"/cart", element: <Cart/>},
+  {path:"/about", element: <AboutUs/>},
   {path:"*", element: <NotFound/>},
 ]);
 

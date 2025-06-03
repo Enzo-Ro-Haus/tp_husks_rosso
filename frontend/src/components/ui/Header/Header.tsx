@@ -6,8 +6,8 @@ export const Header = () => {
     <div className={styles.containerHeader}>
       <nav className={styles.leftNav}>
         <ul className={styles.list}>
-          <li><Link to="/Catalog" className={styles.elementLink}>Shop</Link></li>
-          <li>About</li>
+          <li><Link to="/catalog" className={styles.elementLink}>Shop</Link></li>
+          <li><Link to="/about" className={styles.elementLink}>About</Link></li>
           <li>Discount</li>
         </ul>
       </nav>
@@ -15,10 +15,10 @@ export const Header = () => {
       <nav className={styles.rightNav}>
         <ul className={styles.list}>
           <li>Search</li>
-          <li><Link to="/Login" className={styles.elementLink}>Account</Link></li>
-          <li>Cart</li>
+          <li><Link to="/login" className={styles.elementLink}>Account</Link></li>
+          <li><Link to="/cart" className={styles.elementLink}>Cart</Link></li>
         </ul>
       </nav>
     </div>
-  );
+  )
 };

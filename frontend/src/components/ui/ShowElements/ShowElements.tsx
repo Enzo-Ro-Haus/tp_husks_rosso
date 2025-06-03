@@ -20,6 +20,10 @@ export const ShowElements = () => {
           <ListCard />
           <ListCard />
           <ListCard />
+          <ListCard />
+          <ListCard />
+          <ListCard />
+          <ListCard />
         </div>
     </div>
   )

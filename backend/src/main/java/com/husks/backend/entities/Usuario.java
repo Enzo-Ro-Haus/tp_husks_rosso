@@ -1,5 +1,6 @@
 package com.husks.backend.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.husks.backend.enums.Rol;
 import jakarta.persistence.*;
 import lombok.*;
@@ -30,9 +31,10 @@ public class Usuario extends Base implements UserDetails {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private Rol rol = Rol.admin;
+    private Rol rol;
 
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL)
+    @JsonIgnore
     private List<UsuarioDireccion> direcciones = new ArrayList<>();
 
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL)

@@ -5,6 +5,8 @@ import lombok.*;
 
 import java.util.*;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @Entity
 @Table(name = "Direccion")
 @Getter @Setter
@@ -23,5 +25,6 @@ public class Direccion extends Base{
     private String cp;
 
     @OneToMany(mappedBy = "direccion")
+    @JsonIgnore
     private List<UsuarioDireccion> usuarios = new ArrayList<>();
 }

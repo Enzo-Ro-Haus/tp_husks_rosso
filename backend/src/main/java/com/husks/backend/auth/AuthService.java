@@ -41,7 +41,7 @@ public class AuthService {
                 .nombre(request.getNombre())
                 .contrasenia(passwordEncoder.encode(request.getContrasenia()))
                 .email(request.getEmail())
-                .rol(Rol.cliente)
+                .rol(Rol.valueOf(request.getRol()))
                 .build();
 
         usuarioRepository.save(usuario);

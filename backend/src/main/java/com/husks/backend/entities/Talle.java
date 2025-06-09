@@ -24,6 +24,6 @@ public class Talle extends Base{
     @Column(name = "valor_talle", nullable = false, length = 10)
     private String valor;
 
-    @ManyToMany(mappedBy = "tallesDisponibles")
-    private Set<Producto> productos = new HashSet<>();
+    /*@ManyToMany(mappedBy = "tallesDisponibles")
+    private Set<Producto> productos = new HashSet<>();*/
 }

@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class UsuarioServiceImpl extends BaseServiceImpl<Usuario, Long> implements UsuarioService {
 
-    @Autowired
+    
     private UsuarioRepository usuarioRepository;
 
     public UsuarioServiceImpl(BaseRepository<Usuario, Long> baseRepository, UsuarioRepository usuarioRepository) {

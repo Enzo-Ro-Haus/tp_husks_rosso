@@ -6,8 +6,9 @@ import com.husks.backend.repositories.BaseRepository;
 import com.husks.backend.repositories.TalleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.stereotype.Service;
 
-@Controller
+@Service
 public class TalleServiceImpl extends BaseServiceImpl<Talle, Long> implements TalleService {
 
     @Autowired

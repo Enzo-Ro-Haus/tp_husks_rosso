@@ -2,7 +2,11 @@ package com.husks.backend.services;
 
 import com.husks.backend.entities.Base;
 import com.husks.backend.repositories.BaseRepository;
+
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
+
+import org.springframework.beans.BeanUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -64,14 +68,15 @@ public class BaseServiceImpl<E extends Base, ID extends Serializable> implements
     @Override
     @Transactional
     public E update(ID id, E entity) throws Exception {
-        try{
-            Optional<E> entityOptional = baseRepository.findById(id);
-            E entityUpdated = entityOptional.get();
-            return entityUpdated;
-        } catch (Exception e) {
-            throw new Exception(e.getMessage());
-        }
+    Optional<E> entityOptional = baseRepository.findById(id);
+    if (entityOptional.isPresent()) {
+        E existingEntity = entityOptional.get();
+        BeanUtils.copyProperties(entity, existingEntity, "id");
+        return baseRepository.save(existingEntity);
+    } else {
+        throw new EntityNotFoundException("Entidad no encontrada");
     }
+}
 
     @Override
     @Transactional

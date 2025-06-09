@@ -1,6 +1,5 @@
 package com.husks.backend.config;
 
-import com.husks.backend.config.CorsConfig;
 import com.husks.backend.jwt.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -12,9 +11,12 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import static org.springframework.security.config.Customizer.withDefaults;
+import java.util.List;
+
 
 
 @Configuration
@@ -22,41 +24,42 @@ import static org.springframework.security.config.Customizer.withDefaults;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    private  final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final AuthenticationProvider authProvider;
 
-
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception{
-        return http
-                .cors(withDefaults())
-                .csrf(csrf -> csrf.disable())
-                .authorizeHttpRequests(auth ->
-                        auth
-                                // Rutas públicas
-                                .requestMatchers("/auth/**").permitAll()
-                                .requestMatchers(HttpMethod.GET, "/public/**").permitAll() // GET público en ambas rutas
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http
+          // habilita CORS usando la configuración de CorsConfigurationSource (defínelo como un bean)
+          .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+          .csrf(csrf -> csrf.disable())
+          .authorizeHttpRequests(auth -> auth
+              .requestMatchers("/auth/**").permitAll()
+              .requestMatchers(HttpMethod.OPTIONS).permitAll()          // permite preflight
+              .requestMatchers(HttpMethod.GET, "/public/**").permitAll()
+              .requestMatchers(HttpMethod.POST, "/public/**").hasRole("admin")
+              .requestMatchers(HttpMethod.POST, "/**").hasRole("ADMIN")
+              .requestMatchers(HttpMethod.PUT, "/**").hasRole("admin")
+              .requestMatchers(HttpMethod.DELETE, "/**").hasRole("admin")
+              .anyRequest().authenticated()
+          )
+          .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+          .authenticationProvider(authProvider)
+          .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
-                                // Restricciones para /public/**
-                                .requestMatchers(HttpMethod.POST, "/public/**").hasRole("admin")
-                                .requestMatchers(HttpMethod.PUT, "/public/**").hasRole("admin")
-                                .requestMatchers(HttpMethod.DELETE, "/public/**").hasRole("admin")
-
-                                // Restricciones generales (POST, PUT, DELETE en cualquier otra ruta)
-                                .requestMatchers(HttpMethod.POST, "/**").hasRole("admin")
-                                .requestMatchers(HttpMethod.PUT, "/**").hasRole("admin")
-                                .requestMatchers(HttpMethod.DELETE, "/**").hasRole("admin")
-
-                                // Cualquier otra solicitud requiere autenticación
-                                .anyRequest().authenticated()
-                )
-                .sessionManagement(sessionManagment ->
-                        sessionManagment.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authenticationProvider(authProvider)
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
-                .build();
+        return http.build();
     }
 
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+      CorsConfiguration config = new CorsConfiguration();
+      config.setAllowedOrigins(List.of("http://localhost:5173"));
+      config.setAllowedMethods(List.of("GET","POST","PUT","DELETE","OPTIONS"));
+      config.setAllowedHeaders(List.of("*"));
+      config.setAllowCredentials(true);
 
-
+      UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+      source.registerCorsConfiguration("/**", config);
+      return source;
+    }
 }

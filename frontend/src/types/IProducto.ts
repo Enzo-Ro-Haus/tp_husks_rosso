@@ -1,9 +1,13 @@
+import { ICategoria } from "./ICategoria";
+import { ITalle } from "./ITalle";
+
 export interface IProducto {
-    id: number,
+    id?: number,
+    nombre: string,
     cantidad: number,
     precio: number,
     color: string,
-    talle: number,
-    idCategoria: number,
+    talles: ITalle[],
+    categoria: ICategoria,
     descripcion: string,
 }

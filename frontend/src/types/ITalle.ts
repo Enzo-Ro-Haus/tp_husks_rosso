@@ -1,4 +1,5 @@
 export interface ITalle {
     id: number,
-    tipo: string,
+    sistema: string,
+    valor: string
 }

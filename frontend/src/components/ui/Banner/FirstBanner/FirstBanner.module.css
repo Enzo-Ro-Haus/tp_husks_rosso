@@ -11,7 +11,7 @@
 .image {
   height: 100%;
   width: 95%;
-  background-image: url("../../../../assets/landingimgs/LandingBanner.png");
+  background-image: url("src/assets/landings/LandingBanner.png");
   background-size: cover;
   background-repeat: no-repeat;
   background-position: center;

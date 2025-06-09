@@ -1,10 +1,13 @@
 import { IDireccion } from "./IDireccion";
+import { IOrdenDeCompra } from "./IOrden";
 
 export interface IUsuario {
-    id: number,
-    nomber: string,
+    id?: number,
+    nombre: string,
     email: string,
-    contrasena: string,
-    rol: string,
-    direccion: IDireccion,
+    contrasenia: string,
+    rol: "ADMIN" | "CLIENTE",
+    direcciones?: IDireccion,
+    ordenes?: IOrdenDeCompra,
+    token?: string | null,
 }

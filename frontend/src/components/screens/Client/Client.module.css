@@ -16,18 +16,5 @@
     flex-direction: row;
     align-items: center;
     justify-content: flex-start;
-    gap: 1rem;
-}
-
-.containerElelements{
-    
-    height: 100%;
-    width: 100%;
-    overflow-y: scroll;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex end;
-    align-items: center;
-    gap: 1rem;
-    padding: 0.5rem;
+    gap: 2rem;
 }

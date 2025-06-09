@@ -7,7 +7,6 @@
     width: 20%;
     height: 100%;
     background-color: #f2f2f2;
-    font-family: 'Assistant', sans-serif;
 }
 
 .containerSideBarTitle, .containerSideBarSubTitle{
@@ -18,22 +17,25 @@
 .containerButtons{
     margin: 1rem;
     width: 95%;
-    height: 20rem;
+    height: 35%;
     display: flex;
     flex-direction: column;
-    align-items: center;
-    justify-content: flex-start;
-    gap: 0.5rem;
+    align-items: flex-start;
+    justify-content: space-between;
+}
+
+.containerButton{
+    width: 100%;
+    height: 30%;
 }
 
 .clothButton{
-    width: 10rem;
-    height: 3rem;
+    width: 100%;
+    height: 100%;
     background-color: rgb(65, 64, 64);
     border: none;
-    border-radius: 20px;
-    color: white;
-    font-size: 15pt;
+    color: black;
+    font-size: 10pt;
 }
 
 .clothButton:hover{

@@ -1,7 +1,7 @@
 import { IDetalle } from "./IDetalle";
 import { IUserDir } from "./IUserDir";
 
-export interface IOrdenDeCompra {
+export interface IOrden {
     id: number,
     direccion: IUserDir,
     detalle: IDetalle,

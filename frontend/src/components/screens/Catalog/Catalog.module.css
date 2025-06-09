@@ -1,0 +1,11 @@
+
+.containerProducts {
+    width: 95%;
+    min-height: 85vh;
+    height: auto;
+    display: flex;
+    justify-content: start;
+    align-items: start;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}

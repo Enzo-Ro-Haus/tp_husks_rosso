@@ -1,4 +1,4 @@
-import { IOrdenDeCompra } from "./IOrdenDeCompra";
+import { IOrdenDeCompra } from "./IOrden";
 import { IProducto } from "./IProducto";
 
 export interface IDetalle {

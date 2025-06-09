@@ -1,17 +1,23 @@
 import styles from "./ClotheCard.module.css";
 import tshirt from '../../../../assets/landings/image.png'
 
-export const ClotheCard = () => {
+type ClotheCardProps = {
+  name: string;
+  description: string;
+  price: number;
+};
+
+export const ClotheCard = ({ name, description, price }: ClotheCardProps) => {
   return (
     <div className={styles.containerPrincipalCard}>
       <img className={styles.cardImg} src={tshirt}></img>
       <div className={styles.cardInfo}>
         <div>
-          <h3>Name</h3>
-          <p>Descripcion</p>
+          <h3>{name}</h3>
+          <p>{description}</p>
         </div>
         <div>
-          <p>$Price</p>
+          <p>${price}</p>
         </div>
       </div>
     </div>

@@ -1,4 +1,4 @@
-.containerHeader{
+.containerHeader {
     width: 98vw;
     height: 15vh;
     display: flex;
@@ -6,10 +6,9 @@
     align-items: center;
     font-family: 'Assistant', sans-serif;
     background-color: #f2f2f2;
-    
-}   
+}
 
-.title{
+.title {
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -19,16 +18,15 @@
     font-size: 500;
     color: #231f20;
     margin: 0 18vw;
-    
 }
 
-h1:hover{
+h1:hover {
     color: #706366;
     cursor: pointer;
 }
 
-.leftNav,  
-.rightNav{
+.leftNav,
+.rightNav {
     display: flex;
     justify-content: center;
     align-items: flex-start;
@@ -36,33 +34,39 @@ h1:hover{
     color: #706366;
 }
 
-
-.rightNav{
+.rightNav {
     align-items: flex-end;
 }
 
-.list{
+.list {
     display: flex;
     justify-content: center;
     align-items: center;
     width: 100%;
-    text-decoration: none
 }
 
 li {
     margin: 0% 15%;
     list-style: none;
     width: 100%;
-    text-decoration: none;
 }
 
-.elementLink:hover{
+/* Enlaces sin decoración, pero con hover activo */
+.elementLink,
+.elementLink:visited,
+.elementLink:active,
+.elementLink:focus {
+    text-decoration: none;
     color: #706366;
+}
+
+.elementLink:hover {
+    text-decoration: none;
+    color: #231f20; /* o el color que quieras al hacer hover */
     cursor: pointer;
-    text-decoration: none;
 }
 
-.elementLink:visited{
+a {
     text-decoration: none;
-    color: #706366;
+    color: inherit;
 }

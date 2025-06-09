@@ -11,12 +11,11 @@
 
 .containerForm{
     width: 40vw;
-    height: 55vh;
+    height: 70vh;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 2rem;
 }
 
 .containerForm h2 {
@@ -24,27 +23,60 @@
 }
 
 .Form {
-    width: 50vw;
-    height: 25vh;
+    width: 20vw;
+    height: 50vh;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    gap: 1rem;
+    gap: 0.5rem;
 }
 
 .Input {
+    position: relative;
     width: 100%;
-    height: 100%;
+    height: 20vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.Field{
+    width: 18vw;
+    height: 7.5vh;
+    margin: 2px;
+}
+
+.error-message {
+    position: absolute;
+    height: 3%;
+    width: 20%;
+    font-family: Arial, Helvetica, sans-serif;
+    top: 100%;
+    left: 0;
+    font-size: 0.5rem;
+}
+
+.buttonSend {
+    width: 10vw;
+    height: 8vh;
     display: flex;
     justify-content: center;
     align-items: center;
-    gap: 1rem;
+    padding: 5px;
+    background-color: #231f20;
+    color: #f2f2f2;
+    border: #231f20 4px solid;
+    font-size: 1rem;
+    border-radius: 50px;
+    font-weight: 500;
+    gap: 0.5rem;
+    font-family: "Assistant", sans-serif;
+    transition: transform 0.5s ease-in-out;
 }
 
-.Input input{
-    width: 80%;
-    height: 100%;
-    margin: 5px;
-    padding-left: 1rem;
+.button:hover {
+    border: #5a4c4f 4px solid;
+    background-color: #5a4c4f ;  
 }

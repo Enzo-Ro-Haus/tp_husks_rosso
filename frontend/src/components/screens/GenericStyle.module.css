@@ -6,7 +6,9 @@
     align-items: center;
     justify-content: center;
     gap: 1rem;
+    font-family: 'Assistant', sans-serif;
 }
+
 
 .containerForm {
     display: flex;

@@ -1,5 +1,5 @@
 .containerPrincipalCard{
-    width: 25%;
+    width: 23vw;
     height: 70vh;
     background-color: transparent;
     display: flex;
@@ -7,6 +7,9 @@
     justify-content: center;
     align-items: center;
     gap: 0.5rem;
+    border: 1px solid gray;
+    border-radius: 20px;
+    transition: all 0.5s ease-in-out;
 }
 
 .cardImg {
@@ -29,4 +32,9 @@
 
 .cardInfo > p {
     color: #5e5f5a;
+}
+
+.containerPrincipalCard:hover{
+    z-index: 1;
+    background-color: rgb(136, 127, 127);
 }

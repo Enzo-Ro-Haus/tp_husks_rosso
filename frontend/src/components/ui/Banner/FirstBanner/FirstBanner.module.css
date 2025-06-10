@@ -29,7 +29,7 @@
   width: 95%;
   height: 11vh;
   font-family: "Assistant", sans-serif;
-  gap: 1.5rem;
+  gap: 3rem;
 }
 
 .bannerInfo > h2 {
@@ -38,6 +38,7 @@
   font-size: 3rem;
   font-weight: 500;
   color: #231f20;
+  margin: 5px;
 }
 
 .bannerInfo > p {
@@ -45,4 +46,5 @@
   height: 1rem;
   font-size: 1rem;
   color: #5e5f5a;
+   margin: 5px;
 }

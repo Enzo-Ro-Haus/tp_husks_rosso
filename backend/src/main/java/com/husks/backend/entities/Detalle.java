@@ -1,5 +1,7 @@
 package com.husks.backend.entities;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -13,10 +15,12 @@ public class Detalle extends Base{
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_orden_compra", nullable = false)
+    @JsonBackReference
     private OrdenDeCompra ordenDeCompra;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_producto", nullable = false)
+    @JsonBackReference
     private Producto producto;
 
     @Column(nullable = false)

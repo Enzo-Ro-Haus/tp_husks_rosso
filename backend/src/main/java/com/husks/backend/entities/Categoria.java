@@ -5,6 +5,7 @@ import lombok.*;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 @Entity
@@ -21,11 +22,12 @@ public class Categoria extends Base {
 
     @ManyToOne()
     @JoinColumn(name = "id_tipo", nullable = false)
+    @JsonManagedReference
     private Tipo tipo;
 
     @OneToMany(mappedBy = "categoria", cascade = CascadeType.ALL)
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
-    @JsonManagedReference
+    @JsonBackReference
     private List<Producto> productos = new ArrayList<>();
 }

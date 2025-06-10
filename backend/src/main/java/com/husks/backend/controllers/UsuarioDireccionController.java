@@ -7,7 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping(path = "/husks/v1/usuario-direccion")
+@RequestMapping(path = "/private/usuario-direccion")
 @CrossOrigin(origins = "*")
 public class UsuarioDireccionController extends BaseControllerImpl<UsuarioDireccion, UsuarioDireccionServiceImpl>{
 

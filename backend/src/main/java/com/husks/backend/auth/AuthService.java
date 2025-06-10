@@ -7,7 +7,6 @@ import com.husks.backend.repositories.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -16,38 +15,39 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class AuthService {
 
-    private final UsuarioRepository usuarioRepository;
-    private final JwtService jwtService;
-    private final PasswordEncoder passwordEncoder;
-    private final AuthenticationManager authenticationManager;
+        private final UsuarioRepository usuarioRepository;
+        private final JwtService jwtService;
+        private final PasswordEncoder passwordEncoder;
+        private final AuthenticationManager authenticationManager;
 
-    public AuthResponse login(LoginRequest request){
-        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.getNombre(), request.getContrasenia())
-        );
-        Usuario usuario = usuarioRepository
-                .findByNombre(request.getNombre())
-                .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado"));
-       
-        String token = jwtService.getToken(usuario);
+        public AuthResponse login(LoginRequest request) {
+                authenticationManager.authenticate(
+                                new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
+                Usuario usuario = usuarioRepository
+                                .findByEmail(request.getEmail())
+                                .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado"));
 
-        return AuthResponse.builder()
-                .token(token)
-                .build();
-    }
+                String token = jwtService.getToken(usuario);
 
-    public AuthResponse register(RegisterRequest request){
-        Usuario usuario = Usuario.builder()
-                //.username(request.getUserName())
-                .nombre(request.getNombre())
-                .contrasenia(passwordEncoder.encode(request.getContrasenia()))
-                .email(request.getEmail())
-                .rol(Rol.valueOf(request.getRol()))
-                .build();
+                return AuthResponse.builder()
+                                .token(token)
+                                .usuario(usuario)
+                                .build();
+        }
 
-        usuarioRepository.save(usuario);
+        public AuthResponse register(RegisterRequest request) {
+                Usuario usuario = Usuario.builder()
+                                .name(request.getName())
+                                .password(passwordEncoder.encode(request.getPassword()))
+                                .email(request.getEmail())
+                                .rol(Rol.CLIENTE)
+                                .build();
 
-        return AuthResponse.builder()
-                .token(jwtService.getToken(usuario))
-                .build();
-    }
+                usuarioRepository.save(usuario);
+
+                return AuthResponse.builder()
+                                .token(jwtService.getToken(usuario))
+                                .usuario(usuario)
+                                .build();
+        }
 }

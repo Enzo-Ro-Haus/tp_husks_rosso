@@ -1,6 +1,7 @@
 package com.husks.backend.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.husks.backend.enums.Rol;
 import jakarta.persistence.*;
 import lombok.*;
@@ -21,23 +22,24 @@ import java.util.List;
 public class Usuario extends Base implements UserDetails {
 
     @Column(nullable = false, length = 100)
-    private String nombre;
+    private String name;
 
     @Column(unique = true, nullable = false, length = 100)
     private String email;
 
-    @Column(name = "contrasenia", nullable = false, length = 64)
-    private String contrasenia;
+    @Column(name = "password", nullable = false, length = 64)
+    private String password;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private Rol rol;
+    private Rol rol = Rol.CLIENTE;
 
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL)
-    @JsonIgnore
+    @JsonManagedReference
     private List<UsuarioDireccion> direcciones = new ArrayList<>();
 
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL)
+    @JsonManagedReference
     private List<OrdenDeCompra> ordenes = new ArrayList<>();
 
     @Override
@@ -47,12 +49,12 @@ public class Usuario extends Base implements UserDetails {
 
     @Override
     public String getPassword() {
-        return this.contrasenia;
+        return this.password;
     }
 
     @Override
     public String getUsername() {
-        return this.nombre;
+        return this.name;
     }
 
     @Override

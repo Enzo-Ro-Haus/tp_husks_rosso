@@ -27,7 +27,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter { // Interface
     private final UserDetailsService userDetailsService;
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+            throws ServletException, IOException {
 
         final String token = getTokenFromRequest(request);
 
@@ -36,8 +37,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter { // Interface
             if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                 UserDetails user = userDetailsService.loadUserByUsername(username);
                 if (jwtService.isTokenValid(token, user)) {
-                    UsernamePasswordAuthenticationToken authToken =
-                            new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
+                    UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(user, null,
+                            user.getAuthorities());
                     authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                     SecurityContextHolder.getContext().setAuthentication(authToken);
                 }
@@ -45,6 +46,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter { // Interface
         }
 
         filterChain.doFilter(request, response);
+    }
+
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
+        String path = request.getRequestURI();
+        return path.startsWith("/public/");
     }
 
     private String getTokenFromRequest(HttpServletRequest request) {
@@ -58,4 +65,3 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter { // Interface
     }
 
 }
-

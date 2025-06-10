@@ -1,6 +1,7 @@
 package com.husks.backend.entities;
 
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.husks.backend.enums.SistemaTalle;
 import jakarta.persistence.*;
 import lombok.*;
@@ -24,6 +25,7 @@ public class Talle extends Base{
     @Column(name = "valor_talle", nullable = false, length = 10)
     private String valor;
 
-    /*@ManyToMany(mappedBy = "tallesDisponibles")
-    private Set<Producto> productos = new HashSet<>();*/
+    @ManyToMany(mappedBy = "tallesDisponibles")
+    @JsonBackReference
+    private Set<Producto> productos = new HashSet<>();
 }

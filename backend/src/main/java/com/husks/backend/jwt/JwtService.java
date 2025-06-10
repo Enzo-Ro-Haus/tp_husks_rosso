@@ -29,7 +29,6 @@ public class JwtService {
     public String getToken(Map<String, Object> extraClaims, UserDetails user){
         if(user instanceof Usuario){
             Usuario u = (Usuario) user;
-            extraClaims.put("role", u.getRol().name());
          }
         return Jwts
                 .builder()

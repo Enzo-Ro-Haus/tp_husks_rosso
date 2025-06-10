@@ -6,6 +6,7 @@ import lombok.*;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 
@@ -21,6 +22,6 @@ public class Tipo extends Base{
     private String nombre;
 
     @OneToMany(mappedBy = "tipo", cascade = CascadeType.ALL)
-    @JsonIgnore
+    @JsonBackReference
     private List<Categoria> categorias = new ArrayList<>();
 }

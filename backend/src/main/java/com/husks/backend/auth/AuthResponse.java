@@ -1,5 +1,7 @@
 package com.husks.backend.auth;
 
+import com.husks.backend.entities.Usuario;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -14,4 +16,5 @@ import lombok.Setter;
 @AllArgsConstructor
 public class AuthResponse {
     private String token;
+    private Usuario usuario;
 }

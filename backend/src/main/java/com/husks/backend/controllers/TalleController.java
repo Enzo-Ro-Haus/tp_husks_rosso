@@ -7,7 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping(path = "/husks/v1/talle")
+@RequestMapping(path = "/public/talle")
 @CrossOrigin(origins = "*")
 public class TalleController extends BaseControllerImpl<Talle, TalleServiceImpl>{
 

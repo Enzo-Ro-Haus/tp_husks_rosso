@@ -1,5 +1,7 @@
 package com.husks.backend.entities;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.husks.backend.enums.EstadoOrden;
 import com.husks.backend.enums.MetodoPago;
 import jakarta.persistence.*;
@@ -21,6 +23,7 @@ public class OrdenDeCompra extends Base{
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "usuario", nullable = false)
+    @JsonBackReference
     private Usuario usuario;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -42,5 +45,6 @@ public class OrdenDeCompra extends Base{
     private EstadoOrden estado = EstadoOrden.En_proceso;
 
     @OneToMany(mappedBy = "ordenDeCompra", cascade = CascadeType.ALL)
+    @JsonManagedReference
     private List<Detalle> detalles = new ArrayList<>();
 }

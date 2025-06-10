@@ -5,7 +5,10 @@ import lombok.*;
 
 import java.util.*;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 @Entity
 @Table(name = "Direccion")
@@ -25,6 +28,6 @@ public class Direccion extends Base{
     private String cp;
 
     @OneToMany(mappedBy = "direccion")
-    @JsonIgnore
+    @JsonBackReference
     private List<UsuarioDireccion> usuarios = new ArrayList<>();
 }

@@ -4,15 +4,12 @@ import Swal from "sweetalert2";
 
 const API_URL = "http://localhost:9000";
 
-
-export const crearTalle = async (
-  nuevaTalle: ITalle
-): Promise<void> => {
+export const crearTalle = async (nuevaTalle: ITalle): Promise<void> => {
   try {
     const response = await axios.post<ITalle>(
       `${API_URL}/auth/register`,
       nuevaTalle
-    );  
+    );
     console.log(response);
     Swal.fire({
       icon: "success",
@@ -21,7 +18,6 @@ export const crearTalle = async (
       timer: 2000,
       showConfirmButton: false,
     });
-
   } catch (error: any) {
     console.error("Error al crear Talle:", error);
     Swal.fire({
@@ -34,17 +30,15 @@ export const crearTalle = async (
 
 export const getAllTalles = async (token: string | null): Promise<ITalle[]> => {
   try {
-    const response = await axios.get<ITalle[]>(`${API_URL}/husks/v1/talle`,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
+    const response = await axios.get<ITalle[]>(`${API_URL}/husks/v1/talle`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
     console.log("✅ Talles recibidos:", response.data);
     return response.data;
   } catch (error: any) {
     console.error("❌ Error al obtener Talles:", error.response?.data || error);
-    return []; 
+    return [];
   }
 };

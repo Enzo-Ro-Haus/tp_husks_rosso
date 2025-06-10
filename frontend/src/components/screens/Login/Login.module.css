@@ -1,6 +1,6 @@
 .containerPrincipalLogin{
     background-color: white;
-    height: auto;
+    height: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -16,6 +16,7 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    gap:1rem;
 }
 
 .containerForm h2 {
@@ -23,8 +24,8 @@
 }
 
 .Form {
-    width: 20vw;
-    height: 50vh;
+    width: 80vw;
+    height: 35vh;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -79,4 +80,14 @@
 .button:hover {
     border: #5a4c4f 4px solid;
     background-color: #5a4c4f ;  
+}
+
+p {
+    width: 30vw;
+    height: 2rem;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5rem;
 }

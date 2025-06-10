@@ -1,12 +1,44 @@
-.containerPrincipalNotFound{
-    width: 100vw;
-    height: 100vh;
-    background-color: white;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 1rem;
-    font-family: 'Assistant', sans-serif;
-    background-color: #f2f2f2;
+/* AboutUs.module.css */
+
+.containerAbout {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background-color: #f9f9f9;
+  font-family: "Assistant", sans-serif;
+}
+
+.AboutUs {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 2rem;
+  flex-grow: 1;
+  gap: 3rem;
+}
+
+.AboutUsTitle {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+  color: #333;
+  text-align: center;
+}
+
+.AboutUsText {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  line-height: 1.6;
+  max-width: 800px;
+  text-align: center;
+  color: #555;
 }

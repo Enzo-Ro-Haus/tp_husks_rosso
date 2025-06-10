@@ -18,75 +18,84 @@ import { direccionStore } from "../../../store/direccionStore";
 import { getAllDireccions } from "../../../http/direccionHTTP";
 import { ordenStore } from "../../../store/ordenStore";
 import { getAllOrdenes } from "../../../http/ordenHTTPS";
+import { useNavigate } from "react-router";
 
 export const Admin = () => {
+ const navigate = useNavigate();
+
   const productos = productoStore((s) => s.productos);
   const setArrayProductos = productoStore((s) => s.setArrayProductos);
 
   const usuarios = usuarioStore((s) => s.usuarios);
-  const setArrayUsuarios = usuarioStore((s) => s.setArrayUsuarios);
-  const token = usuarioStore((s) => s.token);
   const usuario = usuarioStore((s) => s.usuarioActivo);
+  const token = usuarioStore((s) => s.usuarioActivo?.token);
+  const setArrayUsuarios = usuarioStore((s) => s.setArrayUsuarios);
 
-  const categorias = categoriaStore((s) => s.categorias);
   const setArrayCategorias = categoriaStore((s) => s.setArraycategorias);
+  const categorias = categoriaStore((s) => s.categorias);
 
-  const tipos = tipoStore((s) => s.tipos);
   const setArrayTipos = tipoStore((s) => s.setArrayTipos);
+  const tipos = tipoStore((s) => s.tipos);
 
-  const talles = talleStore((s) => s.talles);
   const setArrayTalles = talleStore((s) => s.setArrayTalles);
+  const talles = talleStore((s) => s.talles);
 
-  const direcciones = direccionStore((s) => s.direcciones);
   const setArrayDirecciones = direccionStore((s) => s.setArrayDirecciones);
+  const direcciones = direccionStore((s) => s.direcciones);
 
-  const ordenes = ordenStore((s) => s.ordenes);
   const setArrayOrdenes = ordenStore((s) => s.setArrayOrdenes);
+  const ordenes = ordenStore((s) => s.ordenes);
 
   const [view, setView] = useState<
-    "Products" | "Users" | "Categories" | "Types" | "Sizes" | "Addresses" | "Orders"
+    | "Products"
+    | "Users"
+    | "Categories"
+    | "Types"
+    | "Sizes"
+    | "Addresses"
+    | "Orders"
   >("Products");
 
   const getProductos = async () => {
     const data = await getAllProductos();
     if (data) setArrayProductos(data);
-    console.log("Products " + data);
+    console.log("Products " +  JSON.stringify(data, null, 2));
   };
 
   const getUsuarios = async () => {
-    const data = await getAllUsuarios(token);
+    const data = await getAllUsuarios(token ?? null);
     if (data) setArrayUsuarios(data);
-    console.log("Users: " + data);
+    console.log("Users: " +  JSON.stringify(data, null, 2));
   };
 
   const getCategorias = async () => {
-    const data = await getAllCategorias(token);
+    const data = await getAllCategorias(token ?? null);
     if (data) setArrayCategorias(data);
-    console.log("Categorias: " + data);
+    console.log("Categorias: " + JSON.stringify(data, null, 2));
   };
 
   const getTipos = async () => {
-    const data = await getAllTipos(token);
+    const data = await getAllTipos(token ?? null);
     if (data) setArrayTipos(data);
-    console.log("Tipos: " + data);
+    console.log("Tipos: " +  JSON.stringify(data, null, 2));
   };
 
   const getTalles = async () => {
-    const data = await getAllTalles(token);
+    const data = await getAllTalles(token ?? null);
     if (data) setArrayTalles(data);
-    console.log("Talles: " + data);
+    console.log("Talles: " +  JSON.stringify(data, null, 2));
   };
 
   const getDirecciones = async () => {
-    const data = await getAllDireccions(token);
+    const data = await getAllDireccions(token ?? null);
     if (data) setArrayDirecciones(data);
-    console.log("Direcciones: " + data);
+    console.log("Direcciones: " +  JSON.stringify(data, null, 2));
   };
 
   const getOrdenes = async () => {
-    const data = await getAllOrdenes(token);
+    const data = await getAllOrdenes(token ?? null);
     if (data) setArrayOrdenes(data);
-    console.log("Direcciones: " + data);
+    console.log("Direcciones: " +  JSON.stringify(data, null, 2));
   };
 
   useEffect(() => {
@@ -99,8 +108,11 @@ export const Admin = () => {
   }, []);
 
   useEffect(() => {
-    console.log("USUARIO ACTIVO: " + usuario);
-    if (token) getUsuarios();
+    if (!token) {
+      console.warn("No hay token");
+      navigate("/login");
+    }
+    getUsuarios();
   }, [token]);
 
   return (

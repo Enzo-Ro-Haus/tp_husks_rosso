@@ -4,7 +4,6 @@ import Swal from "sweetalert2";
 
 const API_URL = "http://localhost:9000";
 
-
 export const crearCategoria = async (
   nuevaCategoria: ICategoria
 ): Promise<void> => {
@@ -12,7 +11,7 @@ export const crearCategoria = async (
     const response = await axios.post<ICategoria>(
       `${API_URL}/auth/register`,
       nuevaCategoria
-    );  
+    );
     console.log(response);
     Swal.fire({
       icon: "success",
@@ -21,7 +20,6 @@ export const crearCategoria = async (
       timer: 2000,
       showConfirmButton: false,
     });
-
   } catch (error: any) {
     console.error("Error al crear categoria:", error);
     Swal.fire({
@@ -32,9 +30,12 @@ export const crearCategoria = async (
   }
 };
 
-export const getAllCategorias = async (token: string | null): Promise<ICategoria[]> => {
+export const getAllCategorias = async (
+  token: string | null
+): Promise<ICategoria[]> => {
   try {
-    const response = await axios.get<ICategoria[]>(`${API_URL}/husks/v1/categoria`,
+    const response = await axios.get<ICategoria[]>(
+      `${API_URL}/husks/v1/categoria`,
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -44,7 +45,10 @@ export const getAllCategorias = async (token: string | null): Promise<ICategoria
     console.log("✅ Categotrías recibidas:", response.data);
     return response.data;
   } catch (error: any) {
-    console.error("❌ Error al obtener categorias:", error.response?.data || error);
-    return []; 
+    console.error(
+      "❌ Error al obtener categorias:",
+      error.response?.data || error
+    );
+    return [];
   }
 };

@@ -7,6 +7,7 @@ import { usuarioStore } from "../../../store/usuarioStore";
 import { registrarUsuario } from "../../../http/usuarioHTTP";
 import { IUsuario } from "../../../types/IUsuario";
 import { useEffect } from "react";
+import { Link, useNavigate } from "react-router";
 
 const schemaYup = yup.object().shape({
   name: yup
@@ -24,35 +25,44 @@ interface IValues {
   name: string;
   email: string;
   password: string;
-  rol: "ADMIN" | "CLIENTE";
 }
 
 export const Register = () => {
+  const navigate = useNavigate();
+
   const setUsuarioActivo = usuarioStore((state) => state.setUsuarioActivo);
   const setToken = usuarioStore((state) => state.setToken);
   const usuario = usuarioStore((state) => state.usuarioActivo);
+  const token = usuarioStore((s) => s.usuarioActivo?.token);
 
   const handleSubmit = async (values: IValues) => {
-
     const nuevoUsuario: IUsuario = {
-      nombre: values.name.trim(),
+      name: values.name.trim(),
       email: values.email.trim(),
-      contrasenia: values.password.trim(),
-      rol: values.rol,
+      password: values.password.trim(),
     };
 
-    console.log("enviando a registrarUsuario:", nuevoUsuario);
-    const token = await registrarUsuario(nuevoUsuario);
+    const info = await registrarUsuario(nuevoUsuario);
 
-    if (token) {
-      setUsuarioActivo(nuevoUsuario);
-      setToken(token);
-      console.log("Nuevo usuario activo: " + usuario?.nombre)
+    if (info?.token) {
+      setToken(info.token);
+      if (info.usuario) {
+        setUsuarioActivo({ ...info.usuario, token: info.token });
+      } else {
+        // Usuario no viene, solo guardamos token
+        setUsuarioActivo({ token: info.token } as IUsuario);
+      }
+      navigate("/");
+    } else {
+      console.warn("❌ Registro fallido");
     }
   };
 
   useEffect(() => {
     console.log("✅ Register montado");
+    if (token) {
+      navigate("/");
+    }
   }, []);
 
   return (
@@ -68,7 +78,6 @@ export const Register = () => {
               name: "",
               email: "",
               password: "",
-              rol: "CLIENTE",
             }}
             onSubmit={(values: any) => {
               handleSubmit(values);
@@ -122,39 +131,10 @@ export const Register = () => {
                         className="error-message"
                       />
                     </div>
-                    <div className={style.Input}>
-                      <Field name="rol">
-                        {({ field, form }: { field: any; form: any }) => (
-                          <div className={style.rolToggle}>
-                            <span>Usuario: </span>
-                            <button
-                              type="button"
-                              className={`${style.rolButton} ${
-                                field.value === "ADMIN" ? style.active : ""
-                              }`}
-                              onClick={() => form.setFieldValue("rol", "ADMIN")}
-                            >
-                              ADMIN
-                            </button>
-                            <button
-                              type="button"
-                              className={`${style.rolButton} ${
-                                field.value === "CLIENTE" ? style.active : ""
-                              }`}
-                              onClick={() =>
-                                form.setFieldValue("rol", "CLIENTE")
-                              }
-                            >
-                              CLIENTE
-                            </button>
-                          </div>
-                        )}
-                      </Field>
-                    </div>
                     <button type="submit" className={style.buttonSend}>
                       Send
                     </button>
-                    {<pre>{JSON.stringify(values, null, 2)}</pre>}
+                    {/*<pre>{JSON.stringify(values, null, 2)}</pre>*/}
                   </Form>
                 </>
               );
@@ -162,6 +142,12 @@ export const Register = () => {
           </Formik>
           {/*<pre>{JSON.stringify(localStore, null, 2)}</pre>*/}
         </>
+        <p>
+          Don't have an account?{" "}
+          <Link to="/login">
+            <b>Login</b>
+          </Link>
+        </p>
       </div>
       <div>
         <Footer />

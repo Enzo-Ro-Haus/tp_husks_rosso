@@ -1,17 +1,17 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
-import { IUsuario } from "../types/IUsuario";
+import { IAuthResponse, IUsuario } from "../types/IUsuario";
 
 interface IUsuariostore {
   usuarios: IUsuario[];
   usuarioActivo: IUsuario | null;
-  token: string | null;
   setToken: (token: string | null) => void;
-  setUsuarioActivo: (usuarioActivo: IUsuario) => void;
+  setUsuarioActivo: (usuarioActivo: IUsuario | null) => void;
   setArrayUsuarios: (arrayDeUsuarios: IUsuario[]) => void;
   agregarNuevoUsuario: (nuevoUsuario: IUsuario) => void;
   editarUnUsuario: (usuarioActualizado: IUsuario) => void;
   eliminarUnUsuario: (idUsuario: number) => void;
+  logOut: () => void;
 }
 
 export const usuarioStore = create<IUsuariostore>()(
@@ -19,9 +19,13 @@ export const usuarioStore = create<IUsuariostore>()(
     (set, get) => ({
       usuarios: [],
       usuarioActivo: null,
-      token: null,
 
-      setToken: (tokenIn) => set({ token: tokenIn }),
+      setToken: (tokenIn) =>
+        set((state) => ({
+          usuarioActivo: state.usuarioActivo
+            ? { ...state.usuarioActivo, token: tokenIn }
+            : null,
+        })),
 
       setUsuarioActivo: (usuarioActivoIn) =>
         set({ usuarioActivo: usuarioActivoIn }),
@@ -46,16 +50,15 @@ export const usuarioStore = create<IUsuariostore>()(
         set((state) => ({
           usuarios: state.usuarios.filter((u) => u.id !== idUsuario),
           usuarioActivo:
-            state.usuarioActivo?.id === idUsuario
-              ? null
-              : state.usuarioActivo,
+            state.usuarioActivo?.id === idUsuario ? null : state.usuarioActivo,
         })),
+
+        logOut: () => set({ usuarioActivo: null, usuarios: [] }),
     }),
     {
-      name: "usuario-storage", // clave en storage
+      name: "usuario-storage",
       storage: createJSONStorage(() => localStorage),
       partialize: (state) => ({
-        token: state.token,
         usuarioActivo: state.usuarioActivo,
       }),
     }

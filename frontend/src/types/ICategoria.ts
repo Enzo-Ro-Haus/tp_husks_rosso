@@ -1,7 +1,7 @@
-import { ITipoCategoria } from "./ITipo";
+import { ITipo } from "./ITipo";
 
 export interface ICategoria {
     id: number,
     nombre: string,
-    tipo?: ITipoCategoria;
+    tipo?: ITipo;
 }

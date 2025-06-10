@@ -1,3 +1,4 @@
+import { Link } from "react-router";
 import styles from "./Footer.module.css";
 
 export const Footer = () => {
@@ -8,9 +9,9 @@ export const Footer = () => {
           <h2>Redes Sociales</h2>
           <div className={styles.containerRedesSociales} >
             <ul>
-              <li>Facebook</li>
-              <li>Instagram</li>
-              <li>BlueSky</li>
+              <li><a href="https://www.facebook.com">Facebook</a></li>
+              <li><a href="https://www.intagram.com">Instagram</a></li>
+              <li><a href="https://bsky.app/">BlueSky</a></li>
             </ul>
           </div>
         </div>

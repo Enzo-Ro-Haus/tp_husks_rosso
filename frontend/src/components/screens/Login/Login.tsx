@@ -57,9 +57,7 @@ export const Login = () => {
   }, []);
   return (
     <div className={style.containerPrincipalLogin}>
-      <div>
         <Header />
-      </div>
       <div className={style.containerForm}>
         <h2>LOGIN</h2>
         <>

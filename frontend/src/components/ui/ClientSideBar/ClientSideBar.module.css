@@ -1,0 +1,44 @@
+.containerSideBar{
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    width: 25%;
+    height: 86vh;
+    background-color: #f2f2f2;
+    font-family: 'Assistant', sans-serif;
+}
+
+.containerSideBarTitle, .containerSideBarSubTitle{
+    width: 90%;
+    height: 2rem;
+}
+
+.containerButtons{
+    margin: 1rem;
+    width: 95%;
+    height: 20rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 0.5rem;
+}
+
+.clothButton{
+    width: 10rem;
+    height: 3rem;
+    background-color: rgb(65, 64, 64);
+    border: none;
+    border-radius: 20px;
+    color: white;
+    font-size: 15pt;
+}
+
+.clothButton:hover{
+    background-color: rgb(107, 100, 100);
+    cursor: pointer;
+}
+
+

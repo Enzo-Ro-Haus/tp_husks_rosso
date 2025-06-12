@@ -1,14 +1,10 @@
 package com.husks.backend.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties; // Importar JsonIgnoreProperties
 import jakarta.persistence.*;
 import lombok.*;
-
-import java.util.*;
-
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "Direccion")
@@ -16,6 +12,7 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"}) 
 public class Direccion extends Base{
 
     @Column(nullable = false, length = 100)
@@ -28,6 +25,6 @@ public class Direccion extends Base{
     private String cp;
 
     @OneToMany(mappedBy = "direccion")
-    @JsonBackReference
+    @JsonIgnoreProperties("direccion")
     private List<UsuarioDireccion> usuarios = new ArrayList<>();
 }

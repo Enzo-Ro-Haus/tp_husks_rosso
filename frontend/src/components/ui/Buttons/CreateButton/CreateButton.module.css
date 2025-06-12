@@ -1,0 +1,146 @@
+.popup {
+  font-family: "Assistant", sans-serif;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(134, 134, 134, 0.5); /* Fondo semitransparente */
+  backdrop-filter: blur(8px); /* EFECTO DE DIFUMINADO */
+  z-index: 1000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.popupContent {
+  background: white;
+  padding: 3rem;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  z-index: 1001;
+  max-width: 80%;
+  animation: appear 0.3s ease-in;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: auto;
+  width: 50%;
+}
+
+.Form {
+  width: 100%;
+  gap: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+}
+
+.containerInput {
+  position: relative;
+  width: 18rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  margin: 1rem;
+  gap: 0.5rem;
+}
+
+.Input {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: flex-start;
+  gap: 0.3rem;
+}
+
+.Input .Field {
+  width: 100%;
+  height: 3rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.containerButtonsPopUp {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 2rem;
+  width: 100%;
+  gap: 3rem;
+}
+
+.buttonSend,
+.buttonClose {
+  width: 6rem;
+  height: 3rem;
+  border: none;
+  border-radius: 20px;
+  color: white;
+  font-size: 15pt;
+}
+
+.buttonSend {
+  background-color: rgb(65, 64, 64);
+}
+
+.buttonClose {
+  background-color: rgb(65, 64, 64);
+}
+
+.buttonSend:hover {
+  background-color: rgb(66, 114, 76);
+  cursor: pointer;
+}
+
+.buttonClose:hover {
+  background-color: rgb(114, 66, 66);
+  cursor: pointer;
+}
+
+.error-message {
+  height: 1rem;
+  width: 100%;
+  font-size: 0.8rem;
+  color: red;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  line-height: 1rem;
+}
+
+.error-message.visible {
+  opacity: 1;
+}
+
+@keyframes appear {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.popupContent.Products {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 90vw;
+  height: 70vh;
+}
+
+.popupContent.Products .containerInput {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}

@@ -5,8 +5,10 @@ import { IAuthResponse, IUsuario } from "../types/IUsuario";
 interface IUsuariostore {
   usuarios: IUsuario[];
   usuarioActivo: IUsuario | null;
+  usuarioSeleccionado: IUsuario | null;
   setToken: (token: string | null) => void;
   setUsuarioActivo: (usuarioActivo: IUsuario | null) => void;
+  setUsuarioSeleccionado: (usuarioSeleccionado: IUsuario | null) => void;
   setArrayUsuarios: (arrayDeUsuarios: IUsuario[]) => void;
   agregarNuevoUsuario: (nuevoUsuario: IUsuario) => void;
   editarUnUsuario: (usuarioActualizado: IUsuario) => void;
@@ -19,6 +21,7 @@ export const usuarioStore = create<IUsuariostore>()(
     (set, get) => ({
       usuarios: [],
       usuarioActivo: null,
+      usuarioSeleccionado: null,
 
       setToken: (tokenIn) =>
         set((state) => ({
@@ -54,6 +57,9 @@ export const usuarioStore = create<IUsuariostore>()(
         })),
 
         logOut: () => set({ usuarioActivo: null, usuarios: [] }),
+
+        setUsuarioSeleccionado: (usuarioSeleccinadoIn) =>
+        set({ usuarioSeleccionado: usuarioSeleccinadoIn }),
     }),
     {
       name: "usuario-storage",

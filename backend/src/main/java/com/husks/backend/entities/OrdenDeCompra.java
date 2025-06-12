@@ -1,9 +1,8 @@
 package com.husks.backend.entities;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.husks.backend.enums.EstadoOrden;
-import com.husks.backend.enums.MetodoPago;
+import com.husks.backend.enums.MetodoPago; // Importar MetodoPago
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -12,22 +11,24 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-
 @Entity
 @Table(name = "Orden_Compra")
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 @Getter @Setter
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class OrdenDeCompra extends Base{
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "usuario", nullable = false)
-    @JsonBackReference
+    @JsonIgnoreProperties({"ordenes", "direcciones", "password", "rol"})
     private Usuario usuario;
+
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_usuario_direccion", nullable = false)
+    @JsonIgnoreProperties("ordenes")
     private UsuarioDireccion usuarioDireccion;
 
     @Column(nullable = false)
@@ -45,6 +46,6 @@ public class OrdenDeCompra extends Base{
     private EstadoOrden estado = EstadoOrden.En_proceso;
 
     @OneToMany(mappedBy = "ordenDeCompra", cascade = CascadeType.ALL)
-    @JsonManagedReference
+    @JsonIgnoreProperties("ordenDeCompra")
     private List<Detalle> detalles = new ArrayList<>();
 }

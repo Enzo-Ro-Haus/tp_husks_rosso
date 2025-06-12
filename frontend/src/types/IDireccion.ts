@@ -1,6 +1,6 @@
 
 export interface IDireccion {
-    id: number,
+    id?: number,
     calle: string,
     localidad: string,
     cp: number,

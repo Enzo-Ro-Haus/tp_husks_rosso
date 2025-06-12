@@ -1,15 +1,15 @@
 
 import { ViewAllButton } from "../Buttons/ViewAllButton/ViewAllButton";
 import { ClotheCard } from "../Card/ClotheCard/ClotheCard";
-
 import styles from "./Showcase.module.css";
 import { productoStore } from "../../../store/prodcutoStore";
-const productos = productoStore((s) => s.productos);
 
 //Puede que falte el useEffect
 
 export const Showcase = () => {
-  return (
+  const productos = productoStore((s) => s.productos);
+  
+  return ( 
     <div className={styles.containerPincipalShowcase}>
       <div className={styles.containerTitleButton}>
         <h2 className={styles.containerTitle}>CATALOG</h2>

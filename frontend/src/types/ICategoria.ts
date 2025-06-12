@@ -1,7 +1,7 @@
 import { ITipo } from "./ITipo";
 
 export interface ICategoria {
-    id: number,
+    id?: number,
     nombre: string,
     tipo?: ITipo;
 }

@@ -1,44 +1,60 @@
-.containerSideBar{
-    padding: 1rem;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    align-items: center;
-    width: 20%;
-    height: 100%;
-    background-color: #f2f2f2;
-    font-family: 'Assistant', sans-serif;
+.containerSideBar {
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  width: 20vw;
+  height: 100%;
+  background-color: #f2f2f2;
+  font-family: "Assistant", sans-serif;
 }
 
-.containerSideBarTitle, .containerSideBarSubTitle{
-    width: 90%;
-    height: 2rem;
+.containerSideBarTitle,
+.containerSideBarSubTitle {
+  width: 100%;
+  height: 2rem;
+  margin: 1rem;
 }
 
-.containerButtons{
-    margin: 1rem;
-    width: 95%;
-    height: 20rem;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: flex-start;
-    gap: 0.5rem;
+.containerButtons {
+  margin: 1rem;
+  width: 95%;
+  height: 20rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
 }
 
-.clothButton{
-    width: 10rem;
-    height: 3rem;
-    background-color: rgb(65, 64, 64);
-    border: none;
-    border-radius: 20px;
-    color: white;
-    font-size: 15pt;
+.clothButton {
+  width: 10rem;
+  height: 3rem;
+  background-color: rgb(65, 64, 64);
+  border: none;
+  border-radius: 20px;
+  color: white;
+  font-size: 15pt;
 }
 
-.clothButton:hover{
-    background-color: rgb(107, 100, 100);
-    cursor: pointer;
+.clothButtonAdd{
+  width: 10rem;
+  height: 3rem;
+  background-color: rgb(5, 5, 88);
+  border: none;
+  border-radius: 20px;
+  color: white;
+  font-size: 15pt;
 }
 
+.clothButtonAdd:hover {
+  background-color: rgb(52, 52, 92);
+  cursor: pointer;
+}
+
+.clothButton:hover {
+  background-color: rgb(107, 100, 100);
+  cursor: pointer;
+}
 

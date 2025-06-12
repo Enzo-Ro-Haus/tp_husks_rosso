@@ -3,7 +3,7 @@ import { ITalle } from "../types/ITalle";
 
 
 interface ITalleStore {
-  talles: ITalle[];
+  talles: ITalle[] | [];
   talleActivo: ITalle | null;
   setTalleActivo: (talleActivo: ITalle) => void;
   setArrayTalles: (arrayDeTalles: ITalle[]) => void;

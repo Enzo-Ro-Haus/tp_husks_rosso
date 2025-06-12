@@ -3,13 +3,14 @@ import { IOrden } from "./IOrden";
 
 export interface IUsuario {
     id?: number,
-    name: string,
+    nombre: string,
     email: string,
     password: string,
     rol?: "ADMIN" | "CLIENTE",
-    direcciones?: IDireccion,
-    ordenes?: IOrden,
+    direcciones?: IDireccion[],
+    ordenes?: IOrden[],
     token?: string | null,
+    //active: boolean; <--- Falta aplicar el borrado lógico
 }
 
 export interface ILogUsuario {
@@ -20,4 +21,10 @@ export interface ILogUsuario {
 export interface IAuthResponse {
   token: string;
   usuario: IUsuario;
+}
+
+export interface IValues {
+  nombre: string;
+  email: string;
+  password: string;
 }

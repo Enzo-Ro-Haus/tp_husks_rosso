@@ -2,9 +2,9 @@ import { IDetalle } from "./IDetalle";
 import { IUserDir } from "./IUserDir";
 
 export interface IOrden {
-    id: number,
+    id?: number,
     direccion: IUserDir,
-    detalle: IDetalle,
+    detalle: IDetalle[],
     fecha: Date,
     total: number,
     metodoPago: string,

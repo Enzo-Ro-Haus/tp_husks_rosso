@@ -7,7 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping(path = "/private/orden-compra")
+@RequestMapping(path = "/orden-compra")
 @CrossOrigin(origins = "*")
 public class OrdenDeCompraController extends  BaseControllerImpl<OrdenDeCompra, OrdenDeCompraServiceImpl> {
 

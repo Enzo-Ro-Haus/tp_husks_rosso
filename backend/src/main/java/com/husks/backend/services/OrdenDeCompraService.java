@@ -4,5 +4,5 @@ package com.husks.backend.services;
 import com.husks.backend.entities.OrdenDeCompra;
 
 public interface OrdenDeCompraService extends BaseService<OrdenDeCompra, Long> {
-
+    
 }

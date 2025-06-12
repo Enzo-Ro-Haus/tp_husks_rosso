@@ -47,10 +47,10 @@ export const loginUsuario = async (
         password,
       }
     );
-     Swal.fire({
-      icon: 'success',
-      title: 'Login',
-      text: `Welcome ${data.usuario.name}!`,
+    Swal.fire({
+      icon: "success",
+      title: "Login",
+      text: `Welcome ${data.usuario.nombre}!`,
       timer: 2000,
       showConfirmButton: false,
     });
@@ -65,7 +65,7 @@ export const getAllUsuarios = async (
   token: string | null
 ): Promise<IUsuario[]> => {
   try {
-    const response = await axios.get<IUsuario[]>(`${API_URL}/public/usuario`, {
+    const response = await axios.get<IUsuario[]>(`${API_URL}/usuario`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -78,5 +78,121 @@ export const getAllUsuarios = async (
       error.response?.data || error
     );
     return [];
+  }
+};
+
+export const getMiUsuario = async (
+  token: string | null
+): Promise<IUsuario | null> => {
+  if (!token) {
+    console.error("Token ausente: no estás autenticado");
+    return null;
+  }
+
+  try {
+    const { data } = await axios.get<IUsuario>(`${API_URL}/usuario/me`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    console.log("✅ Mi usuario:", data);
+    return data;
+  } catch (error: any) {
+    console.error(
+      "❌ Error al obtener mi usuario:",
+      error.response?.data || error
+    );
+    Swal.fire({
+      icon: "error",
+      title: "Error",
+      text:
+        error.response?.data?.message ||
+        "No pudimos obtener tu información de usuario",
+    });
+    return null;
+  }
+};
+
+export const deleteUsuario = async (
+  token: string | null,
+  id: number
+): Promise<boolean> => {
+  if (!token) {
+    console.error("Token ausente: no estás autenticado");
+    return false;
+  }
+
+  try {
+    await axios.delete(`${API_URL}/usuario/${id}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    Swal.fire({
+      icon: "success",
+      title: "Usuario eliminado",
+      text: `Se eliminó correctamente el usuario con ID ${id}.`,
+      timer: 2000,
+      showConfirmButton: false,
+    });
+
+    return true;
+  } catch (error: any) {
+    console.error(
+      "❌ Error al eliminar usuario:",
+      error.response?.data || error
+    );
+    Swal.fire({
+      icon: "error",
+      title: "Error",
+      text:
+        error.response?.data?.message ||
+        `No se pudo eliminar el usuario con ID ${id}.`,
+    });
+    return false;
+  }
+};
+
+export const updateUsuario = async (
+  token: string | null,
+  id: number,
+  usuarioUpdated: Partial<IUsuario>
+): Promise<IUsuario | null> => {
+  if (!token) {
+    console.error("Token ausente: no estás autenticado");
+    return null;
+  }
+
+  try {
+    const { data } = await axios.put<IUsuario>(
+      `${API_URL}/usuario/${id}`,
+      usuarioUpdated,
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
+
+    Swal.fire({
+      icon: "success",
+      title: "Usuario actualizado",
+      text: `Se actualizaron los datos del usuario con ID ${id}.`,
+      timer: 2000,
+      showConfirmButton: false,
+    });
+
+    return data;
+  } catch (error: any) {
+    console.error(
+      "❌ Error al actualizar usuario:",
+      error.response?.data || error
+    );
+    Swal.fire({
+      icon: "error",
+      title: "Error",
+      text:
+        error.response?.data?.message ||
+        `No se pudo actualizar el usuario con ID ${id}.`,
+    });
+    return null;
   }
 };

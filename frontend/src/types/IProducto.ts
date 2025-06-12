@@ -8,6 +8,6 @@ export interface IProducto {
     precio: number,
     color: string,
     talles: ITalle[],
-    categoria: ICategoria,
+    categoria: ICategoria[],
     descripcion: string,
 }

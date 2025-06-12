@@ -1,7 +1,6 @@
 package com.husks.backend.entities;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties; // Importar JsonIgnoreProperties
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -11,16 +10,17 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 @Getter @Setter
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Detalle extends Base{
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_orden_compra", nullable = false)
-    @JsonBackReference
+    @JsonIgnoreProperties("detalles")
     private OrdenDeCompra ordenDeCompra;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_producto", nullable = false)
-    @JsonBackReference
+    @JsonIgnoreProperties("detalles")
     private Producto producto;
 
     @Column(nullable = false)

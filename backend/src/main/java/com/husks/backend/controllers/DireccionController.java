@@ -7,7 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping(path ="/private/direccion")
+@RequestMapping(path ="/direccion")
 @CrossOrigin(origins = "*")
 public class DireccionController extends BaseControllerImpl<Direccion, DireccionServiceImpl> {
 

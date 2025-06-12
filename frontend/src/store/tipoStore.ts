@@ -3,7 +3,7 @@ import { ITipo } from "../types/ITipo";
 
 
 interface ITipoStore {
-  tipos: ITipo[];
+  tipos: ITipo[] | [];
   tipoActivo: ITipo | null;
   setTipoActivo: (tipoActivo: ITipo) => void;
   setArrayTipos: (arrayDetipos: ITipo[]) => void;

@@ -2,7 +2,7 @@ import { create } from "zustand";
 import { IProducto } from "../types/IProducto";
 
 interface IProductoStore {
-  productos: IProducto[];
+  productos: IProducto[] | [];
   productoActivo: IProducto | null;
   //fetchProductos: ( ) => number
   setProductoActivo: (productoActivo: IProducto) => void;

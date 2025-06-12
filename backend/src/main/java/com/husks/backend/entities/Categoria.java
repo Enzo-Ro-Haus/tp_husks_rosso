@@ -1,12 +1,10 @@
 package com.husks.backend.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties; // Importar JsonIgnoreProperties
 import jakarta.persistence.*;
 import lombok.*;
 import java.util.ArrayList;
 import java.util.List;
-
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 @Entity
 @Table(name = "Categoria")
@@ -14,20 +12,20 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"}) 
 public class Categoria extends Base {
 
     @Column(nullable = false, length = 50)
     private String nombre;
 
-
     @ManyToOne()
     @JoinColumn(name = "id_tipo", nullable = false)
-    @JsonManagedReference
+    @JsonIgnoreProperties("categorias")
     private Tipo tipo;
 
     @OneToMany(mappedBy = "categoria", cascade = CascadeType.ALL)
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
-    @JsonBackReference
+    @JsonIgnoreProperties("categoria")
     private List<Producto> productos = new ArrayList<>();
 }

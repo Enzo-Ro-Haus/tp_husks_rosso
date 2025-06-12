@@ -1,7 +1,6 @@
 package com.husks.backend.entities;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties; // Importar JsonIgnoreProperties
 import com.husks.backend.enums.Rol;
 import jakarta.persistence.*;
 import lombok.*;
@@ -19,10 +18,11 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Usuario extends Base implements UserDetails {
 
     @Column(nullable = false, length = 100)
-    private String name;
+    private String nombre;
 
     @Column(unique = true, nullable = false, length = 100)
     private String email;
@@ -35,11 +35,11 @@ public class Usuario extends Base implements UserDetails {
     private Rol rol = Rol.CLIENTE;
 
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL)
-    @JsonManagedReference
+    @JsonIgnoreProperties("usuario")
     private List<UsuarioDireccion> direcciones = new ArrayList<>();
 
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL)
-    @JsonManagedReference
+    @JsonIgnoreProperties("usuario")
     private List<OrdenDeCompra> ordenes = new ArrayList<>();
 
     @Override
@@ -54,7 +54,7 @@ public class Usuario extends Base implements UserDetails {
 
     @Override
     public String getUsername() {
-        return this.name;
+        return this.email;
     }
 
     @Override

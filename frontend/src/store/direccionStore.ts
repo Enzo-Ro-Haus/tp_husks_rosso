@@ -2,7 +2,7 @@ import { create } from "zustand";
 import { IDireccion } from "../types/IDireccion";
 
 interface IDireccionStore {
-  direcciones: IDireccion[];
+  direcciones: IDireccion[] | [];
   direccionActiva: IDireccion | null;
   setDireccionActiva: (direccionActiva: IDireccion) => void;
   setArrayDirecciones: (arrayDeDirecciones: IDireccion[]) => void;

@@ -1,0 +1,167 @@
+.popup {
+  top: 25%;
+  left: 25%;
+  font-family: "Assistant", sans-serif;
+  position: absolute;
+  width: 50%;
+  height: 70%;
+  z-index: 1003;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background: white;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  padding: 1rem;
+}
+
+.popupContent {
+  top: 25%;
+  left: 25%;
+  background: white;
+  padding: 1rem;
+  border-radius: 12px;
+  z-index: 1001;
+  overflow-x: hidden;
+  overflow-y: auto; 
+  animation: appear 0.3s ease-in;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 50%;
+  height: 100%;
+  position: absolute;
+}
+
+
+.Form {
+  width: 100%;
+  gap: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+}
+
+.containerInput {
+  position: relative;
+  width: 18rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  margin: 1rem;
+  gap: 0.5rem;
+}
+
+.Input {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: flex-start;
+  gap: 0.3rem;
+}
+
+.Input .Field {
+  width: 100%;
+  height: 3rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.containerButtonsPopUp {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 2rem;
+  width: 100%;
+  gap: 3rem;
+}
+
+.buttonSend,
+.buttonClose {
+  width: 6rem;
+  height: 3rem;
+  border: none;
+  border-radius: 20px;
+  color: white;
+  font-size: 15pt;
+}
+
+.buttonSend {
+  background-color: rgb(65, 64, 64);
+}
+
+.buttonClose {
+  background-color: rgb(65, 64, 64);
+}
+
+.buttonSend:hover {
+  background-color: rgb(66, 114, 76);
+  cursor: pointer;
+}
+
+.buttonClose:hover {
+  background-color: rgb(114, 66, 66);
+  cursor: pointer;
+}
+
+.error-message {
+  height: 1rem;
+  width: 100%;
+  font-size: 0.8rem;
+  color: red;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  line-height: 1rem;
+}
+
+.error-message.visible {
+  opacity: 1;
+}
+
+@keyframes appear {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.popupContent.Products {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 90vw;
+  height: 70vh;
+}
+
+.popupContent.Products .containerInput {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
+.editButton {
+  width: 5rem;
+  height: 5rem;
+  background-color: rgb(65, 64, 64);
+  border: none;
+  color: white;
+  font-size: 10pt;
+  border-radius: 20px;
+  cursor: pointer;
+}
+
+.editButton:hover{
+  background-color: rgb(107, 100, 100);
+}

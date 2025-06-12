@@ -4,41 +4,118 @@ import Swal from "sweetalert2";
 
 const API_URL = "http://localhost:9000";
 
-export const crearTipo = async (nuevaTipo: ITipo): Promise<void> => {
+export const createTipo = async (
+  token: string | null, // Add token param
+  nuevoTipo: ITipo
+): Promise<ITipo | null> => {
+  if (!token) {
+    console.error("Missing token");
+    return null;
+  }
+
   try {
-    const response = await axios.post<ITipo>(
-      `${API_URL}/auth/register`,
-      nuevaTipo
+    const { data } = await axios.post<ITipo>(
+      `${API_URL}/tipo`, // Use protected endpoint
+      nuevoTipo,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`, // Add auth header
+        },
+      }
     );
-    console.log(response);
+
     Swal.fire({
       icon: "success",
       title: "Tipo creado",
-      text: "El registro se realizó correctamente.",
+      text: "La creación se realizó correctamente.",
       timer: 2000,
       showConfirmButton: false,
     });
+    return data;
   } catch (error: any) {
-    console.error("Error al crear Tipo:", error);
+    console.error("❌ Error al obtener tipos:", error.response?.data || error);
     Swal.fire({
       icon: "error",
       title: "Error",
-      text: error.response?.data?.message || "No se pudo crear la Tipo",
+      text: error.response?.data?.message || "No se pudo registrar el tipo",
     });
+    return null;
   }
 };
 
 export const getAllTipos = async (token: string | null): Promise<ITipo[]> => {
   try {
-    const response = await axios.get<ITipo[]>(`${API_URL}/husks/v1/tipo`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    const response = await axios.get<ITipo[]>(`${API_URL}/public/tipo`);
     console.log("✅ Tipos recibidos:", response.data);
     return response.data;
   } catch (error: any) {
     console.error("❌ Error al obtener tipos:", error.response?.data || error);
     return [];
+  }
+};
+
+export const updateTipo = async (
+  id: number,
+  tipoUpdated: Partial<ITipo>
+): Promise<ITipo | null> => {
+  try {
+    const { data } = await axios.put<ITipo>(
+      `${API_URL}/tipo/${id}`,
+      tipoUpdated
+    );
+    Swal.fire({
+      icon: "success",
+      title: "Tipo actualizado",
+      text: `Se actualizó el tipo con ID ${id}.`,
+      timer: 2000,
+      showConfirmButton: false,
+    });
+    return data;
+  } catch (error: any) {
+    console.error(
+      "❌ Error al actualizar tipo:",
+      error.response?.data || error
+    );
+    Swal.fire({
+      icon: "error",
+      title: "Error",
+      text:
+        error.response?.data?.message ||
+        `No se pudo actualizar el tipo con ID ${id}.`,
+    });
+    return null;
+  }
+};
+
+export const deleteTipo = async (
+  token: string | null,
+  id: number
+): Promise<boolean> => {
+  if (!token) {
+    console.error("Token ausente: no estás autenticado");
+    return false;
+  }
+  try {
+    await axios.delete(`${API_URL}/tipo/${id}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    Swal.fire({
+      icon: "success",
+      title: "Tipo eliminado",
+      text: `Se eliminó el tipo con ID ${id}.`,
+      timer: 2000,
+      showConfirmButton: false,
+    });
+    return true;
+  } catch (error: any) {
+    console.error("❌ Error al eliminar tipo:", error.response?.data || error);
+    Swal.fire({
+      icon: "error",
+      title: "Error",
+      text:
+        error.response?.data?.message ||
+        `No se pudo eliminar el tipo con ID ${id}.`,
+    });
+    return false;
   }
 };

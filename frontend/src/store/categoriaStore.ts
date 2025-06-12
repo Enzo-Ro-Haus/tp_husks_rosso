@@ -3,7 +3,7 @@ import { ICategoria } from "../types/ICategoria";
 
 
 interface Icategoriastore {
-  categorias: ICategoria[];
+  categorias: ICategoria[] | [];
   categoriaActiva: ICategoria | null;
   //fetchcategorias: ( ) => number
   setcategoriaActiva: (categoriaActiva: ICategoria) => void;

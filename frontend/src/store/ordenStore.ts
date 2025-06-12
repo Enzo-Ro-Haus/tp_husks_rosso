@@ -2,7 +2,7 @@ import { create } from "zustand";
 import { IOrden } from "../types/IOrden";
 
 interface IOrdenStore {
-  ordenes: IOrden[];
+  ordenes: IOrden[] | [];
   ordenActiva: IOrden | null;
   //fetchordenes: ( ) => number
   setOrdenActiva: (ordenActiva: IOrden) => void;

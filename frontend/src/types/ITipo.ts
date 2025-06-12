@@ -1,4 +1,7 @@
+import { ICategoria } from "./ICategoria";
+
 export interface ITipo {
-    id: number,
+    id?: number,
     nombre: string,
+    categorias?: ICategoria[],
 }

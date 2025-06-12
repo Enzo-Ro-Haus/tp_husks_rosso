@@ -1,14 +1,11 @@
 package com.husks.backend.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties; // Importar JsonIgnoreProperties
 import jakarta.persistence.*;
 import lombok.*;
 import java.math.BigDecimal;
 import java.util.HashSet;
 import java.util.Set;
-
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 @Entity
 @Table(name = "Producto")
@@ -17,6 +14,7 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 @Builder
 @Getter
 @Setter
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"}) 
 public class Producto extends Base {
 
     @Column(nullable = false, length = 100)
@@ -35,11 +33,13 @@ public class Producto extends Base {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_categoria", nullable = false)
-    @JsonManagedReference
+    @JsonIgnoreProperties("productos")
     private Categoria categoria;
 
     @ManyToMany
-    @JoinTable(name = "Talle_Producto", joinColumns = @JoinColumn(name = "id_producto"), inverseJoinColumns = @JoinColumn(name = "id_talle"))
-    @JsonManagedReference
+    @JoinTable(name = "Talle_Producto", 
+               joinColumns = @JoinColumn(name = "id_producto"), 
+               inverseJoinColumns = @JoinColumn(name = "id_talle"))
+    @JsonIgnoreProperties("productos")
     private Set<Talle> tallesDisponibles = new HashSet<>();
 }

@@ -1,11 +1,9 @@
 package com.husks.backend.entities;
 
-
-import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties; // Importar JsonIgnoreProperties
 import com.husks.backend.enums.SistemaTalle;
 import jakarta.persistence.*;
 import lombok.*;
-
 import java.util.HashSet;
 import java.util.Set;
 
@@ -16,6 +14,7 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Talle extends Base{
 
     @Enumerated(EnumType.STRING)
@@ -26,6 +25,6 @@ public class Talle extends Base{
     private String valor;
 
     @ManyToMany(mappedBy = "tallesDisponibles")
-    @JsonBackReference
+    @JsonIgnoreProperties("tallesDisponibles")
     private Set<Producto> productos = new HashSet<>();
 }

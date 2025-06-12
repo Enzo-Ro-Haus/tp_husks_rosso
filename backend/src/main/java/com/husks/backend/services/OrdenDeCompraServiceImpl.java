@@ -7,13 +7,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public class OrdenDeCompraServiceImpl extends BaseServiceImpl<OrdenDeCompra, Long> implements OrdenDeCompraService{
+public class OrdenDeCompraServiceImpl
+    extends BaseServiceImpl<OrdenDeCompra, Long>
+    implements OrdenDeCompraService {
 
-    @Autowired
-    private OrdenDeCompraRepository ordenDeCompraRepository;
+  private final OrdenDeCompraRepository ordenRepo;
 
-    public OrdenDeCompraServiceImpl(BaseRepository<OrdenDeCompra, Long> baseRepository, OrdenDeCompraRepository ordenCompraRepository) {
-        super(baseRepository);
-        this.ordenDeCompraRepository = ordenCompraRepository;
-    }
+  @Autowired
+  public OrdenDeCompraServiceImpl(OrdenDeCompraRepository ordenRepo) {
+    super(ordenRepo);
+    this.ordenRepo = ordenRepo;
+  }
 }

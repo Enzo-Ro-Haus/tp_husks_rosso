@@ -7,7 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping(path ="/private/categoria")
+@RequestMapping(path ="/public/categoria")
 @CrossOrigin(origins = "*")
 public class CategoriaController extends BaseControllerImpl<Categoria, CategoriaServiceImpl> {
 

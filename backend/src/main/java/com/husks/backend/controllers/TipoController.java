@@ -7,7 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping(path ="/public/tipo")
+@RequestMapping(path = "/public/tipo")
 @CrossOrigin(origins = "*")
 public class TipoController extends BaseControllerImpl<Tipo, TipoServiceImpl>{
 

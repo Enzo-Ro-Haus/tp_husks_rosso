@@ -9,7 +9,7 @@ export interface IUsuario {
     rol?: "ADMIN" | "CLIENTE",
     direcciones?: IDireccion[],
     ordenes?: IOrden[],
-    token: string | null,
+    token?: string | null,
     //active: boolean; <--- Falta aplicar el borrado lógico
 }
 

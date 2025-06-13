@@ -2,11 +2,15 @@ import axios from "axios";
 import { IProducto } from "../types/IProducto";
 import Swal from "sweetalert2";
 
-const API_URL = "http://localhost:9000/";
+const API_URL = "http://localhost:9000";
 
-export const getAllProductos = async () => {
+export const getAllProductos = async (token: string | null) => {
   try {
-    const response: any = await axios.get<IProducto[]>(`${API_URL}/public/producto`);
+    const response: any = await axios.get<IProducto[]>(`${API_URL}/producto`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
     console.log(response.data);
     return response.data;
   } catch (error) {

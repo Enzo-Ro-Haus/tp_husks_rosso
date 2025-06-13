@@ -32,7 +32,7 @@ type ListCardProps = {
   value?: string;
   street?: string;
   locality?: string;
-  pc?: number;
+  pc?: string;
   detail?: IDetalle[];
   date?: Date | string;
   total?: number;

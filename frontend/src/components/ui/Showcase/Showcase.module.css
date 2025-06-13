@@ -1,6 +1,6 @@
 .containerPincipalShowcase{
     width: 100vw;
-    height: 68vh;
+    height: 100vh;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -25,7 +25,7 @@
 
 .containerClotheCards{
     width: 99vw;
-    height: 58vh;
+    height: 50vh;
     display: flex;
     justify-content: center;
     align-items: center;

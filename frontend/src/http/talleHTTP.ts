@@ -49,7 +49,11 @@ export const createTalle = async (
 
 export const getAllTalles = async (token: string | null): Promise<ITalle[]> => {
   try {
-    const response = await axios.get<ITalle[]>(`${API_URL}/public/talle`);
+    const response = await axios.get<ITalle[]>(`${API_URL}/talle`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
     console.log("✅ Talles recibidos:", response.data);
     return response.data;
   } catch (error: any) {

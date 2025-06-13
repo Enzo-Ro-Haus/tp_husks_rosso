@@ -45,7 +45,11 @@ export const createTipo = async (
 
 export const getAllTipos = async (token: string | null): Promise<ITipo[]> => {
   try {
-    const response = await axios.get<ITipo[]>(`${API_URL}/public/tipo`);
+    const response = await axios.get<ITipo[]>(`${API_URL}/tipo`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
     console.log("✅ Tipos recibidos:", response.data);
     return response.data;
   } catch (error: any) {

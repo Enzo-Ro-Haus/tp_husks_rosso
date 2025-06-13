@@ -52,7 +52,7 @@ export const getAllCategorias = async (
 ): Promise<ICategoria[]> => {
   try {
     const response = await axios.get<ICategoria[]>(
-      `${API_URL}/public/categoria`,
+      `${API_URL}/categoria`,
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -60,6 +60,7 @@ export const getAllCategorias = async (
       }
     );
     console.log("✅ Categotrías recibidas:", response.data);
+    
     return response.data;
   } catch (error: any) {
     console.error(
@@ -73,7 +74,7 @@ export const getAllCategorias = async (
 export const updateCategoria = async (
   token: string | null,
   id: number,
-  categoriaUpdated: Partial<ICategoria>
+ categoria: ICategoria
 ): Promise<ICategoria | null> => {
   if (!token) {
     console.error("Token ausente: no estás autenticado");
@@ -82,7 +83,7 @@ export const updateCategoria = async (
   try {
     const { data } = await axios.put<ICategoria>(
       `${API_URL}/categorias/${id}`,
-      categoriaUpdated,
+      categoria,
       { headers: { Authorization: `Bearer ${token}` } }
     );
     Swal.fire({

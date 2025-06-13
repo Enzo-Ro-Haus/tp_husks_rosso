@@ -5,6 +5,7 @@ import com.husks.backend.services.UsuarioServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,6 +20,7 @@ public class UsuarioController extends BaseControllerImpl<Usuario, UsuarioServic
     }
 
     @GetMapping("/me")
+    @PreAuthorize("hasAnyRole('ADMIN')")
     public ResponseEntity<Usuario> getCurrentUser(
             @AuthenticationPrincipal Usuario usuarioAuth) {
         try {

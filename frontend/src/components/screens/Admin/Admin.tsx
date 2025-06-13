@@ -66,7 +66,7 @@ export const Admin = () => {
 
   // fetch functions
   const getProductos = async () => {
-    const data = await getAllProductos();
+    const data = await getAllProductos(token ?? null);
     if (data) setArrayProductos(data);
   };
   const getUsuarios = async () => {

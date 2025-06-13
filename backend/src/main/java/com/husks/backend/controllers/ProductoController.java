@@ -7,7 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping(path ="/public/producto")
+@RequestMapping(path ="/producto")
 @CrossOrigin(origins = "*")
 public class ProductoController extends BaseControllerImpl<Producto, ProductoServiceImpl>{
 

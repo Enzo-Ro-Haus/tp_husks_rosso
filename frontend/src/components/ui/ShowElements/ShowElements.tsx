@@ -26,7 +26,6 @@ export const ShowElements = () => {
           <p className={styles.Product}>Product</p>
           <p className={styles.Quantity}>Quantity</p>
           <p className={styles.Price}>Price</p>
-          <p className={styles.Edit}>Edit</p>
           <p className={styles.Delete}>Delete</p>
         </div>
         <div className={styles.Recta}></div>

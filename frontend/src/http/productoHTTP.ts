@@ -2,11 +2,11 @@ import axios from "axios";
 import { IProducto } from "../types/IProducto";
 import Swal from "sweetalert2";
 
-const API_URL = "http://localhost:9000/public/producto";
+const API_URL = "http://localhost:9000/";
 
 export const getAllProductos = async () => {
   try {
-    const response: any = await axios.get<IProducto[]>(API_URL);
+    const response: any = await axios.get<IProducto[]>(`${API_URL}/public/producto`);
     console.log(response.data);
     return response.data;
   } catch (error) {
@@ -25,7 +25,7 @@ export const createProducto = async (
 
   try {
     const { data } = await axios.post<IProducto>(
-      `${API_URL} + "/public/productos"`,
+      `${API_URL}/producto`,
       nuevoProducto,
       {
         headers: {

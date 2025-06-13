@@ -6,8 +6,8 @@ export interface IProducto {
     nombre: string,
     cantidad: number,
     precio: number,
-    color: string,
-    talles: ITalle[],
-    categoria: ICategoria[],
-    descripcion: string,
+    color?: string,
+    talles?: ITalle[],
+    categoria?: ICategoria[],
+    descripcion?: string,
 }

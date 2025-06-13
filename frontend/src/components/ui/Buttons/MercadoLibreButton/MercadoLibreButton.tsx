@@ -1,9 +1,9 @@
-import style from './MercadoLibreButton.module.css'
+import style from './MercadoLibre.module.css'
 
 export const MercadoLibreButton = () => {
   return (
     <button className={style.buttonMercadoLibre}>
-      <img src="../../../assets/landings/MP_RGB_HANDSHAKE_color-blanco_hori-izq" alt="Girl in a jacket" width="500" height="600"></img>
+      <img src="src/assets/landings/MP_RGB_HANDSHAKE_color-blanco_hori-izq.png" alt="logo of mercadopago" width="150px" height="50px"></img>
     </button>
   )
 }

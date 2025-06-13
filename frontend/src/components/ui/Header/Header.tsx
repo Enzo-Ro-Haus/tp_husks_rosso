@@ -7,6 +7,7 @@ import Swal from "sweetalert2";
 export const Header = () => {
   const navigate = useNavigate();
   const usuarioActivo = usuarioStore((state) => state.usuarioActivo);
+  const setUsuario = usuarioStore((state) => state.setUsuarioActivo)
   const [ingreso, setIngreso] = useState("/register");
   const [cart, setCart] = useState("/login");
   const [log, setLog] = useState("LogIn");
@@ -27,10 +28,11 @@ export const Header = () => {
           Swal.fire({
             icon: "success",
             title: "Sesión cerrada",
-            text: `¡Hasta luego, ${usuario?.name}!`,
+            text: `¡Hasta luego, ${usuario?.nombre}!`,
             timer: 2000,
             showConfirmButton: false,
           });
+          setUsuario(null);
           logout();
           navigate("/");
         }
@@ -130,7 +132,9 @@ export const Header = () => {
               >
                 person
               </span>
-              {usuario?.name}
+              <div>
+                {usuario?.nombre}
+              </div>
             </Link>
           </li>
         </ul>

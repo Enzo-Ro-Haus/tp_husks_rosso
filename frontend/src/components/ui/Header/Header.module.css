@@ -66,6 +66,14 @@ li {
     cursor: pointer;
 }
 
+.elementLink{
+    width: auto;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+}
+
 
 a {
     text-decoration: none;

@@ -15,7 +15,7 @@ export const createDireccion = async (
 
   try {
     const { data } = await axios.post<IDireccion>(
-      `${API_URL}/public/direccion`,
+      `${API_URL}/direccion`,
       nuevaDireccion,
       {
         headers: {
@@ -81,7 +81,7 @@ export const updateDireccion = async (
   }
   try {
     const { data } = await axios.put<IDireccion>(
-      `${API_URL}/private/direccion/${id}`,
+      `${API_URL}/direccion/${id}`,
       direccionUpdated,
       { headers: { Authorization: `Bearer ${token}` } }
     );

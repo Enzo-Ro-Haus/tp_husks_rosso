@@ -15,7 +15,7 @@ export const createOrden = async (
 
   try {
     const { data } = await axios.post<IOrden>(
-      `${API_URL}/public/orden`,
+     `${API_URL}/orden-compra`,
       nuevaOrden,
       {
         headers: {
@@ -81,7 +81,7 @@ export const updateOrden = async (
   }
   try {
     const { data } = await axios.put<IOrden>(
-      `${API_URL}/private/orden-compra/${id}`,
+      `${API_URL}/orden-compra/${id}`,
       ordenUpdated,
       { headers: { Authorization: `Bearer ${token}` } }
     );
@@ -118,7 +118,7 @@ export const deleteOrden = async (
     return false;
   }
   try {
-    await axios.delete(`${API_URL}/private/orden-compra/${id}`, {
+    await axios.delete(`${API_URL}/orden-compra/${id}`, {
       headers: { Authorization: `Bearer ${token}` },
     });
     Swal.fire({

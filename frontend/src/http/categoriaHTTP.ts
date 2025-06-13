@@ -15,7 +15,7 @@ export const createCategoria = async (
 
   try {
     const { data } = await axios.post<ICategoria>(
-      `${API_URL}/private/categorias`,
+      `${API_URL}/categorias`,
       nuevaCategoria,
       {
         headers: {
@@ -81,7 +81,7 @@ export const updateCategoria = async (
   }
   try {
     const { data } = await axios.put<ICategoria>(
-      `${API_URL}/private/categorias/${id}`,
+      `${API_URL}/categorias/${id}`,
       categoriaUpdated,
       { headers: { Authorization: `Bearer ${token}` } }
     );

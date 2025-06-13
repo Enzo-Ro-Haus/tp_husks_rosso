@@ -15,7 +15,7 @@ export const createTipo = async (
 
   try {
     const { data } = await axios.post<ITipo>(
-      `${API_URL}/tipo`, // Use protected endpoint
+      `${API_URL}/tipo`,
       nuevoTipo,
       {
         headers: {

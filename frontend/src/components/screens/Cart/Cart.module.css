@@ -12,8 +12,21 @@
 .containerBody{
     display: flex;
     flex-direction: row;
-    align-items: flex-start;
-    justify-content: center;
-    height: 100%;
+    align-items: center;
+    justify-content: space-between;
+    height: 80vh;
     width: 100%;
+    gap: 1rem;
+}
+
+.muestraDeElementos{
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    width: 80%;
+    height: 100%;
+    background-color: #ffffff;  
+    overflow-y: scroll;
 }

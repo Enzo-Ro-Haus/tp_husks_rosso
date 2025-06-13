@@ -5,9 +5,9 @@
     justify-content: center;
     align-items: center;
     padding: 5px;
-    background-color: #231f20;
+    background-color: #007AFF;
     color: #f2f2f2;
-    border: #231f20 4px solid;
+    border: #0051a8  4px solid;
     font-size: 1rem;
     border-radius: 50px;
     font-weight: 500;
@@ -16,7 +16,7 @@
     transition: transform 0.5s ease-in-out;
 }
 
-.buttonNewProduct:hover {
-    border: #5a4c4f 4px solid;
-    background-color: #5a4c4f ;  
+.buttonMercadoLibre:hover {
+    border: #007AFF 4px solid;
+    background-color: #3798ff ;  
 }

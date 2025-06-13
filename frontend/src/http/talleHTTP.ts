@@ -15,7 +15,7 @@ export const createTalle = async (
 
   try {
     const { data } = await axios.post<ITalle>(
-      `${API_URL}/private/talle`,
+      `${API_URL}/talle`,
       nuevoTalle,
       {
         headers: {
@@ -69,7 +69,7 @@ export const updateTalle = async (
   }
   try {
     const { data } = await axios.put<ITalle>(
-      `${API_URL}/private/talle/${id}`,
+      `${API_URL}/talle/${id}`,
       talleUpdated,
       { headers: { Authorization: `Bearer ${token}` } }
     );
@@ -103,7 +103,7 @@ export const deleteTalle = async (
     return false;
   }
   try {
-    await axios.delete(`${API_URL}/private/talle/${id}`, {
+    await axios.delete(`${API_URL}/talle/${id}`, {
       headers: { Authorization: `Bearer ${token}` },
     });
     Swal.fire({

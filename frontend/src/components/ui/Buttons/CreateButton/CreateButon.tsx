@@ -114,7 +114,7 @@ const createHandlers: Record<
     !!(await productAPI.createProducto(token, values)),
   Categories: async (token, values) =>
     !!(await categoryAPI.createCategoria(token, values)),
-  Types: async (_token, values) => !!(await typeAPI.createTipo(values)), // no usa token
+  Types: async (token , values) => !!(await typeAPI.createTipo(token, values)), // no usa token
   Sizes: async (token, values) => !!(await sizeAPI.createTalle(token, values)),
   Addresses: async (token, values) => {
     const { calle, localidad, cp } = values;
@@ -172,7 +172,7 @@ export const CreateButton = ({ view, onClose, onCreated }: Props) => {
           validationSchema={schema}
           onSubmit={handleSubmit}
         >
-          {() => (
+          {({ values }) => (
             <Form className={style.Form}>
               <div className={style.containerInput}>
                 {Object.entries(initialValues).map(([key]) => (
@@ -213,6 +213,7 @@ export const CreateButton = ({ view, onClose, onCreated }: Props) => {
                   Cerrar
                 </button>
               </div>
+              {<pre>{JSON.stringify(values, null, 2)}</pre>}
             </Form>
           )}
         </Formik>

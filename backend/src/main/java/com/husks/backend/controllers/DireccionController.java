@@ -10,10 +10,17 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping(path ="/direccion")
 @CrossOrigin(origins = "*")
+@PreAuthorize("hasAnyRole('ADMIN', 'CLIENTE')")
 public class DireccionController extends BaseControllerImpl<Direccion, DireccionServiceImpl> {
 
     @Autowired
     public DireccionController(DireccionServiceImpl servicio) {
         super(servicio);
+    }
+
+    @GetMapping("")
+    @PreAuthorize("hasAnyRole('ADMIN', 'CLIENTE')")
+    public org.springframework.http.ResponseEntity<?> getAllDirecciones() {
+        return super.getAll();
     }
 }

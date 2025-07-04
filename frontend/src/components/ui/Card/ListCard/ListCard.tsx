@@ -1,47 +1,64 @@
-import React, { useState, useMemo } from 'react';
-import { ICategoria } from '../../../../types/ICategoria';
-import { IDetalle } from '../../../../types/IDetalle';
-import { IDireccion } from '../../../../types/IDireccion';
-import { ITalle } from '../../../../types/ITalle';
-import { EditButton } from '../../Buttons/EditButton/EditButton';
-import style from './ListCard.module.css';
-import { DeleteButton } from '../../Buttons/DeleteButton/DeleteButton';
+import React, { useEffect, useRef, useState } from "react";
+import { Card, Row, Col, Badge } from "react-bootstrap";
+import { ICategoria } from "../../../../types/ICategoria";
+import { IDetalle } from "../../../../types/IDetalle";
+import { ITalle } from "../../../../types/ITalle";
+import { ITipo } from "../../../../types/ITipo";
+import { IUsuarioDireccion } from "../../../../types/IUsuarioDireccion";
+import { IUsuario } from "../../../../types/IUsuario";
+import { IProducto } from "../../../../types/IProducto";
+import { EditButton } from "../../Buttons/EditButton/EditButton";
+import { DeleteButton } from "../../Buttons/DeleteButton/DeleteButton";
+import { RestoreButton } from "../../Buttons/RestoreButton/RestoreButton";
+import UserProfileImage from "../../Image/UserProfileImage";
+import styles from "./ListCard.module.css";
 
-type ListCardProps = {
-  variant:
-    | 'Products'
-    | 'Users'
-    | 'Categories'
-    | 'Types'
-    | 'Sizes'
-    | 'Addresses'
-    | 'Orders'
-    | 'Client';
+export type ListCardVariant =
+  | "Products"
+  | "Users"
+  | "Categories"
+  | "Types"
+  | "Sizes"
+  | "Addresses"
+  | "Orders"
+  | "Client";
+
+export interface ListCardProps {
+  variant: ListCardVariant;
   id: number | string;
   name?: string;
   description?: string;
   price?: number;
   quantity?: number;
+  color?: string;
   sizes?: ITalle[];
+  category?: ICategoria;
+  categories?: ICategoria[] | [];
   email?: string;
   rol?: string;
-  address?: IDireccion[];
-  type?: ICategoria;
-  category?: ICategoria[];
+  imagenPerfilPublicId?: string;
+  address?: IUsuarioDireccion[];
+  type?: ITipo;
   system?: string;
   value?: string;
   street?: string;
   locality?: string;
   pc?: string;
+  usuario?: IUsuario;
+  usuarioDireccion?: IUsuarioDireccion;
   detail?: IDetalle[];
-  date?: Date | string;
+  date?: string;
   total?: number;
   payMethod?: string;
   Dstatus?: string;
-};
+  activo?: boolean;
+  producto?: IProducto;
+  onEdited?: () => void;
+  onDeleted?: () => void;
+  onRestored?: () => void;
+}
 
-export const ListCard: React.FC<ListCardProps> = props => {
-  const [showEdit, setShowEdit] = useState(false);
+export const ListCard: React.FC<ListCardProps> = (props) => {
   const {
     variant,
     id,
@@ -49,207 +66,326 @@ export const ListCard: React.FC<ListCardProps> = props => {
     description,
     price,
     quantity,
+    color,
     sizes,
+    category,
+    categories,
     email,
     rol,
+    imagenPerfilPublicId,
     address,
     type,
-    category,
     system,
     value,
     street,
     locality,
     pc,
+    usuario,
+    usuarioDireccion,
     detail,
     date,
     total,
     payMethod,
     Dstatus,
+    activo,
+    producto,
+    onEdited,
+    onDeleted,
+    onRestored,
   } = props;
-  const handleClose = () => setShowEdit(false);
 
-  // Normalizar date a instancia de Date
-  const dateObj = useMemo<Date | undefined>(() => {
-    if (date == null) return undefined;
-    return date instanceof Date ? date : new Date(date);
-  }, [date]);
+  const [restored, setRestored] = useState(false);
+  const cardRef = useRef<HTMLDivElement>(null);
 
-  // Construir initialData basado en variant
-  const initialData: any = { id };
-  switch (variant) {
-    case 'Products':
-      Object.assign(initialData, {
-        nombre: name,
-        descripcion: description,
-        precio: price,
-        cantidad: quantity,
-        talles: sizes?.map(s => s.valor) || [],
-        categoria: type,
-      });
-      break;
-    case 'Users':
-    case 'Client':
-      Object.assign(initialData, {
-        nombre: name,
-        email,
-        rol,
-        direcciones: address,
-      });
-      break;
-    case 'Categories':
-      Object.assign(initialData, {
-        nombre: name,
-        tipo: type,
-      });
-      break;
-    case 'Types':
-      Object.assign(initialData, {
-        nombre: name,
-        categorias: category,
-      });
-      break;
-    case 'Sizes':
-      Object.assign(initialData, {
-        sistema: system,
-        valor: value,
-      });
-      break;
-    case 'Addresses':
-      Object.assign(initialData, {
-        calle: street,
-        localidad: locality,
-        cp: pc,
-      });
-      break;
-    case 'Orders':
-      Object.assign(initialData, {
-        direccion: street,
-        detalle: detail,
-        fecha: dateObj ? dateObj.toISOString().split('T')[0] : undefined,
-        total,
-        metodoPago: payMethod,
-        estado: Dstatus,
-      });
-      break;
-    default:
-      break;
+  useEffect(() => {
+    const handler = (e: any) => {
+      if (e.detail && e.detail.id === id && e.detail.view === variant) {
+        setRestored(true);
+        setTimeout(() => setRestored(false), 1500);
+      }
+    };
+    window.addEventListener('restored-card', handler);
+    return () => window.removeEventListener('restored-card', handler);
+  }, [id, variant]);
+
+  // Debug temporal para talles
+  if (variant === "Products" && sizes) {
+    console.log("Talles en ListCard:", sizes);
   }
 
-  const onEdited = () => {
-    // TODO: Refresh list after edit
-  };
-
-  const renderContent = () => {
-    switch (variant) {
-      case 'Products':
-        return (
-          <>
-            <img
-              className={style.listCardImg}
-              src="/src/assets/landings/image.png"
-              alt={name}
-            />
-            <div className={style.ClotheDetail}>
-              <p><b>ID:</b> {id}</p>
-              <p><b>Name:</b> {name}</p>
-              <p><b>Description:</b> {description}</p>
-              {sizes && <p><b>Sizes:</b> {sizes.map(s => s.valor).join(', ')}</p>}
-              <p><b>Price:</b> ${price}</p>
-              <p><b>Stock:</b> {quantity}</p>
-            </div>
-          </>
-        );
-      case 'Users':
-      case 'Client':
-        return (
-          <>
-            <img
-              className={style.listCardImgUsuario}
-              src="/src/assets/user_img.jpg"
-              alt={name}
-            />
-            <div>
-              <p><b>ID:</b> {id}</p>
-              <p><b>Name:</b> {name}</p>
-              <p><b>Email:</b> {email}</p>
-              <p><b>Role:</b> {rol}</p>
-              {address?.map(d => (
-                <p key={d.id}>{d.calle}, {d.localidad}, {d.cp}</p>
-              ))}
-            </div>
-          </>
-        );
-      case 'Categories':
-        return (
-          <>
-            <p><b>ID:</b> {id}</p>
-            <p><b>Name:</b> {name}</p>
-            <p><b>Type:</b> {type?.nombre}</p>
-          </>
-        );
-      case 'Types':
-        return (
-          <>
-            <p><b>ID:</b> {id}</p>
-            <p><b>Name:</b> {name}</p>
-            {category?.map(c => <p key={c.id}>{c.nombre}</p>)}
-          </>
-        );
-      case 'Sizes':
-        return (
-          <>
-            <p><b>ID:</b> {id}</p>
-            <p><b>System:</b> {system}</p>
-            <p><b>Value:</b> {value}</p>
-          </>
-        );
-      case 'Addresses':
-        return (
-          <>
-            <p><b>ID:</b> {id}</p>
-            <p><b>Street:</b> {street}</p>
-            <p><b>Locality:</b> {locality}</p>
-            <p><b>Postal Code:</b> {pc}</p>
-          </>
-        );
-      case 'Orders':
-        return (
-          <>
-            <p><b>ID:</b> {id}</p>
-            <p><b>Detail:</b> {detail?.map(d => `${d.cantidad} x ${d.id}`).join(', ')}</p>
-            <p><b>Date:</b> {dateObj ? dateObj.toLocaleDateString() : 'Fecha no disponible'}</p>
-            <p><b>Total:</b> {total}</p>
-            <p><b>Payment method:</b> {payMethod}</p>
-            <p><b>Status:</b> {Dstatus}</p>
-          </>
-        );
-      default:
-        return null;
-    }
-  };
+  const formattedDate = date ? new Date(date).toLocaleString() : "";
 
   return (
-    <div className={style.containerPrincipalListCard}>
-      <div className={style.ListCard}>
-        <div className={style.ClotheInfo}>{renderContent()}</div>
-        <div className={style.Botones}>
-          <EditButton
-            view={variant}
-            initialData={initialData}
-            onClose={handleClose}
-            onEdited={onEdited}
-          />
-          <DeleteButton view={variant} id={id} onDeleted={onEdited} />
-        </div>
-      </div>
-      {showEdit && (
-        <EditButton
-          view={variant}
-          initialData={initialData}
-          onClose={handleClose}
-          onEdited={onEdited}
-        />
-      )}
-    </div>
+    <Card ref={cardRef} className={`mb-3 ${activo === false ? styles.softDeleted : ''} ${restored ? styles.restored : ''}`}>
+      <Card.Body>
+        <Row className="align-items-center">
+          {/* Imagen y estado - solo para Users, Client y Products */}
+          {(variant === "Users" || variant === "Client" || variant === "Products") && (
+            <Col xs={3} className="text-center">
+              {(variant === "Users" || variant === "Client") ? (
+                <UserProfileImage
+                  imagenPerfilPublicId={imagenPerfilPublicId}
+                  size="large"
+                  alt={String(name)}
+                  className="mb-2"
+                  style={{ width: "100%", borderRadius: 8 }}
+                />
+              ) : (
+                <Card.Img
+                  src="/src/assets/landings/image.png"
+                  alt={String(name)}
+                  style={{ width: "100%", borderRadius: 8 }}
+                />
+              )}
+              {activo != null && (
+                <Badge bg={activo ? "success" : "secondary"} className="mt-2">
+                  {activo ? "Activo" : "Inactivo"}
+                </Badge>
+              )}
+              {restored && <span className={styles.restoredBadge}>Restaurado</span>}
+            </Col>
+          )}
+
+          {/* Detalles según variante - ajustar el tamaño de la columna según si hay imagen o no */}
+          <Col xs={variant === "Users" || variant === "Client" || variant === "Products" ? 6 : 9}>
+            {variant === "Products" && (
+              <>
+                <p>
+                  <strong>ID:</strong> {id}
+                </p>
+                <p>
+                  <strong>Name:</strong> {name}
+                </p>
+                <p>
+                  <strong>Description:</strong> {description}
+                </p>
+                <p>
+                  <strong>Color:</strong> {color}
+                </p>
+                <p>
+                  <strong>Category:</strong> {category?.nombre}
+                </p>
+                <p>
+                  <strong>Type:</strong> {type?.nombre || "Sin tipo"}
+                </p>
+                <p>
+                  <strong>Sizes:</strong>{" "}
+                  {sizes && sizes.length > 0 
+                    ? sizes.map((s) => `${s.sistema} ${s.valor}`).join(", ")
+                    : "No hay talles disponibles"
+                  }
+                </p>
+                <p>
+                  <strong>Price:</strong> ${price}
+                </p>
+                <p>
+                  <strong>Stock:</strong> {quantity}
+                </p>
+              </>
+            )}
+
+            {(variant === "Users" || variant === "Client") && (
+              <>
+                <p>
+                  <strong>ID:</strong> {id}
+                </p>
+                <p>
+                  <strong>Name:</strong> {name}
+                </p>
+                <p>
+                  <strong>Email:</strong> {email}
+                </p>
+                <p>
+                  <strong>Role:</strong> {rol}
+                </p>
+                <p>
+                  <strong>Orders:</strong>{" "}
+                  {usuario?.ordenes && usuario.ordenes.length > 0 
+                    ? usuario.ordenes.length 
+                    : "No posee"
+                  }
+                </p>
+                <p>
+                  <strong>Addresses:</strong>{" "}
+                  {address && address.length > 0 
+                    ? address.map((d) => d.direccion.calle).join("; ")
+                    : "No posee"
+                  }
+                </p>
+              </>
+            )}
+
+            {variant === "Categories" && (
+              <>
+                <p>
+                  <strong>ID:</strong> {id}
+                </p>
+                <p>
+                  <strong>Name:</strong> {name}
+                </p>
+                <p>
+                  <strong>Types:</strong>{" "}
+                  {category?.tipos && category.tipos.length > 0
+                    ? category.tipos.map((t) => t.nombre).join(", ")
+                    : "No posee"
+                  }
+                </p>
+                <p>
+                  <strong>Products:</strong>{" "}
+                  {category?.productos && category.productos.length > 0
+                    ? category.productos.map((p) => p.nombre).join(", ")
+                    : "No posee"
+                  }
+                </p>
+              </>
+            )}
+
+            {variant === "Types" && (
+              <>
+                <p>
+                  <strong>ID:</strong> {id}
+                </p>
+                <p>
+                  <strong>Name:</strong> {name}
+                </p>
+                <p>
+                  <strong>Categories:</strong>{" "}
+                  {categories && categories.length > 0
+                    ? categories.map((c) => c.nombre).join(", ")
+                    : "No posee"
+                  }
+                </p>
+                <p>
+                  <strong>Products:</strong>{" "}
+                  {categories && categories.length > 0 && categories
+                    .flatMap((c) => c.productos ?? [])
+                    .filter((p, i, arr) => p && arr.findIndex(pp => pp.id === p.id) === i)
+                    .length > 0
+                    ? categories
+                        .flatMap((c) => c.productos ?? [])
+                        .filter((p, i, arr) => p && arr.findIndex(pp => pp.id === p.id) === i)
+                        .map((p) => p.nombre)
+                        .join(", ")
+                    : "No posee"
+                  }
+                </p>
+              </>
+            )}
+
+            {variant === "Sizes" && (
+              <>
+                <p>
+                  <strong>ID:</strong> {id}
+                </p>
+                <p>
+                  <strong>System:</strong> {system}
+                </p>
+                <p>
+                  <strong>Value:</strong> {value}
+                </p>
+                <p>
+                  <strong>Products:</strong>{" "}
+                  {sizes && sizes.length > 0
+                    ? sizes
+                        .flatMap((s) => s.productos || [])
+                        .map((p) => p.nombre)
+                        .join(", ")
+                    : "No posee"
+                  }
+                </p>
+              </>
+            )}
+
+            {variant === "Addresses" && (
+              <>
+                <p>
+                  <strong>ID:</strong> {id}
+                </p>
+                <p>
+                  <strong>User:</strong>{" "}
+                  {usuario?.nombre || usuarioDireccion?.usuario.nombre || "Sin usuario asignado"}
+                </p>
+                <p>
+                  <strong>Street:</strong>{" "}
+                  {street || usuarioDireccion?.direccion.calle}
+                </p>
+                <p>
+                  <strong>Locality:</strong>{" "}
+                  {locality || usuarioDireccion?.direccion.localidad}
+                </p>
+                <p>
+                  <strong>Postal Code:</strong>{" "}
+                  {pc || usuarioDireccion?.direccion.cp}
+                </p>
+              </>
+            )}
+
+            {variant === "Orders" && (
+              <>
+                <p>
+                  <strong>ID:</strong> {id}
+                </p>
+                <p>
+                  <strong>User:</strong>{" "}
+                  {usuario?.nombre || usuarioDireccion?.usuario.nombre}
+                </p>
+                <p>
+                  <strong>Address:</strong> {usuarioDireccion?.direccion.calle},{" "}
+                  {usuarioDireccion?.direccion.localidad}
+                </p>
+                <p>
+                  <strong>Items:</strong>{" "}
+                  {detail
+                    ?.map((d) => `${d.cantidad}× ${d.producto.nombre}`)
+                    .join(", ")}
+                </p>
+                <p>
+                  <strong>Date:</strong> {formattedDate}
+                </p>
+                <p>
+                  <strong>Total:</strong> ${total}
+                </p>
+                <p>
+                  <strong>Payment:</strong> {payMethod}
+                </p>
+                <p>
+                  <strong>Status:</strong> {Dstatus}
+                </p>
+              </>
+            )}
+          </Col>
+
+          {/* Botones */}
+          <Col xs={3} className="text-center">
+            <Row className="g-2 justify-content-center">
+              {activo !== false ? (
+                <>
+                  <Col xs="auto">
+                    <EditButton
+                      view={variant}
+                      initialData={variant === "Products" && producto ? producto : 
+                                   variant === "Users" && usuario ? usuario : props}
+                      onClose={() => {}}
+                      onEdited={onEdited}
+                    />
+                  </Col>
+                  <Col xs="auto">
+                    <DeleteButton view={variant} id={id} onDeleted={onDeleted} />
+                  </Col>
+                </>
+              ) : (
+                <Col xs="auto">
+                  <RestoreButton
+                    view={variant}
+                    id={typeof id === 'string' ? parseInt(id) : id}
+                    onRestored={onRestored}
+                  />
+                </Col>
+              )}
+            </Row>
+          </Col>
+        </Row>
+      </Card.Body>
+    </Card>
   );
 };

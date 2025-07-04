@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import style from "./AdminSideBar.module.css";
 import { usuarioStore } from "../../../store/usuarioStore";
-import { IUsuario, IValues } from "../../../types/IUsuario";
+import { IValues } from "../../../types/IUsuario";
 import { registrarUsuario } from "../../../http/usuarioHTTP";
 import { useNavigate } from "react-router-dom";
 import { CreateButton } from "../Buttons/CreateButton/CreateButon";
@@ -27,6 +27,12 @@ interface AdminSideBarProps {
   ) => void;
   name: string;
   onUserCreated?: () => void;
+  onProductCreated?: () => void;
+  onCategoryCreated?: () => void;
+  onTypeCreated?: () => void;
+  onSizeCreated?: () => void;
+  onAddressCreated?: () => void;
+  onOrderCreated?: () => void;
 }
 
 export const AdminSideBar = ({
@@ -34,6 +40,12 @@ export const AdminSideBar = ({
   onChangeView,
   name,
   onUserCreated,
+  onProductCreated,
+  onCategoryCreated,
+  onTypeCreated,
+  onSizeCreated,
+  onAddressCreated,
+  onOrderCreated,
 }: AdminSideBarProps) => {
   const navigate = useNavigate();
 
@@ -43,13 +55,35 @@ export const AdminSideBar = ({
     setPopUp(!popUp);
   };
 
+  // Función para determinar qué callback usar según la vista
+  const getOnCreatedCallback = () => {
+    switch (view) {
+      case "Products":
+        return onProductCreated;
+      case "Users":
+        return onUserCreated;
+      case "Categories":
+        return onCategoryCreated;
+      case "Types":
+        return onTypeCreated;
+      case "Sizes":
+        return onSizeCreated;
+      case "Addresses":
+        return onAddressCreated;
+      case "Orders":
+        return onOrderCreated;
+      default:
+        return undefined;
+    }
+  };
+
   const setUsuarioActivo = usuarioStore((state) => state.setUsuarioActivo);
   const setToken = usuarioStore((state) => state.setToken);
   const usuario = usuarioStore((state) => state.usuarioActivo);
   const token = usuarioStore((s) => s.usuarioActivo?.token);
 
   const handleSubmit = async (values: IValues) => {
-    const nuevoUsuario: IUsuario = {
+    const nuevoUsuario: IValues = {
       nombre: values.nombre.trim(),
       email: values.email.trim(),
       password: values.password.trim(),
@@ -84,7 +118,7 @@ export const AdminSideBar = ({
         <CreateButton
           view={view}
           onClose={() => setPopUp(false)}
-          onCreated={onUserCreated}
+          onCreated={getOnCreatedCallback()}
         />
       )}
 

@@ -6,193 +6,153 @@ const API_URL = "http://localhost:9000";
 
 export const registrarUsuario = async (
   nuevoUsuario: IUsuario
-): Promise<IAuthResponse | null> => {
-  try {
-    const { data } = await axios.post<IAuthResponse>(
-      `${API_URL}/public/register`,
-      nuevoUsuario
-    );
-
-    console.log("✅ Registro correcto:", data);
-
-    Swal.fire({
-      icon: "success",
-      title: "Usuario creado",
-      text: "El registro se realizó correctamente.",
-      timer: 2000,
-      showConfirmButton: false,
-    });
-
-    return data; // devuelve { token, usuario }
-  } catch (error: any) {
-    console.error("Error al registrar usuario:", error.response?.data || error);
-    Swal.fire({
-      icon: "error",
-      title: "Error",
-      text: error.response?.data?.message || "No se pudo registrar el usuario",
-    });
-    return null;
+): Promise<IAuthResponse> => {
+  const payload: any = {
+    nombre: nuevoUsuario.nombre,
+    email: nuevoUsuario.email,
+    password: nuevoUsuario.password,
+  };
+  if (nuevoUsuario.imagenPerfilPublicId) {
+    payload.imagenPerfilPublicId = nuevoUsuario.imagenPerfilPublicId;
   }
+  const { data } = await axios.post<IAuthResponse>(
+    `${API_URL}/public/register`,
+    payload
+  );
+  Swal.fire({
+    icon: "success",
+    title: "Usuario registrado",
+    timer: 2000,
+    showConfirmButton: false,
+  });
+  return data;
 };
 
 export const loginUsuario = async (
   email: string,
   password: string
-): Promise<IAuthResponse | null> => {
-  try {
-    const { data } = await axios.post<IAuthResponse>(
-      `${API_URL}/public/login`,
-      {
-        email,
-        password,
-      }
-    );
-    Swal.fire({
-      icon: "success",
-      title: "Login",
-      text: `Welcome ${data.usuario.nombre}!`,
-      timer: 2000,
-      showConfirmButton: false,
-    });
-    return data; // { token, usuario }
-  } catch (error: any) {
-    console.error("Error al iniciar sesión", error.response?.data || error);
-    return null;
-  }
+): Promise<IAuthResponse> => {
+  const { data } = await axios.post<IAuthResponse>(`${API_URL}/public/login`, {
+    email,
+    password,
+  });
+  return data;
 };
 
 export const getAllUsuarios = async (
   token: string | null
 ): Promise<IUsuario[]> => {
   try {
-    const response = await axios.get<IUsuario[]>(`${API_URL}/usuario`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    console.log("✅ Usuarios recibidos:", response.data);
-    return response.data;
+  const { data } = await axios.get<IUsuario[]>(`${API_URL}/usuario`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+    console.log("[getAllUsuarios] Respuesta del backend:", data);
+  return data;
   } catch (error: any) {
-    console.error(
-      "❌ Error al obtener usuarios:",
-      error.response?.data || error
-    );
+    if (error.response) {
+      console.error("[getAllUsuarios] Error de respuesta:", error.response.status, error.response.data);
+    } else if (error.request) {
+      console.error("[getAllUsuarios] No hubo respuesta del backend:", error.request);
+    } else {
+      console.error("[getAllUsuarios] Error desconocido:", error.message);
+    }
     return [];
   }
 };
 
-export const getMiUsuario = async (
+export const getUsuarioActual = async (
   token: string | null
-): Promise<IUsuario | null> => {
-  if (!token) {
-    console.error("Token ausente: no estás autenticado");
-    return null;
-  }
-
-  try {
-    const { data } = await axios.get<IUsuario>(`${API_URL}/usuario/me`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-
-    console.log("✅ Mi usuario:", data);
-    return data;
-  } catch (error: any) {
-    console.error(
-      "❌ Error al obtener mi usuario:",
-      error.response?.data || error
-    );
-    Swal.fire({
-      icon: "error",
-      title: "Error",
-      text:
-        error.response?.data?.message ||
-        "No pudimos obtener tu información de usuario",
-    });
-    return null;
-  }
-};
-
-export const deleteUsuario = async (
-  token: string | null,
-  id: number
-): Promise<boolean> => {
-  if (!token) {
-    console.error("Token ausente: no estás autenticado");
-    return false;
-  }
-
-  try {
-    await axios.delete(`${API_URL}/usuario/${id}`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-
-    Swal.fire({
-      icon: "success",
-      title: "Usuario eliminado",
-      text: `Se eliminó correctamente el usuario con ID ${id}.`,
-      timer: 2000,
-      showConfirmButton: false,
-    });
-
-    return true;
-  } catch (error: any) {
-    console.error(
-      "❌ Error al eliminar usuario:",
-      error.response?.data || error
-    );
-    Swal.fire({
-      icon: "error",
-      title: "Error",
-      text:
-        error.response?.data?.message ||
-        `No se pudo eliminar el usuario con ID ${id}.`,
-    });
-    return false;
-  }
+): Promise<IUsuario> => {
+  const { data } = await axios.get<IUsuario>(`${API_URL}/usuario/me`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  return data;
 };
 
 export const updateUsuario = async (
   token: string | null,
   id: number,
   usuarioUpdated: Partial<IUsuario>
-): Promise<IUsuario | null> => {
-  if (!token) {
-    console.error("Token ausente: no estás autenticado");
-    return null;
-  }
+): Promise<IUsuario> => {
+  const { data } = await axios.put<IUsuario>(
+    `${API_URL}/usuario/${id}`,
+    usuarioUpdated,
+    {
+      headers: { Authorization: `Bearer ${token}` },
+    }
+  );
+  Swal.fire({
+    icon: "success",
+    title: "Usuario actualizado",
+    timer: 2000,
+    showConfirmButton: false,
+  });
+  return data;
+};
 
-  try {
-    const { data } = await axios.put<IUsuario>(
-      `${API_URL}/usuario/${id}`,
-      usuarioUpdated,
-      {
-        headers: { Authorization: `Bearer ${token}` },
-      }
-    );
+export const deleteUsuario = async (
+  token: string | null,
+  id: number
+): Promise<void> => {
+  await axios.delete(`${API_URL}/usuario/${id}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  Swal.fire({
+    icon: "success",
+    title: "Usuario eliminado",
+    timer: 2000,
+    showConfirmButton: false,
+  });
+};
 
-    Swal.fire({
-      icon: "success",
-      title: "Usuario actualizado",
-      text: `Se actualizaron los datos del usuario con ID ${id}.`,
-      timer: 2000,
-      showConfirmButton: false,
-    });
+export const softDeleteUsuario = async (
+  token: string | null,
+  id: number
+): Promise<void> => {
+  await axios.patch(`${API_URL}/usuario/soft-delete/${id}`, {}, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  Swal.fire({
+    icon: "success",
+    title: "Usuario dado de baja (soft delete)",
+    timer: 2000,
+    showConfirmButton: false,
+  });
+};
 
-    return data;
-  } catch (error: any) {
-    console.error(
-      "❌ Error al actualizar usuario:",
-      error.response?.data || error
-    );
-    Swal.fire({
-      icon: "error",
-      title: "Error",
-      text:
-        error.response?.data?.message ||
-        `No se pudo actualizar el usuario con ID ${id}.`,
-    });
-    return null;
-  }
+export const restoreUsuario = async (
+  token: string | null,
+  id: number
+): Promise<void> => {
+  await axios.patch(`${API_URL}/usuario/restore/${id}`, {}, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  Swal.fire({
+    icon: "success",
+    title: "Usuario restaurado",
+    text: `Usuario ID ${id} restaurado exitosamente.`,
+    timer: 2000,
+    showConfirmButton: false,
+  });
+};
+
+export const corregirRolAdmin = async (
+  token: string | null,
+  id: number
+): Promise<IUsuario> => {
+  const { data } = await axios.patch<IUsuario>(
+    `${API_URL}/usuario/${id}/corregir-rol-admin`,
+    {},
+    {
+      headers: { Authorization: `Bearer ${token}` },
+    }
+  );
+  Swal.fire({
+    icon: "success",
+    title: "Rol de admin corregido",
+    text: `Usuario ID ${id} ahora tiene rol ADMIN.`,
+    timer: 2000,
+    showConfirmButton: false,
+  });
+  return data;
 };

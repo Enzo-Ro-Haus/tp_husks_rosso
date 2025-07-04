@@ -18,7 +18,7 @@ public class Tipo extends Base{
     @Column(nullable = false, length = 20)
     private String nombre;
 
-    @OneToMany(mappedBy = "tipo", cascade = CascadeType.ALL)
-    @JsonIgnoreProperties("tipo")
+    @ManyToMany(mappedBy = "tipos", fetch = FetchType.LAZY)
+    @JsonIgnoreProperties("tipos")
     private List<Categoria> categorias = new ArrayList<>();
 }

@@ -18,14 +18,18 @@ public class Categoria extends Base {
     @Column(nullable = false, length = 50)
     private String nombre;
 
-    @ManyToOne()
-    @JoinColumn(name = "id_tipo", nullable = false)
-    @JsonIgnoreProperties("categorias")
-    private Tipo tipo;
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+        name = "categoria_tipo",
+        joinColumns = @JoinColumn(name = "categoria_id"),
+        inverseJoinColumns = @JoinColumn(name = "tipo_id")
+    )
+    @JsonIgnoreProperties({"categorias", "productos"})
+    private List<Tipo> tipos = new ArrayList<>();
 
     @OneToMany(mappedBy = "categoria", cascade = CascadeType.ALL)
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
-    @JsonIgnoreProperties("categoria")
+    @JsonIgnoreProperties({"categoria", "tipo", "tallesDisponibles"})
     private List<Producto> productos = new ArrayList<>();
 }

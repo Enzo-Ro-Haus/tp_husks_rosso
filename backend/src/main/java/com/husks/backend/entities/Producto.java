@@ -14,7 +14,7 @@ import java.util.Set;
 @Builder
 @Getter
 @Setter
-@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"}) 
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Producto extends Base {
 
     @Column(nullable = false, length = 100)
@@ -33,8 +33,13 @@ public class Producto extends Base {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_categoria", nullable = false)
-    @JsonIgnoreProperties("productos")
+    @JsonIgnoreProperties({"productos", "tipos"})
     private Categoria categoria;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_tipo", nullable = false)
+    @JsonIgnoreProperties({"categorias"})
+    private Tipo tipo;
 
     @ManyToMany
     @JoinTable(name = "Talle_Producto", 
@@ -42,4 +47,7 @@ public class Producto extends Base {
                inverseJoinColumns = @JoinColumn(name = "id_talle"))
     @JsonIgnoreProperties("productos")
     private Set<Talle> tallesDisponibles = new HashSet<>();
+
+    @Column(name = "imagen_public_id")
+    private String imagenPublicId;
 }

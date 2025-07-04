@@ -1,0 +1,115 @@
+.imageUploadContainer {
+  margin-bottom: 1rem;
+}
+
+.label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+}
+
+.currentImageContainer {
+  position: relative;
+  display: inline-block;
+  margin-bottom: 1rem;
+}
+
+.currentImage {
+  border-radius: 8px;
+  border: 2px solid #e9ecef;
+}
+
+.removeButton {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 10;
+}
+
+.previewContainer {
+  margin-bottom: 1rem;
+}
+
+.previewImage {
+  max-width: 200px;
+  max-height: 150px;
+  border-radius: 8px;
+  border: 2px solid #e9ecef;
+  margin-bottom: 0.5rem;
+}
+
+.previewActions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.uploadArea {
+  border: 2px dashed #dee2e6;
+  border-radius: 8px;
+  padding: 2rem;
+  text-align: center;
+  background-color: #f8f9fa;
+  transition: all 0.3s ease;
+}
+
+.uploadArea:hover {
+  border-color: #007bff;
+  background-color: #f0f8ff;
+}
+
+.fileInput {
+  display: none;
+}
+
+.uploadLabel {
+  cursor: pointer;
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.uploadContent {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  color: #6c757d;
+}
+
+.uploadContent i {
+  font-size: 2rem;
+  color: #007bff;
+}
+
+.uploadContent span {
+  font-size: 0.9rem;
+}
+
+/* Estados de hover y focus */
+.uploadArea:hover .uploadContent {
+  color: #007bff;
+}
+
+.uploadArea:hover .uploadContent i {
+  color: #0056b3;
+}
+
+/* Estado deshabilitado */
+.uploadArea.disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.uploadArea.disabled:hover {
+  border-color: #dee2e6;
+  background-color: #f8f9fa;
+}
+
+.uploadArea.disabled .uploadContent {
+  color: #6c757d;
+}
+
+.uploadArea.disabled .uploadContent i {
+  color: #6c757d;
+} 

@@ -1,19 +1,32 @@
-import styles from "./InfoCard.module.css";
-import production from "../../../../assets/landings/production.png";
+import { Card } from "react-bootstrap";
 
-export const InfoCard = () => {
+type InfoCardProp = {
+  img: string;
+  title: string;
+  content: string;
+};
+
+export const InfoCard = ({ img, title, content }: InfoCardProp) => {
   return (
-    <div className={styles.containerPrincipalCard}>
-      <img className={styles.cardImg} src={production}></img>
-      <div className={styles.cardInfo}>
-        <div>
-          <h3>Title</h3>
-          <p>
-            Lorem ipsum, dolor sit amet consectetur adipisicing elit. Fugit
-            asperiores inventore, fugiat deserunt, vitae obcaecati.
-          </p>
-        </div>
-      </div>
-    </div>
+    <Card
+      style={{
+        width: "30%",
+        height: "auto",
+        backgroundColor: "transparent",
+        border: "none",
+      }}
+    >
+      <Card.Img
+        variant="top"
+        src={img}
+        style={{ width: "100%", height: "400px" }}
+      />
+      <Card.Body>
+        <Card.Title>{title}</Card.Title>
+        <Card.Text style={{ width: "100%", height: "auto" }}>
+          {content}
+        </Card.Text>
+      </Card.Body>
+    </Card>
   );
 };

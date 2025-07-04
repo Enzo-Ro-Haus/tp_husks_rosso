@@ -11,6 +11,8 @@ import { Header } from "../../ui/Header/Header";
 import { Footer } from "../../ui/Footer/Footer"; 
 
 import style from "./Register.module.css";
+import ImageUpload from "../../ui/Image/ImageUpload";
+import { uploadImageToCloudinary } from "../../../http/cloudinaryUploadHTTP";
 
 const schemaYup = yup.object().shape({
   nombre: yup
@@ -27,6 +29,8 @@ const schemaYup = yup.object().shape({
     .required("❌ La contraseña es obligatoria"),
 });
 
+const DEFAULT_IMAGE_PUBLIC_ID = "user_img"; // Debe existir en Cloudinary
+
 export const Register = () => {
   const navigate = useNavigate();
 
@@ -36,17 +40,18 @@ export const Register = () => {
 
   // Si ya hay token, redirige al home
   useEffect(() => {
-    if (token) {
+   /* if (token) {
       navigate("/");
-    }
+    }*/
   }, [token, navigate]);
 
-  const handleSubmit = async (values: { nombre: string; email: string; password: string }) => {
+  const handleSubmit = async (values: { nombre: string; email: string; password: string; imagenPerfilPublicId?: string }) => {
     // Mapeo del campo 'name' a 'nombre' en tu DTO
     const nuevoUsuario: IUsuario = {
       nombre: values.nombre.trim(),
       email: values.email.trim(),
       password: values.password.trim(),
+      imagenPerfilPublicId: values.imagenPerfilPublicId || DEFAULT_IMAGE_PUBLIC_ID,
     };
 
     const info = await registrarUsuario(nuevoUsuario);
@@ -71,11 +76,11 @@ export const Register = () => {
       <div className={style.containerForm}>
         <h2>REGISTER</h2>
         <Formik
-          initialValues={{ nombre: "", email: "", password: "" }}
+          initialValues={{ nombre: "", email: "", password: "", imagenPerfilPublicId: "" }}
           validationSchema={schemaYup}
           onSubmit={handleSubmit}
         >
-          {({ values }) => (
+          {({ values, setFieldValue }) => (
             <Form className={style.Form}>
               <div className={style.Input}>
                 <Field
@@ -104,14 +109,28 @@ export const Register = () => {
                 />
                 <ErrorMessage name="password" component="div" className="error-message" />
               </div>
+              <div className={style.Input}>
+                <ImageUpload
+                  label="Imagen de perfil (opcional)"
+                  currentImagePublicId={values.imagenPerfilPublicId && values.imagenPerfilPublicId !== DEFAULT_IMAGE_PUBLIC_ID
+                    ? values.imagenPerfilPublicId
+                    : undefined}
+                  onImageUpload={async (file) => {
+                    const publicId = await uploadImageToCloudinary(file, "usuarios");
+                    setFieldValue("imagenPerfilPublicId", publicId);
+                    return publicId;
+                  }}
+                  onImageRemove={() => setFieldValue("imagenPerfilPublicId", "")}
+                />
+              </div>
 
               <div className={style.containerButtons}>
                 <button type="submit" className={style.buttonSend}>
                   Send
-                </button>
+                </button>                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     
               </div>
 
-              <pre>{JSON.stringify(values, null, 2)}</pre>
+              <pre>{/*JSON.stringify(values, null, 2)*/}</pre>
             </Form>
           )}
         </Formik>

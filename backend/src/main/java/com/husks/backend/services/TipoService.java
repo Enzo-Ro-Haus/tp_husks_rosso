@@ -1,4 +1,3 @@
-// TipoService.java
 package com.husks.backend.services;
 
 import com.husks.backend.entities.Tipo;

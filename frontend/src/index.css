@@ -1,5 +1,7 @@
-* {
-    margin: 0px;
-    padding: 0px;
-    box-sizing: border-box;
+:root {
+    margin: 0 0;
+    padding: 0 0;
+    --color-letra-normal:  #231F20;
+    --color-letra-hover:  #5E5F5A;
+    --fount-family: "Assistant", sans-serif;
 }

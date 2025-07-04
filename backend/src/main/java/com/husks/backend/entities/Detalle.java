@@ -9,7 +9,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Getter @Setter
+@Setter
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Detalle extends Base{
 
@@ -25,4 +25,30 @@ public class Detalle extends Base{
 
     @Column(nullable = false)
     private Integer cantidad;
+
+    // Explicit getters
+    public OrdenDeCompra getOrdenDeCompra() {
+        return ordenDeCompra;
+    }
+
+    public Producto getProducto() {
+        return producto;
+    }
+
+    public Integer getCantidad() {
+        return cantidad;
+    }
+
+    // Explicit setters
+    public void setOrdenDeCompra(OrdenDeCompra ordenDeCompra) {
+        this.ordenDeCompra = ordenDeCompra;
+    }
+
+    public void setProducto(Producto producto) {
+        this.producto = producto;
+    }
+
+    public void setCantidad(Integer cantidad) {
+        this.cantidad = cantidad;
+    }
 }

@@ -1,29 +1,20 @@
 .containerBanner {
-  width: 98vw;
+  width: 100%;
   height: 110vh;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  align-items: center;
+  align-items: flex-start;
   background-color: #dfd8ce;
-  padding: 1.5rem;
   font-family: "Assistant", sans-serif;
+  padding: 2rem 0;
 }
 
-.bannerInfo {
-  width: 100%;
-  height: 10%;
-  display: flex;
-  justify-content: flex-start;
-  align-items: center;
-  font-size: larger;
-}
 
 .containerCard{
   width: 100%;
   height: 100%;
   display: flex;
-  justify-content: center;
+  justify-content: space-between;
   align-items: center;
-  gap: 2rem;
 }

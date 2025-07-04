@@ -16,7 +16,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Getter @Setter
+@Setter
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class OrdenDeCompra extends Base{
 
@@ -48,4 +48,62 @@ public class OrdenDeCompra extends Base{
     @OneToMany(mappedBy = "ordenDeCompra", cascade = CascadeType.ALL)
     @JsonIgnoreProperties("ordenDeCompra")
     private List<Detalle> detalles = new ArrayList<>();
+
+    // Explicit getters
+    public Usuario getUsuario() {
+        return usuario;
+    }
+
+    public UsuarioDireccion getUsuarioDireccion() {
+        return usuarioDireccion;
+    }
+
+    public LocalDate getFecha() {
+        return fecha;
+    }
+
+    public BigDecimal getPrecioTotal() {
+        return precioTotal;
+    }
+
+    public MetodoPago getMetodoPago() {
+        return metodoPago;
+    }
+
+    public EstadoOrden getEstado() {
+        return estado;
+    }
+
+    public List<Detalle> getDetalles() {
+        return detalles;
+    }
+
+    // Explicit setters
+    public void setUsuario(Usuario usuario) {
+        this.usuario = usuario;
+    }
+
+    public void setUsuarioDireccion(UsuarioDireccion usuarioDireccion) {
+        this.usuarioDireccion = usuarioDireccion;
+    }
+
+    public void setFecha(LocalDate fecha) {
+        this.fecha = fecha;
+    }
+
+    public void setPrecioTotal(BigDecimal precioTotal) {
+        this.precioTotal = precioTotal;
+    }
+
+    public void setMetodoPago(MetodoPago metodoPago) {
+        this.metodoPago = metodoPago;
+    }
+
+    public void setEstado(EstadoOrden estado) {
+        this.estado = estado;
+    }
+
+    public void setDetalles(List<Detalle> detalles) {
+        this.detalles = detalles;
+    }
 }

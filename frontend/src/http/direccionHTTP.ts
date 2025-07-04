@@ -1,72 +1,172 @@
 import axios from "axios";
-import { IDireccion } from "../types/IDireccion";
 import Swal from "sweetalert2";
+import { IUsuarioDireccion } from "../types/IUsuarioDireccion";
+import { IDireccion } from "../types/IDireccion";
 
 const API_URL = "http://localhost:9000";
+
+export const getAllUsuarioDirecciones = async (
+  token: string | null
+): Promise<IUsuarioDireccion[]> => {
+  const { data } = await axios.get<IUsuarioDireccion[]>(
+    `${API_URL}/usuario-direccion`,
+    { headers: { Authorization: `Bearer ${token}` } }
+  );
+  return data;
+};
+
+export const getAllDirecciones = async (
+  token: string | null
+): Promise<IDireccion[]> => {
+  const { data } = await axios.get<IDireccion[]>(
+    `${API_URL}/direccion`,
+    { headers: { Authorization: `Bearer ${token}` } }
+  );
+  return data;
+};
+
+export const createUsuarioDireccion = async (
+  token: string | null,
+  nueva: IUsuarioDireccion
+): Promise<IUsuarioDireccion> => {
+  try {
+    const { data } = await axios.post<IUsuarioDireccion>(
+      `${API_URL}/usuario-direccion`,
+      nueva,
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+    Swal.fire({
+      icon: "success",
+      title: "Dirección asignada",
+      timer: 2000,
+      showConfirmButton: false,
+    });
+    return data;
+  } catch (error: any) {
+    console.error('Error asignando dirección:', error);
+    if (error.response?.status === 403) {
+      Swal.fire({
+        icon: "error",
+        title: "Error de permisos",
+        text: "No tienes permisos para asignar direcciones. Contacta al administrador.",
+        timer: 3000,
+        showConfirmButton: false,
+      });
+    } else {
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: error.response?.data?.message || "Error inesperado al asignar la dirección",
+        timer: 3000,
+        showConfirmButton: false,
+      });
+    }
+    throw error;
+  }
+};
+
+export const updateUsuarioDireccion = async (
+  token: string | null,
+  id: number,
+  direccionUpdated: Partial<IUsuarioDireccion>
+): Promise<IUsuarioDireccion> => {
+  const { data } = await axios.put<IUsuarioDireccion>(
+    `${API_URL}/usuario-direccion/${id}`,
+    direccionUpdated,
+    { headers: { Authorization: `Bearer ${token}` } }
+  );
+  Swal.fire({
+    icon: "success",
+    title: "Asignación actualizada",
+    timer: 2000,
+    showConfirmButton: false,
+  });
+  return data;
+};
+
+export const deleteUsuarioDireccion = async (
+  token: string | null,
+  id: number
+): Promise<void> => {
+  await axios.delete(`${API_URL}/usuario-direccion/${id}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  Swal.fire({
+    icon: "success",
+    title: "Asignación eliminada",
+    timer: 2000,
+    showConfirmButton: false,
+  });
+};
+
+export const softDeleteUsuarioDireccion = async (
+  token: string | null,
+  id: number
+): Promise<void> => {
+  await axios.patch(`${API_URL}/usuario-direccion/soft-delete/${id}`, {}, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  Swal.fire({
+    icon: "success",
+    title: "Dirección dada de baja (soft delete)",
+    timer: 2000,
+    showConfirmButton: false,
+  });
+};
+
+export const restoreUsuarioDireccion = async (
+  token: string | null,
+  id: number
+): Promise<void> => {
+  await axios.patch(`${API_URL}/usuario-direccion/restore/${id}`, {}, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  Swal.fire({
+    icon: "success",
+    title: "Dirección restaurada",
+    text: `Dirección ID ${id} restaurada exitosamente.`,
+    timer: 2000,
+    showConfirmButton: false,
+  });
+};
 
 export const createDireccion = async (
   token: string | null,
   nuevaDireccion: IDireccion
-): Promise<IDireccion | null> => {
-  if (!token) {
-    console.error("Token ausente: no estás autenticado");
-    return null;
-  }
-
+): Promise<IDireccion> => {
   try {
     const { data } = await axios.post<IDireccion>(
       `${API_URL}/direccion`,
       nuevaDireccion,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
+      { headers: { Authorization: `Bearer ${token}` } }
     );
-
     Swal.fire({
       icon: "success",
       title: "Dirección creada",
-      text: `Se creó correctamente la dirección en ${data.calle}, ${data.localidad}.`,
       timer: 2000,
       showConfirmButton: false,
     });
-
-    console.log("✅ Dirección creada:", data);
     return data;
   } catch (error: any) {
-    console.error("❌ Error al crear dirección:", error.response?.data || error);
-    Swal.fire({
-      icon: "error",
-      title: "Error",
-      text:
-        error.response?.data?.message ||
-        `No se pudo crear la dirección en ${nuevaDireccion.calle}.`,
-    });
-    return null;
-  }
-};
-
-export const getAllDireccions = async (
-  token: string | null
-): Promise<IDireccion[]> => {
-  try {
-    const response = await axios.get<IDireccion[]>(
-      `${API_URL}/direccion`,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
-    console.log("✅ Direcciones recibidas:", response.data);
-    return response.data;
-  } catch (error: any) {
-    console.error(
-      "❌ Error al obtener Direcciones:",
-      error.response?.data || error
-    );
-    return [];
+    console.error('Error creando dirección:', error);
+    if (error.response?.status === 403) {
+      Swal.fire({
+        icon: "error",
+        title: "Error de permisos",
+        text: "No tienes permisos para crear direcciones. Contacta al administrador.",
+        timer: 3000,
+        showConfirmButton: false,
+      });
+    } else {
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: error.response?.data?.message || "Error inesperado al crear la dirección",
+        timer: 3000,
+        showConfirmButton: false,
+      });
+    }
+    throw error;
   }
 };
 
@@ -74,70 +174,17 @@ export const updateDireccion = async (
   token: string | null,
   id: number,
   direccionUpdated: Partial<IDireccion>
-): Promise<IDireccion | null> => {
-  if (!token) {
-    console.error("Token ausente: no estás autenticado");
-    return null;
-  }
-  try {
-    const { data } = await axios.put<IDireccion>(
-      `${API_URL}/direccion/${id}`,
-      direccionUpdated,
-      { headers: { Authorization: `Bearer ${token}` } }
-    );
-    Swal.fire({
-      icon: "success",
-      title: "Dirección actualizada",
-      text: `Se actualizó la dirección ID ${id}.`,
-      timer: 2000,
-      showConfirmButton: false,
-    });
-    return data;
-  } catch (error: any) {
-    console.error(
-      "❌ Error al actualizar dirección:",
-      error.response?.data || error
-    );
-    Swal.fire({
-      icon: "error",
-      title: "Error",
-      text:
-        error.response?.data?.message ||
-        `No se pudo actualizar la dirección con ID ${id}.`,
-    });
-    return null;
-  }
-};
-
-export const deleteDireccion = async (
-  token: string | null,
-  id: number
-): Promise<boolean> => {
-  if (!token) {
-    console.error("Token ausente: no estás autenticado");
-    return false;
-  }
-  try {
-    await axios.delete(`${API_URL}/private/direccion/${id}`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    Swal.fire({
-      icon: "success",
-      title: "Dirección eliminada",
-      text: `Se eliminó la dirección con ID ${id}.`,
-      timer: 2000,
-      showConfirmButton: false,
-    });
-    return true;
-  } catch (error: any) {
-    console.error("❌ Error al eliminar dirección:", error.response?.data || error);
-    Swal.fire({
-      icon: "error",
-      title: "Error",
-      text:
-        error.response?.data?.message ||
-        `No se pudo eliminar la dirección con ID ${id}.`,
-    });
-    return false;
-  }
+): Promise<IDireccion> => {
+  const { data } = await axios.put<IDireccion>(
+    `${API_URL}/direccion/${id}`,
+    direccionUpdated,
+    { headers: { Authorization: `Bearer ${token}` } }
+  );
+  Swal.fire({
+    icon: "success",
+    title: "Dirección actualizada",
+    timer: 2000,
+    showConfirmButton: false,
+  });
+  return data;
 };

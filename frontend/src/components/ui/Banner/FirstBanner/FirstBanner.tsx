@@ -1,12 +1,17 @@
-import { ShopButton } from "../../Buttons/ShopButton/ShopButton";
+import { Button } from "react-bootstrap";
 import styles from "./FirstBanner.module.css";
+import { Link } from "react-router";
 
 export const FirstBanner = () => {
   return (
     <>
       <div className={styles.containerBanner}>
         <div className={styles.image}>
-          <ShopButton />
+          <Button variant="outline-light" className={styles.ShopButton}>
+            <Link to="/catalog" className={styles.ShopButtonLink}>
+              SHOP <span className="material-symbols-outlined">arrow_right_alt</span>
+            </Link>
+          </Button>
         </div>
         <div className={styles.bannerInfo}>
           <h2>FROM CANADA WITH LOVE</h2>

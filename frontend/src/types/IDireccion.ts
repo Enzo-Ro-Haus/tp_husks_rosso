@@ -1,7 +1,7 @@
-
 export interface IDireccion {
-    id?: number,
-    calle: string,
-    localidad: string,
-    cp: string,
+  id?: number;
+  calle: string;
+  localidad: string;
+  cp: string;
+  activo?: boolean;
 }

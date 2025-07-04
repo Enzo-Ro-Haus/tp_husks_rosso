@@ -1,13 +1,14 @@
 import { useEffect, useState } from "react";
 import { usuarioStore } from "../../../store/usuarioStore";
 import styles from "./Header.module.css";
-import { Link, useNavigate } from "react-router";
+import { Link, useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
+import { Col, Container, Row } from "react-bootstrap";
 
 export const Header = () => {
   const navigate = useNavigate();
   const usuarioActivo = usuarioStore((state) => state.usuarioActivo);
-  const setUsuario = usuarioStore((state) => state.setUsuarioActivo)
+  const setUsuario = usuarioStore((state) => state.setUsuarioActivo);
   const [ingreso, setIngreso] = useState("/register");
   const [cart, setCart] = useState("/login");
   const [log, setLog] = useState("LogIn");
@@ -44,7 +45,7 @@ export const Header = () => {
 
   useEffect(() => {
     if (usuarioActivo) {
-      const rol = usuarioActivo?.rol;
+      const rol = usuarioActivo.rol;
       setLog("LogOut");
 
       if (rol === "ADMIN") {
@@ -54,64 +55,56 @@ export const Header = () => {
         setIngreso("/client");
         setCart("/cart");
       } else {
-        // Si no hay rol definido
         setIngreso("/register");
         setCart("/login");
       }
     } else {
       setLog("LogIn");
       setIngreso("/register");
-      setCart("/login"); // aquí también debe ser /login, no /register
+      setCart("/login");
     }
   }, [usuarioActivo]);
 
   return (
     <div className={styles.containerHeader}>
-      <nav className={styles.leftNav}>
-        <ul className={styles.list}>
-          <li>
+      <Container fluid className="h-100">
+        <Row className="h-100 w-100 align-items-center justify-content-evenly mx-1">
+          <Col className="d-flex gap-5 justify-content-start align-items-center">
             <Link to="/catalog" className={styles.elementLink}>
               Shop
             </Link>
-          </li>
-          <li>
             <Link to="/about" className={styles.elementLink}>
               About
             </Link>
-          </li>
-          <li>Search</li>
-        </ul>
-      </nav>
-      <h1 className={styles.titleMain}>
-        <Link to="/" className={styles.elementLink}>
-          HUSKS
-        </Link>
-      </h1>
-      <nav className={styles.rightNav}>
-        <ul className={styles.list}>
-          <li>
-            <Link to="/register" className={styles.elementLink}>
-              Register
+            <span className={styles.elementLink}>Search</span>
+          </Col>
+
+          <Col className="d-flex justify-content-center align-items-center">
+            <Link to="/" className={styles.elementLinkTitle}>
+              HUSKS
             </Link>
-          </li>
-          <li
-            onClick={() => {
-              if (usuarioActivo) {
-                handleLogOut();
-              } else {
-                navigate("/login");
-              }
-            }}
-            className={styles.elementLink}
-          >
-            {log}
-          </li>
-          <li>
+          </Col>
+
+          <Col className="d-flex gap-5 justify-content-end align-items-center">
+            {/* Sólo mostramos Register si NO hay usuario activo */}
+            {!usuarioActivo && (
+              <Link to="/register" className={styles.elementLink}>
+                Register
+              </Link>
+            )}
+
+            <span
+              onClick={usuarioActivo ? handleLogOut : () => navigate("/login")}
+              className={styles.elementLink}
+              style={{ cursor: "pointer" }}
+            >
+              {log}
+            </span>
+
             <Link to={cart} className={styles.elementLink}>
               Cart
             </Link>
-          </li>
-          <li>
+
             <Link
               to={
                 usuario?.rol === "ADMIN"
@@ -120,25 +113,15 @@ export const Header = () => {
                   ? "/client"
                   : "/login"
               }
-              className={styles.elementLink}
+              className={`${styles.elementLink} ${styles.personLink}`}
             >
-              <span
-                className="material-symbols-outlined"
-                style={{
-                  fontSize: "1.5rem",
-                  verticalAlign: "middle",
-                  marginRight: "2px",
-                }}
-              >
-                person
-              </span>
-              <div>
-                {usuario?.nombre}
-              </div>
+              <span className="material-symbols-outlined">person</span>
+              {usuario?.nombre ?? ""}
             </Link>
-          </li>
-        </ul>
-      </nav>
+          </Col>
+        </Row>
+      </Container>
     </div>
   );
 };
+

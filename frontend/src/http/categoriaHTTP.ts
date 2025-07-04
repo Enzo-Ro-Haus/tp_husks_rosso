@@ -4,141 +4,132 @@ import Swal from "sweetalert2";
 
 const API_URL = "http://localhost:9000";
 
-export const createCategoria = async (
-  token: string | null,
-  nuevaCategoria: ICategoria
-): Promise<ICategoria | null> => {
-  if (!token) {
-    console.error("Token ausente: no estás autenticado");
-    return null;
-  }
-
-  try {
-    const { data } = await axios.post<ICategoria>(
-      `${API_URL}/categorias`,
-      nuevaCategoria,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
-
-    Swal.fire({
-      icon: "success",
-      title: "Categoría creada",
-      text: `Se creó correctamente la categoría "${data.nombre}".`,
-      timer: 2000,
-      showConfirmButton: false,
-    });
-
-    console.log("✅ Categoría creada:", data);
-    return data;
-  } catch (error: any) {
-    console.error("❌ Error al crear categoría:", error.response?.data || error);
-    Swal.fire({
-      icon: "error",
-      title: "Error",
-      text:
-        error.response?.data?.message ||
-        `No se pudo crear la categoría "${nuevaCategoria.nombre}".`,
-    });
-    return null;
-  }
-};
-
 export const getAllCategorias = async (
   token: string | null
 ): Promise<ICategoria[]> => {
   try {
-    const response = await axios.get<ICategoria[]>(
-      `${API_URL}/categoria`,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
-    console.log("✅ Categotrías recibidas:", response.data);
+    console.log("=== DEBUG getAllCategorias ===");
+    console.log("Token:", token ? "Present" : "Missing");
+    console.log("URL:", `${API_URL}/categoria`);
+    
+    const response = await axios.get<ICategoria[]>(`${API_URL}/categoria`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    
+    console.log("Response status:", response.status);
+    console.log("Response data:", response.data);
+    console.log("Response data type:", typeof response.data);
+    console.log("Response data length:", Array.isArray(response.data) ? response.data.length : "Not an array");
     
     return response.data;
   } catch (error: any) {
-    console.error(
-      "❌ Error al obtener categorias:",
-      error.response?.data || error
-    );
+    console.error("=== DEBUG getAllCategorias ERROR ===");
+    console.error("Error:", error);
+    console.error("Error response:", error.response);
+    console.error("Error status:", error.response?.status);
+    console.error("Error data:", error.response?.data);
     return [];
   }
+};
+
+export const createCategoria = async (
+  token: string | null,
+  nuevaCategoria: ICategoria
+): Promise<ICategoria> => {
+  console.log('=== DEBUG CREATE CATEGORIA ===');
+  console.log('Token:', token);
+  console.log('Payload completo:', JSON.stringify(nuevaCategoria, null, 2));
+  console.log('Headers:', { Authorization: `Bearer ${token}` });
+  console.log('URL:', `${API_URL}/categoria`);
+  console.log('==============================');
+  
+  const payload: any = { nombre: nuevaCategoria.nombre };
+  if (nuevaCategoria.tipos && nuevaCategoria.tipos.length > 0) {
+    payload.tipos = nuevaCategoria.tipos.map(t => ({ id: t.id }));
+  }
+  const { data } = await axios.post<ICategoria>(
+    `${API_URL}/categoria`,
+    payload,
+    {
+      headers: { Authorization: `Bearer ${token}` },
+    }
+  );
+  Swal.fire({
+    icon: "success",
+    title: "Categoría creada",
+    timer: 2000,
+    showConfirmButton: false,
+  });
+  return data;
 };
 
 export const updateCategoria = async (
   token: string | null,
   id: number,
- categoria: ICategoria
-): Promise<ICategoria | null> => {
-  if (!token) {
-    console.error("Token ausente: no estás autenticado");
-    return null;
+  categoriaUpdated: Partial<ICategoria>
+): Promise<ICategoria> => {
+  const payload: any = { nombre: categoriaUpdated.nombre };
+  if (categoriaUpdated.tipos && categoriaUpdated.tipos.length > 0) {
+    payload.tipos = categoriaUpdated.tipos.map(t => ({ id: t.id }));
   }
-  try {
-    const { data } = await axios.put<ICategoria>(
-      `${API_URL}/categorias/${id}`,
-      categoria,
-      { headers: { Authorization: `Bearer ${token}` } }
-    );
-    Swal.fire({
-      icon: "success",
-      title: "Categoría actualizada",
-      text: `Se actualizó la categoría \"${data.nombre}\" (ID ${id}).`,
-      timer: 2000,
-      showConfirmButton: false,
-    });
-    return data;
-  } catch (error: any) {
-    console.error(
-      "❌ Error al actualizar categoría:",
-      error.response?.data || error
-    );
-    Swal.fire({
-      icon: "error",
-      title: "Error",
-      text:
-        error.response?.data?.message ||
-        `No se pudo actualizar la categoría con ID ${id}.`,
-    });
-    return null;
-  }
+  const { data } = await axios.put<ICategoria>(
+    `${API_URL}/categoria/${id}`,
+    payload,
+    {
+      headers: { Authorization: `Bearer ${token}` },
+    }
+  );
+  Swal.fire({
+    icon: "success",
+    title: "Categoría actualizada",
+    timer: 2000,
+    showConfirmButton: false,
+  });
+  return data;
 };
 
 export const deleteCategoria = async (
   token: string | null,
   id: number
-): Promise<boolean> => {
-  if (!token) {
-    console.error("Token ausente: no estás autenticado");
-    return false;
-  }
-  try {
-    await axios.delete(`${API_URL}/private/categorias/${id}`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    Swal.fire({
-      icon: "success",
-      title: "Categoría eliminada",
-      text: `Se eliminó la categoría con ID ${id}.`,
-      timer: 2000,
-      showConfirmButton: false,
-    });
-    return true;
-  } catch (error: any) {
-    console.error("❌ Error al eliminar categoría:", error.response?.data || error);
-    Swal.fire({
-      icon: "error",
-      title: "Error",
-      text:
-        error.response?.data?.message ||
-        `No se pudo eliminar la categoría con ID ${id}.`,
-    });
-    return false;
-  }
+): Promise<void> => {
+  await axios.delete(`${API_URL}/categoria/${id}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  Swal.fire({
+    icon: "success",
+    title: "Categoría eliminada",
+    timer: 2000,
+    showConfirmButton: false,
+  });
+};
+
+export const softDeleteCategoria = async (
+  token: string | null,
+  id: number
+): Promise<void> => {
+  await axios.patch(`${API_URL}/categoria/soft-delete/${id}`, {}, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  Swal.fire({
+    icon: "success",
+    title: "Categoría dada de baja (soft delete)",
+    timer: 2000,
+    showConfirmButton: false,
+  });
+};
+
+export const restoreCategoria = async (
+  token: string | null,
+  id: number
+): Promise<void> => {
+  await axios.patch(`${API_URL}/categoria/restore/${id}`, {}, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  Swal.fire({
+    icon: "success",
+    title: "Categoría restaurada",
+    text: `Categoría ID ${id} restaurada exitosamente.`,
+    timer: 2000,
+    showConfirmButton: false,
+  });
 };

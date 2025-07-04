@@ -1,8 +1,8 @@
-
-import { ViewAllButton } from "../Buttons/ViewAllButton/ViewAllButton";
 import { ClotheCard } from "../Card/ClotheCard/ClotheCard";
 import styles from "./Showcase.module.css";
 import { productoStore } from "../../../store/prodcutoStore";
+import { Button } from "react-bootstrap";
+import { Link } from "react-router";
 
 //Puede que falte el useEffect
 
@@ -14,7 +14,11 @@ export const Showcase = () => {
       <div className={styles.containerTitleButton}>
         <h2 className={styles.containerTitle}>CATALOG</h2>
         <div className={styles.buttonContainer}>
-          <ViewAllButton />
+          <Button variant="outline-dark">
+            <Link to="/catalog"  className={styles.buttonViewAll}>
+              View All
+            </Link>
+          </Button>
         </div>
       </div>
       <div className={styles.containerClotheCards}>

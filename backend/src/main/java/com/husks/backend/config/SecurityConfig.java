@@ -24,95 +24,109 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-  private final JwtAuthenticationFilter jwtAuthenticationFilter;
-  private final AuthenticationProvider authProvider;
+        private final JwtAuthenticationFilter jwtAuthenticationFilter;
+        private final AuthenticationProvider authProvider;
 
-  @Bean
-  public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-    http
-        .csrf(csrf -> csrf.disable())
-        .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-        .authorizeHttpRequests(req -> req
-            .requestMatchers(HttpMethod.POST, "/public/register", "/public/login").permitAll()
-            .requestMatchers(
-                HttpMethod.GET,
-                "/public/producto",
-                "/talle",
-                "/tipo",
-                "/categoria",
-                "/error")
-            .permitAll()
+        @Bean
+        public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+                http
+                                .csrf(csrf -> csrf.disable())
+                                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                                .authorizeHttpRequests(req -> req
+                                                .requestMatchers(HttpMethod.POST, "/public/register", "/public/login")
+                                                .permitAll()
+                                                .requestMatchers(HttpMethod.GET,
+                                                                "/producto", 
+                                                                "/producto/**",
+                                                                "/producto/public",
+                                                                "/talle",
+                                                                "/talle/**",
+                                                                "/tipo",
+                                                                "/tipo/**",
+                                                                "/categoria",
+                                                                "/categoria/**",
+                                                                "/error")
+                                                .permitAll()
 
-            // USUARIO / ADMIN GET
-            .requestMatchers(HttpMethod.GET,
-                "/producto",
-                "/direccion",
-                "/usuario/**",
-                "/talle",
-                "/categoria",
-                "/tipo",
-                "/orden-compra")
-            .hasAnyRole("ADMIN", "CLIENTE")
+                                                // USUARIO / ADMIN GET
+                                                .requestMatchers(HttpMethod.GET,
+                                                                "/direccion", "/direccion/**",
+                                                                "/usuario/**",
+                                                                "/usuario/",
+                                                                "/orden-compra",
+                                                                "/orden-compra/**")
+                                                .hasAnyRole("ADMIN", "CLIENTE")
 
-            // ADMIN POST
-            .requestMatchers(HttpMethod.POST,
-                "/producto/**",
-                "/direccion/**",
-                "/usuario/**",
-                "/talle/**",
-                "/categoria/**",
-                "/tipo/**"
-                )
-            .hasRole("ADMIN")
+                                                // ADMIN POST
+                                                .requestMatchers(HttpMethod.POST,
+                                                                "/producto/**",
+                                                                "/usuario/**",
+                                                                "/talle/**",
+                                                                "/categoria/**",
+                                                                "/tipo/**")
+                                                .hasRole("ADMIN")
 
-            // ADMIN USUARIO
-            .requestMatchers(HttpMethod.POST, "/orden/**").hasAnyRole("ADMIN", "CLIENTE")
+                                                // ADMIN CLIENTE POST
+                                                .requestMatchers(HttpMethod.POST, "/direccion/**")
+                                                .hasAnyRole("ADMIN", "CLIENTE")
 
-            // ADMIN PUT
-            .requestMatchers(HttpMethod.PUT,
-                "/producto/**",
-                "/talle/**",
-                "/categoria/**",
-                "/tipo/**")
-            .hasRole("ADMIN")
+                                                // ADMIN USUARIO
+                                                .requestMatchers(HttpMethod.POST, "/orden-compra/**")
+                                                .hasAnyRole("ADMIN", "CLIENTE")
 
-            // ADMIN USUARIO PUT
-            .requestMatchers(HttpMethod.PUT, "/direccion/**", "/usuario/**", "/orden/**").hasAnyRole("ADMIN", "CLIENTE")
+                                                // ADMIN PUT
+                                                .requestMatchers(HttpMethod.PUT,
+                                                                "/producto/**",
+                                                                "/talle/**",
+                                                                "/categoria/**",
+                                                                "/tipo/**")
+                                                .hasRole("ADMIN")
 
-            // ADMIN DELETE
-            .requestMatchers(HttpMethod.DELETE,
-                "/producto",
-                "/direccion",
-                "/talle",
-                "/categoria",
-                "/tipo",
-                "/orden")
-            .hasRole("ADMIN")
+                                                // ADMIN USUARIO PUT
+                                                .requestMatchers(HttpMethod.PUT, "/direccion/**", "/usuario/**",
+                                                                "/orden-compra/**")
+                                                .hasAnyRole("ADMIN", "CLIENTE")
 
-            // CLIENTE USUARIO DELETE
-            .requestMatchers(HttpMethod.DELETE,
-                "/usuario")
-            .hasAnyRole("ADMIN", "CLIENTE")
+                                                // ADMIN DELETE
+                                                .requestMatchers(HttpMethod.DELETE,
+                                                                "/producto/**",
+                                                                "/direccion/**",
+                                                                "/talle/**",
+                                                                "/categoria/**",
+                                                                "/tipo/**",
+                                                                "/orden-compra/**")
+                                                .hasRole("ADMIN")
 
-            // CUALQUIER OTRA REQUEST
-            .anyRequest().authenticated())
-        .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-        .authenticationProvider(authProvider)
-        .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+                                                // ADMIN PATCH
+                                                .requestMatchers(HttpMethod.PATCH,
+                                                                "/**/soft-delete/**")
+                                                .hasRole("ADMIN")
 
-    return http.build();
-  }
+                                                // CLIENTE USUARIO DELETE
+                                                .requestMatchers(HttpMethod.DELETE,
+                                                                "/usuario")
+                                                .hasAnyRole("ADMIN", "CLIENTE")
 
-  @Bean
-  public CorsConfigurationSource corsConfigurationSource() {
-    CorsConfiguration config = new CorsConfiguration();
-    config.setAllowedOrigins(List.of("*")); // 👈 permite todos los orígenes
-    config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-    config.setAllowedHeaders(List.of("*"));
-    config.setAllowCredentials(false);
+                                                // CUALQUIER OTRA REQUEST
+                                                .anyRequest().authenticated())
+                                .sessionManagement(session -> session
+                                                .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                                .authenticationProvider(authProvider)
+                                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
-    UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-    source.registerCorsConfiguration("/**", config);
-    return source;
-  }
+                return http.build();
+        }
+
+        @Bean
+        public CorsConfigurationSource corsConfigurationSource() {
+                CorsConfiguration config = new CorsConfiguration();
+                config.setAllowedOrigins(List.of("*"));
+                config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+                config.setAllowedHeaders(List.of("*"));
+                config.setAllowCredentials(false);
+
+                UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+                source.registerCorsConfiguration("/**", config);
+                return source;
+        }
 }

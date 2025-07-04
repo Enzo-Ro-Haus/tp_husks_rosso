@@ -1,85 +1,37 @@
 .containerHeader {
-    width: 100%;
-    height: 15vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-family: 'Assistant', sans-serif;
-    background-color: #f2f2f2;
+  width: 100%;
+  height: 15vh;
+  font-family: "Assistant", sans-serif;
+  background-color: #f2f2f2;
 }
 
-.titleMain {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    width: 5%;
-    font-weight: 600;
-    font-size: 500;
-    color: #231f20;
-    margin: 0 10vw;
-}
-
-h1:hover {
-    color: #706366;
-    cursor: pointer;
-}
-
-.leftNav,
-.rightNav {
-    display: flex;
-    justify-content: center;
-    align-items: flex-start;
-    width: 30%;
-    color: #706366;
-}
-
-.rightNav {
-    align-items: flex-end;
-}
-
-.list {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 100%;
-}
-
-li {
-    margin: 0% 5%;
-    list-style: none;
-    width: 100%;
-}
-
-/* Enlaces sin decoración, pero con hover activo */
 .elementLink,
-.elementLink:visited,
-.elementLink:active,
-.elementLink:focus {
-    text-decoration: none;
-    color: #706366;
+.elementLinkTitle {
+  font-size: larger;
+  color: var(--color-letra-normal);
+  text-decoration: none !important;
+  background: none !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  outline: none !important;
+  font-weight: normal !important;
+  cursor: pointer;
 }
 
-.elementLink:hover {
-    text-decoration: none;
-    color: #231f20; /* o el color que quieras al hacer hover */
-    cursor: pointer;
+.elementLinkTitle {
+  font-size: 3rem;
+  font-weight: bold;
 }
 
-.elementLink{
-    width: auto;
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    align-items: center;
+.elementLink:hover,
+.elementLinkTitle:hover {
+  color: var(--color-letra-hover);
 }
 
-
-a {
-    text-decoration: none;
-    color: inherit;
-}
-
-p{
-    width: 10%;
+.personLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
 }

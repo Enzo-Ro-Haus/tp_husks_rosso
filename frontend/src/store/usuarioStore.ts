@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
-import { IAuthResponse, IUsuario } from "../types/IUsuario";
+import {  IUsuario } from "../types/IUsuario";
 
 interface IUsuariostore {
   usuarios: IUsuario[];
@@ -66,6 +66,7 @@ export const usuarioStore = create<IUsuariostore>()(
       storage: createJSONStorage(() => localStorage),
       partialize: (state) => ({
         usuarioActivo: state.usuarioActivo,
+        usuarios: state.usuarios,
       }),
     }
   )

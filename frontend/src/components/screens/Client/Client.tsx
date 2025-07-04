@@ -7,7 +7,7 @@ import { useNavigate } from "react-router";
 import { usuarioStore } from "../../../store/usuarioStore";
 import { ordenStore } from "../../../store/ordenStore";
 import { ListCard } from "../../ui/Card/ListCard/ListCard";
-import { getAllUsuarios } from "../../../http/usuarioHTTP";
+import { getAllUsuarios, getUsuarioActual } from "../../../http/usuarioHTTP";
 import { getAllOrdenes } from "../../../http/ordenHTTPS";
 
 export const Client = () => {
@@ -21,11 +21,26 @@ export const Client = () => {
   const ordenes = ordenStore((s) => s.ordenes);
 
   const [view, setView] = useState<"Client" | "Orders">("Client");
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
-  const getUsuarios = async () => {
-    const data = await getAllUsuarios(token ?? null);
-    if (data) setArrayUsuarios(data);
-    console.log("Users: " + JSON.stringify(data, null, 2));
+  const getUsuario = async () => {
+    if (!token) return;
+    try {
+      const data = await getUsuarioActual(token);
+      if (data) {
+        setArrayUsuarios([data]);
+        setErrorMsg(null);
+      } else {
+        setErrorMsg("No se pudo obtener la información del usuario.");
+      }
+      console.log("Usuario actual: " + JSON.stringify(data, null, 2));
+    } catch (error: any) {
+      if (error?.response?.status === 403) {
+        setErrorMsg("No tienes permisos para ver esta información.");
+      } else {
+        setErrorMsg("Ocurrió un error al obtener la información del usuario.");
+      }
+    }
   };
 
   const getOrdenes = async () => {
@@ -36,11 +51,11 @@ export const Client = () => {
 
 
   useEffect(() => {
-    if (!token) {
+    /*if (!token) {
       console.warn("No hay token");
       navigate("/login");
-    }
-    getUsuarios();
+    }*/
+    getUsuario();
   }, [token]);
 
    useEffect(() => {
@@ -59,32 +74,46 @@ export const Client = () => {
           name={usuario?.nombre ?? "NN"}
         />
         <div className={styles.containerElelements}>
-          {view === "Client" ? (
+          {errorMsg ? (
+            <h3 style={{ color: 'red' }}>{errorMsg}</h3>
+          ) : view === "Client" ? (
             usuario ? (
               <ListCard
                 key={usuario.id}
                 variant="Client"
-                id={usuario.id}
+                id={usuario.id || "NN"}
                 name={usuario.nombre}
                 email={usuario.email}
                 rol={usuario.rol}
+                onEdited={getUsuario}
+                onDeleted={getUsuario}
+                onRestored={getUsuario}
               />
             ) : (
               <h3>No se encontró el usuario</h3>
             )
           ) : view === "Orders" ? (
             Array.isArray(ordenes) && ordenes.length > 0 ? (
-              ordenes.map((o) => (
-                <ListCard
-                  key={o.id}
-                  variant="Orders"
-                  id={o.id}
-                  date={o.fecha}
-                  detail={o.detalle}
-                  payMethod={o.metodoPago}
-                  Dstatus={o.estado}
-                />
-              ))
+              ordenes.map((o) => {
+                const total = o.precioTotal ?? (o.detalles?.reduce((sum, d) => sum + (d.producto?.precio || 0) * d.cantidad, 0) || 0);
+                return (
+                  <ListCard
+                    key={String(o.id ?? 'NN')}
+                    variant="Orders"
+                    id={String(o.id ?? 'NN')}
+                    date={o.fecha}
+                    detail={o.detalles}
+                    payMethod={o.metodoPago}
+                    Dstatus={o.estado}
+                    total={total}
+                    usuario={typeof o.usuario === 'object' ? o.usuario : undefined}
+                    usuarioDireccion={o.usuarioDireccion}
+                    onEdited={getOrdenes}
+                    onDeleted={getOrdenes}
+                    onRestored={getOrdenes}
+                  />
+                );
+              })
             ) : (
               <h3>No hay ordenes</h3>
             )

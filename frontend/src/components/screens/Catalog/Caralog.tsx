@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { getAllProductos } from "../../../http/productoHTTP";
+import { getPublicProductos } from "../../../http/productoHTTP";
 import { productoStore } from "../../../store/prodcutoStore";
 import { Footer } from "../../ui/Footer/Footer";
 import { Header } from "../../ui/Header/Header";
@@ -13,7 +13,7 @@ export const Catalog = () => {
   const setArrayProductos = productoStore((state) => state.setArrayProductos);
 
   const getProductos = async () => {
-    const data = await getAllProductos();
+    const data = await getPublicProductos();
     if (data) setArrayProductos(data);
   };
 
@@ -29,6 +29,7 @@ export const Catalog = () => {
           productos
             .map((el) => (
               <ClotheCard
+                key={el.id}
                 name={el.nombre}
                 description={el.descripcion}
                 price={el.precio}

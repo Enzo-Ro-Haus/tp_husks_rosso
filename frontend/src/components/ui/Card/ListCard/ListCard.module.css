@@ -1,552 +1,123 @@
-.containerPrincipalListCard {
-  width: 70vw;
-  height: 50vh;
-  display: flex;
-  flex-direction: row;
-  justify-content: center;
-  align-items: flex-start;
-  border: 2px solid black;
-  border-radius: 20px;
-  padding: 0.5rem;
-  font-family: "Assistant", sans-serif;
-}
-
-.ListCard {
-  width: 99%;
-  height: 8rem;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.listCardImg {
-  width: 8rem;
-  height: 8rem;
-  border-radius: 20px;
-}
-
-.ClotheInfo {
-  display: flex;
-  flex-direction: row;
-  justify-content: flex-start;
-  align-items: center;
-  width: 38rem;
-  height: 8rem;
-  gap: 1rem;
-  padding: 1rem;
-  border: none;
-}
-
-.Botones {
-  width: 14rem;
-  height: 98%;
-  display: flex;
-  justify-content: space-around;
-  align-items: center;
-}
-
-.CardButtons {
-  width: 5rem;
-  height: 5rem;
-  background-color: rgb(65, 64, 64);
-  border: none;
-  color: white;
-  font-size: 10pt;
-  border-radius: 20px;
-  cursor: pointer;
-}
-
-.CardButtons:hover{
-  background-color: rgb(107, 100, 100);
-}
-
-.ClotheInfoTitle {
-  height: 20%;
-  width: 30rem;
-  font-size: large;
-}
-
-.ClotheDetail {
-  height: 70%;
-  width: 30rem;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-}
-
-/* ---- Usuario ----- */
-
-.containerPrincipalListCardUsuario {
-  width: 70vw;
-  height: 50vh;
-  display: flex;
-  flex-direction: row;
-  justify-content: center;
-  align-items: center;
-  border: 1px solid black;
-  border-radius: 20px;
-  padding: 0.5rem;
-  font-family: "Assistant", sans-serif;
-}
-
-.ListCardUsuario {
+/* Using React-Bootstrap Card horizontal layout */
+.cardContainer {
   width: 100%;
-  height: 8rem;
-  display: flex;
-  justify-content: flex-start;
-  align-items: center;
-  gap: 1rem;
+  max-width: 800px;
+  margin: 1rem auto;
 }
 
-.listCardImgUsuario {
-  width: 8rem;
-  height: 8rem;
-  border-radius: 20px;
-}
-
-
-.ClotheDetailUsuarioDireccion {
-  height: 70%;
-  width: 15rem;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-}
-
-.ClotheDetailUsuario {
-  height: 100%;
-  width: 20vw;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-}
-
-.ClotheInfoUsuario {
+.cardContent {
   display: flex;
   flex-direction: row;
-  justify-content: flex-start;
-  align-items: flex-start;
-  width: 10rem;
-  height: 8rem;
-  gap: 1rem;
-  padding: 1rem;
-
-}
-
-.BotonesUsuario {
-  width: 12rem;
-  height: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 1rem;
-
-}
-
-.CardButtonsUsuario {
-  width: 5rem;
-  height: 5rem;
-  background-color: rgb(65, 64, 64);
-  border: none;
-  color: white;
-  font-size: 10pt;
-  border-radius: 20px;
-}
-
-.CardButtonsUsuario:hover {
-  background-color: rgb(107, 100, 100);
-  cursor: pointer;
-}
-
-/* ---- Cateogria ----- */
-
-.containerPrincipalListCardCategoria {
-  width: 30vw;
-  height: 25vh;
-  display: flex;
-  flex-direction: row;
-  justify-content: center;
-  align-items: center;
-  border: 2px solid black;
-  border-radius: 20px;
-  padding: 0.5rem;
-  font-family: "Assistant", sans-serif;
-}
-
-.ListCardCategoria {
-  width: 99%;
-  height: 8rem;
-  display: flex;
-  justify-content: space-between;
   align-items: center;
 }
 
-.ClotheInfoTitleCategoria {
-  height: 20%;
-  width: 30rem;
-  font-size: larger;
-}
-
-.ClotheDetailCategoria {
-  height: 70%;
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-}
-
-.ClotheInfoCategoria {
-  display: flex;
-  flex-direction: row;
-  justify-content: start;
-  align-items: center;
-  width: 38rem;
-  height: 8rem;
-  gap: 1rem;
-  padding: 1rem;
-}
-
-.BotonesCategoria {
-  width: 14rem;
-  height: 98%;
-  display: flex;
-  justify-content: space-around;
-  align-items: center;
-  gap: 1rem;
-}
-
-.CardButtonsCategoria {
-  width: 5rem;
-  height: 5rem;
-  background-color: rgb(65, 64, 64);
-  border: none;
-  color: white;
-  font-size: 10pt;
-  border-radius: 20px;
-}
-
-.CardButtonsCategoria:hover {
-  background-color: rgb(107, 100, 100);
-  cursor: pointer;
-}
-
-/* --------- Tipos -------- */
-
-.containerPrincipalListCardTipo {
-  width: 35vw;
-  height: 25vh;
-  display: flex;
-  flex-direction: row;
-  justify-content: center;
-  align-items: center;
-  border: 2px solid black;
-  border-radius: 20px;
-  padding: 0.5rem;
-  font-family: "Assistant", sans-serif;
-}
-
-.ListCardTipo {
-  width: 99%;
-  height: 8rem;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.ClotheInfoTitleTipo {
-  height: 20%;
-  width: 30rem;
-  font-size: larger;
-}
-
-.ClotheDetailTipo {
-  height: 70%;
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-}
-
-.ClotheInfoTipo {
-  display: flex;
-  flex-direction: row;
-  justify-content: start;
-  align-items: center;
-  width: 38rem;
-  height: 8rem;
-  gap: 1rem;
-  padding: 1rem;
-}
-
-.BotonesTipo {
-  width: 14rem;
-  height: 98%;
-  display: flex;
-  justify-content: space-around;
-  align-items: center;
-  gap: 1rem;
-}
-
-.CardButtonsTipo {
-  width: 5rem;
-  height: 5rem;
-  background-color: rgb(65, 64, 64);
-  border: none;
-  color: white;
-  font-size: 10pt;
-  border-radius: 20px;
-}
-
-.CardButtonsTipo:hover {
-  background-color: rgb(107, 100, 100);
-  cursor: pointer;
-}
-
-/* -------- Direccion ------------ */
-
-.containerPrincipalListCardDireccion {
-  width: 50vw;
-  height: 25vh;
-  display: flex;
-  flex-direction: row;
-  justify-content: center;
-  align-items: center;
-  border: 2px solid black;
-  border-radius: 20px;
-  padding: 0.5rem;
-  font-family: "Assistant", sans-serif;
-}
-
-.ListCardDireccion {
-  width: 99%;
-  height: 8rem;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.ClotheInfoTitleDireccion {
-  height: 20%;
-  width: 30rem;
-  font-size: larger;
-}
-
-.ClotheDetailDireccion {
-  height: 70%;
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-}
-
-.ClotheInfoDireccion {
-  display: flex;
-  flex-direction: row;
-  justify-content: start;
-  align-items: center;
-  width: 38rem;
-  height: 8rem;
-  gap: 1rem;
-  padding: 1rem;
-}
-
-.BotonesDireccion {
-  width: 14rem;
-  height: 98%;
-  display: flex;
-  justify-content: space-around;
-  align-items: center;
-  gap: 1rem;
-}
-
-.CardButtonsDireccion {
-  width: 5rem;
-  height: 5rem;
-  background-color: rgb(65, 64, 64);
-  border: none;
-  color: white;
-  font-size: 10pt;
-  border-radius: 20px;
-}
-
-.CardButtonsDireccion:hover {
-  background-color: rgb(107, 100, 100);
-  cursor: pointer;
-}
-
-/* ------ Ordenes --------- */
-
-.containerPrincipalListCardOrden {
-  width: 50vw;
-  height: 25vh;
-  display: flex;
-  flex-direction: row;
-  justify-content: center;
-  align-items: center;
-  border: 2px solid black;
-  border-radius: 20px;
-  padding: 0.5rem;
-  font-family: "Assistant", sans-serif;
-}
-
-.ListCardOrden {
-  width: 99%;
-  height: 8rem;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.ClotheInfoTitleOrden {
-  height: 20%;
-  width: 30rem;
-  font-size: larger;
-}
-
-.ClotheDetailOrden {
-  height: 70%;
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-}
-
-.ClotheInfoOrden {
-  display: flex;
-  flex-direction: row;
-  justify-content: start;
-  align-items: center;
-  width: 38rem;
-  height: 8rem;
-  gap: 1rem;
-  padding: 1rem;
-}
-
-.BotonesOrden {
-  width: 14rem;
-  height: 98%;
-  display: flex;
-  justify-content: space-around;
-  align-items: center;
-  gap: 1rem;
-}
-
-.CardButtonsOrden {
-  width: 5rem;
-  height: 5rem;
-  background-color: rgb(65, 64, 64);
-  border: none;
-  color: white;
-  font-size: 10pt;
-  border-radius: 20px;
-}
-
-.CardButtonsOrden:hover {
-  background-color: rgb(107, 100, 100);
-  cursor: pointer;
-}
-
-/* ----- Cliente ---------*/
-.containerPrincipalListCardCliente {
-  width: 100%;
-  height: 100%;
-  padding: 1rem;
-  display: flex;
-  flex-direction: row; 
-  align-items: center;
-  justify-content: space-around;
-  font-family: "Assistant", sans-serif;
-  border-radius: 12px;
-  background-color: #f9f9f9;
-  gap: 1rem;
-}
-
-.listCardImgCliente {
-  width: 20rem;
-  height: 20rem;
-  border-radius: 20px;
+.cardImage {
+  flex: 0 0 150px;
+  height: 150px;
   object-fit: cover;
-  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  margin-right: 1rem;
 }
 
-.ClotheInfoCliente{
+.cardDetails {
+  flex: 1;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  align-items: center;
-  width: 20vw;
-  height: 100%;
-
 }
 
+.cardDetails p {
+  margin: 0.25rem 0;
+  font-family: "Assistant", sans-serif;
+}
 
-.ClotheDetailCliente {
+.cardActions {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: space-around;
-  width: 20vw;
-  height: 100%;
-}
-
-.ClotheDetailCliente p {
-  font-size: 1rem;
-  color: #333;
-  justify-content: left;
-  width: 20vw;
-  height: 3rem;
-}
-
-.ClotheDetailClienteDireccion {
-  font-style: italic;
-  font-size: 0.9rem;
-  color: #555;
-  width: 100%;
-  height: 20rem;
-  justify-content: left;
-}
-
-.ClotheDetailClienteDireccion p {
-  width: 100%;
-  height: 2rem;
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  margin: 0;
-  text-align: left;
-  color: #555;
-}
-
-.BotonesCliente {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
   justify-content: center;
-  align-items: center;
-  width: 8vw;
-  height: 30vh;
+  margin-left: 1rem;
 }
 
-.CardButtonsCliente {
-  height: 5rem;
-  width: 5rem;
-  background-color: rgb(65, 64, 64);
-  border: none;
+.btn-card {
+  margin: 0.25rem 0;
+}
+
+.softDeleted {
+  background-color: #f8f9fa !important;
+  opacity: 0.7;
+  border: 1px solid #dee2e6;
+  transition: opacity 0.5s;
+}
+
+.softDeleted .card-body {
+  color: #6c757d;
+}
+
+.softDeleted img {
+  filter: grayscale(100%);
+}
+
+.softDeleted .badge {
+  background-color: #6c757d !important;
+}
+
+.restored {
+  animation: fadeInRestored 1s;
+  border: 2px solid #28a745 !important;
+  box-shadow: 0 0 10px #28a74533;
+}
+
+@keyframes fadeInRestored {
+  from { background-color: #d4edda; opacity: 0.5; }
+  to { background-color: white; opacity: 1; }
+}
+
+.restoredBadge {
+  background-color: #28a745 !important;
   color: white;
-  font-size: 0.85rem;
-  font-weight: 500;
-  border-radius: 12px;
-  transition: background-color 0.3s ease;
+  font-weight: bold;
+  margin-left: 0.5rem;
+  padding: 0.2rem 0.7rem;
+  border-radius: 1rem;
+  font-size: 0.9rem;
+  animation: fadeInRestored 1s;
 }
 
-.CardButtonsCliente:hover {
-  background-color: rgb(107, 100, 100);
+.restoreButton {
+  background-color: #28a745;
+  border: 1px solid #28a745;
+  color: white;
+  padding: 0.375rem 0.75rem;
+  border-radius: 0.25rem;
+  font-size: 0.875rem;
   cursor: pointer;
+  transition: background-color 0.15s ease-in-out, border-color 0.15s ease-in-out;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.restoreButton:hover {
+  background-color: #218838;
+  border-color: #1e7e34;
+}
+
+.restoreButton:focus {
+  outline: 0;
+  box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25);
+}
+
+.spinner {
+  border: 2px solid #f3f3f3;
+  border-top: 2px solid #28a745;
+  border-radius: 50%;
+  width: 16px;
+  height: 16px;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }

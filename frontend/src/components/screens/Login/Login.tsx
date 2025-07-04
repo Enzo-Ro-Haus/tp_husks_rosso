@@ -4,10 +4,11 @@ import { Footer } from "../../ui/Footer/Footer";
 import { Header } from "../../ui/Header/Header";
 import style from "./Login.module.css";
 import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router";
+import { Link, useNavigate } from "react-router-dom";
 import { usuarioStore } from "../../../store/usuarioStore";
 import { ILogUsuario } from "../../../types/IUsuario";
 import { loginUsuario } from "../../../http/usuarioHTTP";
+import Swal from "sweetalert2";
 
 const schemaYup = yup.object().shape({
   email: yup.string().email().required("❌ El email es obligatorio"),
@@ -27,7 +28,6 @@ export const Login = () => {
   const navigate = useNavigate();
   const token = usuarioStore((s) => s.usuarioActivo?.token);
   const setUsuarioActivo = usuarioStore((state) => state.setUsuarioActivo);
-  const setToken = usuarioStore((s) => s.setToken);
 
   const [localStore, setLocalStore] = useState({});
 
@@ -37,12 +37,30 @@ export const Login = () => {
       password: values.password.trim(),
     };
 
+    console.log("🔄 Iniciando login...");
     const info = await loginUsuario(nuevoUsuario.email, nuevoUsuario.password);
+    console.log("📦 Respuesta del login:", info);
 
     if (info?.token && info?.usuario) {
-      setToken(info.token);
+      console.log("✅ Login exitoso, guardando datos...");
+      Swal.fire({
+        icon: "success",
+        title: `Welcome back ${info.usuario.nombre}`,
+        timer: 2000,
+        showConfirmButton: false,
+      });
       setUsuarioActivo({ ...info.usuario, token: info.token });
-      navigate("/"); // navego luego de guardar
+      console.log("🚀 Redirigiendo según rol...");
+      
+      // Redirigir según el rol del usuario
+      if (info.usuario.rol === "ADMIN") {
+        navigate("/admin");
+      } else if (info.usuario.rol === "CLIENTE") {
+        navigate("/client");
+      } else {
+        // Si no tiene rol definido, ir al landing
+        navigate("/");
+      }
     } else {
       console.warn("❌ Login fallido");
     }
@@ -51,10 +69,20 @@ export const Login = () => {
 
   useEffect(() => {
     console.log("✅ Login montado");
-    if (token) {
-      navigate("/");
-    }
-  }, []);
+    console.log("🔍 Token actual:", token);
+    // Solo redirigir si ya hay un usuario activo con token
+   /* if (token) {
+      console.log("🔄 Token encontrado, redirigiendo según rol...");
+      const usuario = usuarioStore.getState().usuarioActivo;
+      if (usuario?.rol === "ADMIN") {
+        navigate("/admin");
+      } else if (usuario?.rol === "CLIENTE") {
+        navigate("/client");
+      } else {
+        navigate("/");
+      }
+    }*/
+  }, [token, navigate]);
   return (
     <div className={style.containerPrincipalLogin}>
         <Header />
@@ -120,9 +148,7 @@ export const Login = () => {
           </Link>
         </p>
       </div>
-      <div>
         <Footer />
-      </div>
     </div>
   );
 };

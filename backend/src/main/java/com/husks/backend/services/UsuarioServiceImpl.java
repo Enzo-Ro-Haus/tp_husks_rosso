@@ -105,4 +105,9 @@ public class UsuarioServiceImpl extends BaseServiceImpl<Usuario, Long> implement
             throw new Exception("Error actualizando imagen de perfil: " + e.getMessage());
         }
     }
+
+    @Transactional(readOnly = true)
+    public Optional<Usuario> findByEmail(String email) {
+        return usuarioRepository.findByEmail(email);
+    }
 }

@@ -8,6 +8,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.security.access.prepost.PreAuthorize;
+import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequestMapping(path = "/usuario")
@@ -74,6 +76,31 @@ public class UsuarioController extends BaseControllerImpl<Usuario, UsuarioServic
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("{\"error\":\"Error corrigiendo rol de admin: " + e.getMessage() + "\"}");
+        }
+    }
+
+    @GetMapping("/admin-status")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> getAdminStatus() {
+        try {
+            Optional<Usuario> adminUser = servicio.findByEmail("admin@email.com");
+            if (adminUser.isPresent()) {
+                Usuario admin = adminUser.get();
+                return ResponseEntity.ok(Map.of(
+                    "exists", true,
+                    "id", admin.getId(),
+                    "nombre", admin.getNombre(),
+                    "email", admin.getEmail(),
+                    "rol", admin.getRol(),
+                    "activo", admin.isActivo(),
+                    "imagenPerfilPublicId", admin.getImagenPerfilPublicId()
+                ));
+            } else {
+                return ResponseEntity.ok(Map.of("exists", false));
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("{\"error\":\"Error verificando estado del admin: " + e.getMessage() + "\"}");
         }
     }
 

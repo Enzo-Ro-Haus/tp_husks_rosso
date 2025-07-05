@@ -1,0 +1,39 @@
+.debugContainer {
+  position: fixed;
+  top: 10px;
+  right: 10px;
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 15px;
+  border-radius: 8px;
+  font-family: monospace;
+  font-size: 12px;
+  z-index: 9999;
+  min-width: 200px;
+}
+
+.debugInfo {
+  margin: 10px 0;
+}
+
+.debugInfo p {
+  margin: 5px 0;
+}
+
+.debugActions {
+  margin-top: 10px;
+}
+
+.resetButton {
+  background: #dc3545;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 11px;
+}
+
+.resetButton:hover {
+  background: #c82333;
+} 

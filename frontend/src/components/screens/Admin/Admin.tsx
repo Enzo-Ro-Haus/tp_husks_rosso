@@ -15,6 +15,7 @@ import { tipoStore } from "../../../store/tipoStore";
 import { talleStore } from "../../../store/talleStore";                         
 import { direccionFisicaStore } from "../../../store/direccionStore";
 import { ordenStore } from "../../../store/ordenStore";
+import { useAdminView } from "../../../hooks/useViewState";
 
 import { Header } from "../../ui/Header/Header";
 import { Footer } from "../../ui/Footer/Footer";
@@ -65,15 +66,8 @@ export const Admin = () => {
   const ordenes = ordenStore((s) => s.ordenes);
   const setArrayOrdenes = ordenStore((s) => s.setArrayOrdenes);
 
-  const [view, setView] = useState<
-    | "Products"
-    | "Users"
-    | "Categories"
-    | "Types"
-    | "Sizes"
-    | "Addresses"
-    | "Orders"
-  >("Products");
+  // Use persistent view store instead of local state
+  const { view, setView } = useAdminView();
 
   const getProductos = useCallback(async () => {
     console.log("=== getProductos llamado ===");

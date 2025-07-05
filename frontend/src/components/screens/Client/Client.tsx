@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import { usuarioStore } from "../../../store/usuarioStore";
 import { ordenStore } from "../../../store/ordenStore";
+import { useClientView } from "../../../hooks/useViewState";
 import { ListCard } from "../../ui/Card/ListCard/ListCard";
 import { getAllUsuarios, getUsuarioActual } from "../../../http/usuarioHTTP";
 import { getAllOrdenes } from "../../../http/ordenHTTPS";
@@ -20,7 +21,8 @@ export const Client = () => {
   const setArrayOrdenes = ordenStore((s) => s.setArrayOrdenes);
   const ordenes = ordenStore((s) => s.ordenes);
 
-  const [view, setView] = useState<"Client" | "Orders">("Client");
+  // Use persistent view store instead of local state
+  const { view, setView } = useClientView();
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   const getUsuario = async () => {

@@ -4,7 +4,7 @@ import { usuarioStore } from "../../../store/usuarioStore";
 import { IValues } from "../../../types/IUsuario";
 import { registrarUsuario } from "../../../http/usuarioHTTP";
 import { useNavigate } from "react-router-dom";
-import { CreateButton } from "../Buttons/CreateButton/CreateButon";
+import { CreateButtonBootstrap } from "../Buttons/CreateButton/CreateButtonBootstrap";
 
 interface AdminSideBarProps {
   view:
@@ -115,7 +115,7 @@ export const AdminSideBar = ({
   return (
     <>
       {popUp && (
-        <CreateButton
+        <CreateButtonBootstrap
           view={view}
           onClose={() => setPopUp(false)}
           onCreated={getOnCreatedCallback()}

@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as yup from "yup";
-import style from "./CreateButton.module.css";
+import { Modal, Button, Form as BootstrapForm, Row, Col, Alert } from "react-bootstrap";
 import { usuarioStore } from "../../../../store/usuarioStore";
 import Swal from "sweetalert2";
 
@@ -378,9 +378,11 @@ export const CreateButton: React.FC<Props> = ({ view, onClose, onCreated }) => {
   }, [view]);
 
   return (
-    <div className={style.popup}>
-      <div className={style.popupContent}>
-        <h2>Crear {view}</h2>
+    <Modal show={true} onHide={onClose} size="lg" centered backdrop="static">
+      <Modal.Header closeButton>
+        <Modal.Title>Crear {view}</Modal.Title>
+      </Modal.Header>
+      <Modal.Body>
         <Formik
           initialValues={initialValuesMap[view]}
           validationSchema={schemaMap[view]}
@@ -462,8 +464,8 @@ export const CreateButton: React.FC<Props> = ({ view, onClose, onCreated }) => {
           }}
         >
           {({ values, setFieldValue }) => (
-            <Form className={style.Form}>
-              <div className={style.containerInput}>
+            <Form>
+              <Row>
                 {view === "Addresses" && (
                   <div className={style.Input}>
                     <label>
@@ -1259,22 +1261,18 @@ export const CreateButton: React.FC<Props> = ({ view, onClose, onCreated }) => {
                 )}
               </div>
 
-              <div className={style.containerButtonsPopUp}>
-                <button type="submit" className={style.buttonSend}>
-                  Crear
-                </button>
-                <button
-                  type="button"
-                  onClick={onClose}
-                  className={style.buttonClose}
-                >
+              <Modal.Footer>
+                <Button variant="secondary" onClick={onClose}>
                   Cancelar
-                </button>
-              </div>
+                </Button>
+                <Button variant="primary" type="submit">
+                  Crear
+                </Button>
+              </Modal.Footer>
             </Form>
           )}
         </Formik>
-      </div>
-    </div>
+      </Modal.Body>
+    </Modal>
   );
 };

@@ -25,6 +25,7 @@ public class AuthService {
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .rol(Rol.CLIENTE)
+                .imagenPerfilPublicId(request.getImagenPerfilPublicId() != null ? request.getImagenPerfilPublicId() : "user_img")
                 .build();
         usuario.setActivo(true);
         usuarioRepository.save(usuario);

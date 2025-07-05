@@ -30,6 +30,8 @@ export const Client = () => {
       if (data) {
         setArrayUsuarios([data]);
         setErrorMsg(null);
+        console.log("Usuario actual completo:", JSON.stringify(data, null, 2));
+        console.log("imagenPerfilPublicId:", data.imagenPerfilPublicId);
       } else {
         setErrorMsg("No se pudo obtener la información del usuario.");
       }
@@ -85,6 +87,7 @@ export const Client = () => {
                 name={usuario.nombre}
                 email={usuario.email}
                 rol={usuario.rol}
+                imagenPerfilPublicId={usuario.imagenPerfilPublicId}
                 onEdited={getUsuario}
                 onDeleted={getUsuario}
                 onRestored={getUsuario}

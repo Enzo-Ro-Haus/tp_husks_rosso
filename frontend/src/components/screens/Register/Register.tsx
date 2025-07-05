@@ -51,7 +51,9 @@ export const Register = () => {
       nombre: values.nombre.trim(),
       email: values.email.trim(),
       password: values.password.trim(),
-      imagenPerfilPublicId: values.imagenPerfilPublicId || DEFAULT_IMAGE_PUBLIC_ID,
+      imagenPerfilPublicId: values.imagenPerfilPublicId && values.imagenPerfilPublicId.trim() !== "" 
+        ? values.imagenPerfilPublicId 
+        : undefined,
     };
 
     const info = await registrarUsuario(nuevoUsuario);

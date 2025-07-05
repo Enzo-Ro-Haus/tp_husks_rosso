@@ -12,7 +12,7 @@ export const registrarUsuario = async (
     email: nuevoUsuario.email,
     password: nuevoUsuario.password,
   };
-  if (nuevoUsuario.imagenPerfilPublicId) {
+  if (nuevoUsuario.imagenPerfilPublicId && nuevoUsuario.imagenPerfilPublicId.trim() !== "") {
     payload.imagenPerfilPublicId = nuevoUsuario.imagenPerfilPublicId;
   }
   const { data } = await axios.post<IAuthResponse>(

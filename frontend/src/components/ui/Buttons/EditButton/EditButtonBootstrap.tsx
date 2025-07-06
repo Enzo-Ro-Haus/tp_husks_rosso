@@ -139,7 +139,37 @@ const updateHandlers: Record<ViewType, (token: string, id: number, payload: any)
   },
   Categories: async (token, id, payload) => {
     try {
-      const result = await categoryAPI.updateCategoria(token, id, payload);
+      const tiposIds = [];
+      
+      // Agregar IDs de tipos existentes seleccionados
+      if (payload.tiposExistentes && payload.tiposExistentes.length > 0) {
+        for (const tipoData of payload.tiposExistentes) {
+          if (tipoData.id) {
+            tiposIds.push(tipoData.id);
+          }
+        }
+      }
+      
+      // Crear nuevos tipos y agregar sus IDs
+      if (payload.tipos && payload.tipos.length > 0) {
+        for (const tipoData of payload.tipos) {
+          if (tipoData.nombre) {
+            const nuevoTipo = await typeAPI.createTipo(token, { 
+              nombre: tipoData.nombre,
+              categorias: []
+            });
+            if (nuevoTipo && nuevoTipo.id) {
+              tiposIds.push(nuevoTipo.id);
+            }
+          }
+        }
+      }
+      
+      // Limpiar campos auxiliares antes de enviar
+      const { tiposExistentes, nuevoTipoNombre, ...categoriaData } = payload;
+      categoriaData.tipos = tiposIds;
+      
+      const result = await categoryAPI.updateCategoria(token, id, categoriaData);
       return !!result;
     } catch (error) {
       console.error('Error updating category:', error);
@@ -329,6 +359,11 @@ export const EditButtonBootstrap: React.FC<Props> = ({ view, item, onClose, onUp
       const handler = updateHandlers[view];
       const ok = await handler(token, item.id, payload);
       if (ok) {
+        // Actualizar stores según la vista
+        if (view === "Categories") {
+          const categoriasActualizadas = await categoryAPI.getAllCategorias(token);
+          categoriaStore.getState().setArraycategorias(categoriasActualizadas);
+        }
         if (view === "Types") {
           const tiposActualizados = await typeAPI.getAllTipos(token);
           tipoStore.getState().setArrayTipos(tiposActualizados);
@@ -390,7 +425,8 @@ export const EditButtonBootstrap: React.FC<Props> = ({ view, item, onClose, onUp
       case "Categories":
         return {
           nombre: item.nombre || "",
-          tipos: item.tipos?.map((t: any) => t.id) || [],
+          tipos: [],
+          tiposExistentes: item.tipos?.map((t: any) => ({ id: t.id, nombre: t.nombre })) || [],
         };
       case "Types":
         return {
@@ -522,6 +558,181 @@ export const EditButtonBootstrap: React.FC<Props> = ({ view, item, onClose, onUp
                   </Col>
                 </Row>
               </div>
+            </div>
+          </BootstrapForm.Group>
+        </Col>
+      );
+    }
+
+    // Manejo especial para tipos en Categories
+    if (view === "Categories" && key === "tipos") {
+      return (
+        <Col md={12} key={key}>
+          <BootstrapForm.Group>
+            <BootstrapForm.Label><strong>Tipos</strong></BootstrapForm.Label>
+            <div className="border rounded p-3">
+              {/* Selector de tipos existentes */}
+              <div className="mb-3">
+                <label className="form-label"><strong>Seleccionar tipos existentes:</strong></label>
+                <Field
+                  as="select"
+                  multiple
+                  name="tiposExistentes"
+                  className="form-select"
+                  value={(values.tiposExistentes || []).map((t: any) => t.id)}
+                  onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
+                    const ids = Array.from(e.target.selectedOptions).map((o) => +o.value);
+                    const tiposSeleccionados = tipos.filter(t => ids.includes(t.id));
+                    setFieldValue("tiposExistentes", tiposSeleccionados);
+                  }}
+                >
+                  {tipos.map((t) => (
+                    <option key={t.id} value={t.id}>{t.nombre}</option>
+                  ))}
+                </Field>
+                <small className="text-muted">
+                  Mantén presionado Ctrl (Cmd en Mac) para seleccionar múltiples tipos
+                </small>
+              </div>
+              
+              {/* Campo para crear nuevo tipo */}
+              <div className="mb-3">
+                <label className="form-label"><strong>Crear nuevo tipo:</strong></label>
+                <Row>
+                  <Col md={11}>
+                    <Field
+                      name="nuevoTipoNombre"
+                      placeholder="Nombre del nuevo tipo"
+                      className="form-control"
+                    />
+                  </Col>
+                  <Col md={1}>
+                    <Button
+                      variant="success"
+                      size="sm"
+                      onClick={() => {
+                        const nuevoTipo = {
+                          nombre: values.nuevoTipoNombre
+                        };
+                        
+                        if (nuevoTipo.nombre && nuevoTipo.nombre.trim()) {
+                          const newTipos = [...(values.tipos || []), nuevoTipo];
+                          setFieldValue("tipos", newTipos);
+                          setFieldValue("nuevoTipoNombre", "");
+                        }
+                      }}
+                    >
+                      +
+                    </Button>
+                  </Col>
+                </Row>
+              </div>
+              
+              {/* Lista de todos los tipos seleccionados */}
+              <div className="mt-3">
+                <strong>Tipos seleccionados:</strong>
+                <div className="mt-2">
+                  {/* Tipos existentes */}
+                  {values.tiposExistentes && values.tiposExistentes.length > 0 && (
+                    <div className="mb-2">
+                      <small className="text-muted">Tipos existentes:</small>
+                      <div>
+                        {values.tiposExistentes.map((tipo: any) => (
+                          <Badge key={tipo.id} bg="primary" className="me-2 mb-1">
+                            {tipo.nombre}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* Nuevos tipos */}
+                  {values.tipos && values.tipos.length > 0 && (
+                    <div className="mb-2">
+                      <small className="text-muted">Nuevos tipos a crear:</small>
+                      <div>
+                        {values.tipos.map((tipo: any, index: number) => (
+                          <div key={index} className="d-inline-block me-2 mb-1">
+                            <Badge bg="success" className="me-1">
+                              {tipo.nombre}
+                            </Badge>
+                            <Button
+                              variant="outline-danger"
+                              size="sm"
+                              onClick={() => {
+                                const newTipos = values.tipos.filter((_: any, i: number) => i !== index);
+                                setFieldValue("tipos", newTipos);
+                              }}
+                            >
+                              ×
+                            </Button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  
+                  {(!values.tiposExistentes || values.tiposExistentes.length === 0) && 
+                   (!values.tipos || values.tipos.length === 0) && (
+                    <p className="text-muted fst-italic">No hay tipos seleccionados</p>
+                  )}
+                </div>
+              </div>
+            </div>
+          </BootstrapForm.Group>
+        </Col>
+      );
+    }
+
+    // Manejo especial para categorías en Types
+    if (view === "Types" && key === "categorias") {
+      return (
+        <Col md={12} key={key}>
+          <BootstrapForm.Group>
+            <BootstrapForm.Label><strong>Categorías</strong></BootstrapForm.Label>
+            <div className="border rounded p-3">
+              <div className="mb-3">
+                <Field
+                  as="select"
+                  multiple
+                  name="categorias"
+                  className="form-select"
+                  value={(values.categorias || []).map((c: any) => c.id).filter((id: any) => id !== undefined)}
+                  onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
+                    const ids = Array.from(e.target.selectedOptions).map((o) => +o.value);
+                    const categoriasSeleccionadas = categorias.filter(c => c.id && ids.includes(c.id));
+                    setFieldValue("categorias", categoriasSeleccionadas);
+                  }}
+                >
+                  {categorias.map((c) => (
+                    <option key={c.id} value={c.id}>{c.nombre}</option>
+                  ))}
+                </Field>
+                <small className="text-muted">
+                  Mantén presionado Ctrl (Cmd en Mac) para seleccionar múltiples categorías
+                </small>
+                <ErrorMessage name="categorias" component="div" className="text-danger small" />
+              </div>
+              
+              {/* Mostrar categorías seleccionadas */}
+              {values.categorias && values.categorias.length > 0 && (
+                <div className="mt-3">
+                  <strong>Categorías seleccionadas:</strong>
+                  <div className="mt-2">
+                    {values.categorias.map((categoria: any) => (
+                      <Badge key={categoria.id} bg="info" className="me-2 mb-1">
+                        {categoria.nombre}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+              )}
+              
+              {(!values.categorias || values.categorias.length === 0) && (
+                <div className="mt-3">
+                  <p className="text-muted fst-italic">No hay categorías seleccionadas</p>
+                </div>
+              )}
             </div>
           </BootstrapForm.Group>
         </Col>
@@ -795,7 +1006,7 @@ export const EditButtonBootstrap: React.FC<Props> = ({ view, item, onClose, onUp
                                       return sum + (producto?.precio || 0) * (item.cantidad || 0);
                                     }, 0);
                                     setFieldValue("total", nuevoTotal);
-                                  } else if (cantidad && typeof cantidad === 'number' && cantidad > stockDisponible) {
+                                  } else if (cantidad && Number(cantidad) > stockDisponible) {
                                     Swal.fire({
                                       icon: 'error',
                                       title: 'Stock insuficiente',
@@ -810,7 +1021,7 @@ export const EditButtonBootstrap: React.FC<Props> = ({ view, item, onClose, onUp
                           </Row>
                           {values.productoSeleccionado && (
                             <small className="text-muted">
-                              Stock disponible: {productos.find(p => p.id === values.productoSeleccionado)?.cantidad || 0} unidades
+                              Stock disponible: {productos.find(p => p.id === Number(values.productoSeleccionado))?.cantidad || 0} unidades
                             </small>
                           )}
                         </div>
@@ -835,4 +1046,4 @@ export const EditButtonBootstrap: React.FC<Props> = ({ view, item, onClose, onUp
       </Modal.Body>
     </Modal>
   );
-}; 
+};

@@ -68,7 +68,12 @@ const initialValuesMap: Record<ViewType, any> = {
     descripcion: "",
     imagenPublicId: "",
   },
-  Categories: { nombre: "", tipos: [] },
+  Categories: { 
+    nombre: "", 
+    tipos: [],
+    tiposExistentes: [],
+    nuevoTipoNombre: ""
+  },
   Types: { nombre: "", categorias: [] },
   Sizes: { sistema: "", valor: "" },
   Addresses: { 
@@ -129,7 +134,13 @@ const schemaMap: Record<ViewType, yup.ObjectSchema<any>> = {
   }),
   Categories: yup.object({
     nombre: yup.string().required(),
-    tipos: yup.array().of(yup.number()).min(0),
+    tipos: yup.array().of(yup.object({
+      nombre: yup.string().required()
+    })).min(0),
+    tiposExistentes: yup.array().of(yup.object({
+      nombre: yup.string().required()
+    })).min(0),
+    nuevoTipoNombre: yup.string().optional(),
   }),
   Types: yup.object({
     nombre: yup.string().required(),
@@ -268,7 +279,37 @@ const createHandlers: Record<ViewType, (token: string, payload: any) => Promise<
   },
   Categories: async (token, payload) => {
     try {
-      const result = await categoryAPI.createCategoria(token, payload);
+      const tiposIds = [];
+      
+      // Agregar IDs de tipos existentes seleccionados
+      if (payload.tiposExistentes && payload.tiposExistentes.length > 0) {
+        for (const tipoData of payload.tiposExistentes) {
+          if (tipoData.id) {
+            tiposIds.push(tipoData.id);
+          }
+        }
+      }
+      
+      // Crear nuevos tipos y agregar sus IDs
+      if (payload.tipos && payload.tipos.length > 0) {
+        for (const tipoData of payload.tipos) {
+          if (tipoData.nombre) {
+            const nuevoTipo = await typeAPI.createTipo(token, { 
+              nombre: tipoData.nombre,
+              categorias: []
+            });
+            if (nuevoTipo && nuevoTipo.id) {
+              tiposIds.push(nuevoTipo.id);
+            }
+          }
+        }
+      }
+      
+      // Limpiar campos auxiliares antes de enviar
+      const { tiposExistentes, nuevoTipoNombre, ...categoriaData } = payload;
+      categoriaData.tipos = tiposIds;
+      
+      const result = await categoryAPI.createCategoria(token, categoriaData);
       return !!result;
     } catch (error) {
       console.error('Error creating category:', error);
@@ -330,7 +371,6 @@ export const CreateButtonBootstrap: React.FC<Props> = ({ view, onClose, onCreate
   const [crearNuevaDireccion, setCrearNuevaDireccion] = useState(false);
   const [crearNuevaCategoria, setCrearNuevaCategoria] = useState(false);
   const [crearNuevoTalle, setCrearNuevoTalle] = useState(false);
-  const [crearNuevoTipo, setCrearNuevoTipo] = useState(false);
   const [crearNuevoUsuario, setCrearNuevoUsuario] = useState(false);
 
   useEffect(() => {
@@ -427,18 +467,27 @@ export const CreateButtonBootstrap: React.FC<Props> = ({ view, onClose, onCreate
         return;
       }
       
-      // Categories: crear nuevo tipo si corresponde
-      if (view === "Categories" && crearNuevoTipo) {
-        const nuevoTipo = await typeAPI.createTipo(token, { nombre: values.nuevoTipoNombre });
-        payload.tipos = [...(payload.tipos || []), nuevoTipo.id];
-      }
-      
       const handler = createHandlers[view];
       const ok = await handler(token, payload);
       if (ok) {
-        if (view === "Types") {
-          const tiposActualizados = await typeAPI.getAllTipos(token);
+        // Actualizar stores según la vista
+        if (view === "Categories") {
+          // Actualizar categorías y tipos para reflejar la relación
+          const [categoriasActualizadas, tiposActualizados] = await Promise.all([
+            categoryAPI.getAllCategorias(token),
+            typeAPI.getAllTipos(token)
+          ]);
+          categoriaStore.getState().setArraycategorias(categoriasActualizadas);
           tipoStore.getState().setArrayTipos(tiposActualizados);
+        }
+        if (view === "Types") {
+          // Actualizar tipos y categorías para reflejar la relación
+          const [tiposActualizados, categoriasActualizadas] = await Promise.all([
+            typeAPI.getAllTipos(token),
+            categoryAPI.getAllCategorias(token)
+          ]);
+          tipoStore.getState().setArrayTipos(tiposActualizados);
+          categoriaStore.getState().setArraycategorias(categoriasActualizadas);
         }
         onCreated?.();
         onClose();
@@ -459,7 +508,8 @@ export const CreateButtonBootstrap: React.FC<Props> = ({ view, onClose, onCreate
       "crearNuevoUsuario", "nuevoUsuarioNombre", "nuevoUsuarioEmail", "nuevoUsuarioPassword",
       "crearNuevaDireccion", "nuevaDireccionCalle", "nuevaDireccionLocalidad", "nuevaDireccionCP",
       "productoSeleccionado", "cantidadProducto", "calle", "localidad", "cp",
-      "nuevaDireccionCalle", "nuevaDireccionLocalidad", "nuevaDireccionCP"
+      "nuevaDireccionCalle", "nuevaDireccionLocalidad", "nuevaDireccionCP",
+      "tiposExistentes", "nuevoTipoNombre"
     ];
     
     // Excluir campos de imagen que se manejan con componentes especiales
@@ -612,6 +662,125 @@ export const CreateButtonBootstrap: React.FC<Props> = ({ view, onClose, onCreate
           </Col>
         );
       }
+    }
+
+    // Manejo especial para tipos en Categories
+    if (view === "Categories" && key === "tipos") {
+      return (
+        <Col md={12} key={key}>
+          <BootstrapForm.Group>
+            <BootstrapForm.Label><strong>Tipos</strong></BootstrapForm.Label>
+            <div className="border rounded p-3">
+              {/* Campo para crear nuevo tipo */}
+              <div className="mb-3">
+                <label className="form-label"><strong>Crear nuevo tipo:</strong></label>
+                <Row>
+                  <Col md={11}>
+                    <Field
+                      name="nuevoTipoNombre"
+                      placeholder="Nombre del nuevo tipo"
+                      className="form-control"
+                    />
+                  </Col>
+                  <Col md={1}>
+                    <Button
+                      variant="success"
+                      size="sm"
+                      onClick={() => {
+                        const nuevoTipo = {
+                          nombre: values.nuevoTipoNombre
+                        };
+                        
+                        if (nuevoTipo.nombre && nuevoTipo.nombre.trim()) {
+                          const newTipos = [...(values.tipos || []), nuevoTipo];
+                          setFieldValue("tipos", newTipos);
+                          setFieldValue("nuevoTipoNombre", "");
+                        }
+                      }}
+                    >
+                      +
+                    </Button>
+                  </Col>
+                </Row>
+              </div>
+              
+              {/* Selector de tipos existentes */}
+              <div className="mb-3">
+                <label className="form-label"><strong>Seleccionar tipos existentes:</strong></label>
+                <Field
+                  as="select"
+                  multiple
+                  name="tiposExistentes"
+                  className="form-select"
+                  onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
+                    const ids = Array.from(e.target.selectedOptions).map((o) => +o.value);
+                    const tiposSeleccionados = tipos.filter(t => t.id && ids.includes(t.id));
+                    setFieldValue("tiposExistentes", tiposSeleccionados);
+                  }}
+                >
+                  {tipos.map((t) => (
+                    <option key={t.id} value={t.id}>{t.nombre}</option>
+                  ))}
+                </Field>
+                <small className="text-muted">
+                  Mantén presionado Ctrl (Cmd en Mac) para seleccionar múltiples tipos
+                </small>
+              </div>
+              
+              {/* Lista de todos los tipos seleccionados */}
+              <div className="mt-3">
+                <strong>Tipos seleccionados:</strong>
+                <div className="mt-2">
+                  {/* Tipos existentes */}
+                  {values.tiposExistentes && values.tiposExistentes.length > 0 && (
+                    <div className="mb-2">
+                      <small className="text-muted">Tipos existentes:</small>
+                      <div>
+                        {values.tiposExistentes.map((tipo: any) => (
+                          <Badge key={tipo.id} bg="primary" className="me-2 mb-1">
+                            {tipo.nombre}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* Nuevos tipos */}
+                  {values.tipos && values.tipos.length > 0 && (
+                    <div className="mb-2">
+                      <small className="text-muted">Nuevos tipos a crear:</small>
+                      <div>
+                        {values.tipos.map((tipo: any, index: number) => (
+                          <div key={index} className="d-inline-block me-2 mb-1">
+                            <Badge bg="success" className="me-1">
+                              {tipo.nombre}
+                            </Badge>
+                            <Button
+                              variant="outline-danger"
+                              size="sm"
+                              onClick={() => {
+                                const newTipos = values.tipos.filter((_: any, i: number) => i !== index);
+                                setFieldValue("tipos", newTipos);
+                              }}
+                            >
+                              ×
+                            </Button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  
+                  {(!values.tiposExistentes || values.tiposExistentes.length === 0) && 
+                   (!values.tipos || values.tipos.length === 0) && (
+                    <p className="text-muted fst-italic">No hay tipos seleccionados</p>
+                  )}
+                </div>
+              </div>
+            </div>
+          </BootstrapForm.Group>
+        </Col>
+      );
     }
 
     // Campos básicos

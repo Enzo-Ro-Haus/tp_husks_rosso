@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import java.util.List;
 
 @Data
 @Builder
@@ -17,4 +18,5 @@ public class RegisterRequest {
     private String password;
     private String email;
     private String imagenPerfilPublicId;
+    private List<DireccionRequest> direcciones;
 }

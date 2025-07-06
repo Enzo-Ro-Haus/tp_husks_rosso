@@ -5,7 +5,7 @@ import Swal from "sweetalert2";
 const API_URL = "http://localhost:9000";
 
 export const registrarUsuario = async (
-  nuevoUsuario: IUsuario
+  nuevoUsuario: IUsuario & { direcciones?: any[] }
 ): Promise<IAuthResponse> => {
   try {
     const payload: any = {
@@ -16,6 +16,11 @@ export const registrarUsuario = async (
     if (nuevoUsuario.imagenPerfilPublicId && nuevoUsuario.imagenPerfilPublicId.trim() !== "") {
       payload.imagenPerfilPublicId = nuevoUsuario.imagenPerfilPublicId;
     }
+    // Agregar direcciones al payload si existen
+    if (nuevoUsuario.direcciones && nuevoUsuario.direcciones.length > 0) {
+      payload.direcciones = nuevoUsuario.direcciones;
+    }
+    
     const { data } = await axios.post<IAuthResponse>(
       `${API_URL}/public/register`,
       payload

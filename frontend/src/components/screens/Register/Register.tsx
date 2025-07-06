@@ -29,6 +29,15 @@ const schemaYup = yup.object().shape({
     .string()
     .min(6, "La contraseña debe tener al menos 6 caracteres")
     .required("❌ La contraseña es obligatoria"),
+  imagenPerfilPublicId: yup.string().optional(),
+  direcciones: yup.array().of(yup.object({
+    calle: yup.string().required(),
+    localidad: yup.string().required(),
+    cp: yup.string().required()
+  })).optional(),
+  nuevaDireccionCalle: yup.string().optional(),
+  nuevaDireccionLocalidad: yup.string().optional(),
+  nuevaDireccionCP: yup.string().optional(),
 });
 
 const DEFAULT_IMAGE_PUBLIC_ID = "user_img"; // Debe existir en Cloudinary
@@ -47,7 +56,16 @@ export const Register = () => {
     }*/
   }, [token, navigate]);
 
-  const handleSubmit = async (values: { nombre: string; email: string; password: string; imagenPerfilPublicId?: string }) => {
+  const handleSubmit = async (values: { 
+    nombre: string; 
+    email: string; 
+    password: string; 
+    imagenPerfilPublicId?: string;
+    direcciones?: any[];
+    nuevaDireccionCalle?: string;
+    nuevaDireccionLocalidad?: string;
+    nuevaDireccionCP?: string;
+  }) => {
     // Mapeo del campo 'name' a 'nombre' en tu DTO
     const nuevoUsuario: IUsuario = {
       nombre: values.nombre.trim(),
@@ -56,6 +74,7 @@ export const Register = () => {
       imagenPerfilPublicId: values.imagenPerfilPublicId && values.imagenPerfilPublicId.trim() !== "" 
         ? values.imagenPerfilPublicId 
         : undefined,
+      direcciones: values.direcciones || []
     };
 
     try {
@@ -86,7 +105,16 @@ export const Register = () => {
       <div className={style.containerForm}>
         <h2>REGISTER</h2>
         <Formik
-          initialValues={{ nombre: "", email: "", password: "", imagenPerfilPublicId: "" }}
+          initialValues={{ 
+            nombre: "", 
+            email: "", 
+            password: "", 
+            imagenPerfilPublicId: "",
+            direcciones: [],
+            nuevaDireccionCalle: "",
+            nuevaDireccionLocalidad: "",
+            nuevaDireccionCP: ""
+          }}
           validationSchema={schemaYup}
           onSubmit={handleSubmit}
         >
@@ -132,6 +160,78 @@ export const Register = () => {
                   }}
                   onImageRemove={() => setFieldValue("imagenPerfilPublicId", "")}
                 />
+              </div>
+
+              {/* Sección de direcciones */}
+              <div className={style.Input}>
+                <label className={style.Label}>Direcciones (opcional)</label>
+                <div className={style.AddressSection}>
+                  {values.direcciones && values.direcciones.length > 0 ? (
+                    values.direcciones.map((direccion: any, index: number) => (
+                      <div key={index} className={style.AddressItem}>
+                        <span className={style.AddressText}>
+                          <strong>Dirección {index + 1}:</strong> {direccion.calle}, {direccion.localidad} ({direccion.cp})
+                        </span>
+                        <button
+                          type="button"
+                          className={style.RemoveAddressButton}
+                          onClick={() => {
+                            const newDirecciones = values.direcciones.filter((_: any, i: number) => i !== index);
+                            setFieldValue("direcciones", newDirecciones);
+                          }}
+                        >
+                          Eliminar
+                        </button>
+                      </div>
+                    ))
+                  ) : (
+                    <p className={style.NoAddresses}>No hay direcciones agregadas</p>
+                  )}
+                  
+                  <div className={style.AddAddressSection}>
+                    <div className={style.AddressFields}>
+                      <Field
+                        className={style.AddressField}
+                        type="text"
+                        name="nuevaDireccionCalle"
+                        placeholder="Calle"
+                      />
+                      <Field
+                        className={style.AddressField}
+                        type="text"
+                        name="nuevaDireccionLocalidad"
+                        placeholder="Localidad"
+                      />
+                      <Field
+                        className={style.AddressField}
+                        type="text"
+                        name="nuevaDireccionCP"
+                        placeholder="CP"
+                      />
+                      <button
+                        type="button"
+                        className={style.AddAddressButton}
+                        onClick={() => {
+                          const nuevaDireccion = {
+                            calle: values.nuevaDireccionCalle,
+                            localidad: values.nuevaDireccionLocalidad,
+                            cp: values.nuevaDireccionCP
+                          };
+                          
+                          if (nuevaDireccion.calle && nuevaDireccion.localidad && nuevaDireccion.cp) {
+                            const newDirecciones = [...(values.direcciones || []), nuevaDireccion];
+                            setFieldValue("direcciones", newDirecciones);
+                            setFieldValue("nuevaDireccionCalle", "");
+                            setFieldValue("nuevaDireccionLocalidad", "");
+                            setFieldValue("nuevaDireccionCP", "");
+                          }
+                        }}
+                      >
+                        +
+                      </button>
+                    </div>
+                  </div>
+                </div>
               </div>
 
               <div className={style.containerButtons}>

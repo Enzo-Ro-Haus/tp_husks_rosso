@@ -9,6 +9,7 @@ import { usuarioStore } from "../../../store/usuarioStore";
 import { ILogUsuario } from "../../../types/IUsuario";
 import { loginUsuario } from "../../../http/usuarioHTTP";
 import Swal from "sweetalert2";
+import { showErrorAlert, showSuccessAlert } from "../../../utils/errorHandler";
 
 const schemaYup = yup.object().shape({
   email: yup.string().email().required("❌ El email es obligatorio"),
@@ -38,32 +39,35 @@ export const Login = () => {
     };
 
     console.log("🔄 Iniciando login...");
-    const info = await loginUsuario(nuevoUsuario.email, nuevoUsuario.password);
-    console.log("📦 Respuesta del login:", info);
+    
+    try {
+      const info = await loginUsuario(nuevoUsuario.email, nuevoUsuario.password);
+      console.log("📦 Respuesta del login:", info);
 
-    if (info?.token && info?.usuario) {
-      console.log("✅ Login exitoso, guardando datos...");
-      Swal.fire({
-        icon: "success",
-        title: `Welcome back ${info.usuario.nombre}`,
-        timer: 2000,
-        showConfirmButton: false,
-      });
-      setUsuarioActivo({ ...info.usuario, token: info.token });
-      console.log("🚀 Redirigiendo según rol...");
-      
-      // Redirigir según el rol del usuario
-      if (info.usuario.rol === "ADMIN") {
-        navigate("/admin");
-      } else if (info.usuario.rol === "CLIENTE") {
-        navigate("/client");
+      if (info?.token && info?.usuario) {
+        console.log("✅ Login exitoso, guardando datos...");
+        showSuccessAlert(`Welcome back ${info.usuario.nombre}`);
+        setUsuarioActivo({ ...info.usuario, token: info.token });
+        console.log("🚀 Redirigiendo según rol...");
+        
+        // Redirigir según el rol del usuario
+        if (info.usuario.rol === "ADMIN") {
+          navigate("/admin");
+        } else if (info.usuario.rol === "CLIENTE") {
+          navigate("/client");
+        } else {
+          // Si no tiene rol definido, ir al landing
+          navigate("/");
+        }
       } else {
-        // Si no tiene rol definido, ir al landing
-        navigate("/");
+        console.warn("❌ Login fallido");
+        showErrorAlert(null, "Error de login");
       }
-    } else {
-      console.warn("❌ Login fallido");
+    } catch (error: any) {
+      console.error("❌ Error en login:", error);
+      showErrorAlert(error, "Error de login");
     }
+    
     setLocalStore(values);
   };
 

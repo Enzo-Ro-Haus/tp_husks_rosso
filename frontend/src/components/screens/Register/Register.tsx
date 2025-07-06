@@ -13,6 +13,8 @@ import { Footer } from "../../ui/Footer/Footer";
 import style from "./Register.module.css";
 import ImageUpload from "../../ui/Image/ImageUpload";
 import { uploadImageToCloudinary } from "../../../http/cloudinaryUploadHTTP";
+import Swal from "sweetalert2";
+import { showErrorAlert } from "../../../utils/errorHandler";
 
 const schemaYup = yup.object().shape({
   nombre: yup
@@ -56,18 +58,24 @@ export const Register = () => {
         : undefined,
     };
 
-    const info = await registrarUsuario(nuevoUsuario);
+    try {
+      const info = await registrarUsuario(nuevoUsuario);
 
-    if (info?.token) {
-      setToken(info.token);
-      if (info.usuario) {
-        setUsuarioActivo({ ...info.usuario, token: info.token });
+      if (info?.token) {
+        setToken(info.token);
+        if (info.usuario) {
+          setUsuarioActivo({ ...info.usuario, token: info.token });
+        } else {
+          setUsuarioActivo({ token: info.token } as IUsuario);
+        }
+        navigate("/");
       } else {
-        setUsuarioActivo({ token: info.token } as IUsuario);
+        console.warn("❌ Registro fallido");
+        showErrorAlert(null, "Error de registro");
       }
-      navigate("/");
-    } else {
-      console.warn("❌ Registro fallido");
+    } catch (error: any) {
+      console.error("❌ Error en registro:", error);
+      showErrorAlert(error, "Error de registro");
     }
   };
 

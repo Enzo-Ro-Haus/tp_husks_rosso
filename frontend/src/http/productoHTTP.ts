@@ -71,19 +71,25 @@ export const createProducto = async (
   token: string | null,
   nuevoProducto: IProducto
 ): Promise<IProducto> => {
-  const { data } = await axios.post<IProducto>(
-    `${API_URL}/producto`,
-    nuevoProducto,
-    { headers: { Authorization: `Bearer ${token}` } }
-  );
-  Swal.fire({
-    icon: "success",
-    title: "Producto creado",
-    text: `"${data.nombre}" creado.`,
-    timer: 2000,
-    showConfirmButton: false,
-  });
-  return data;
+  try {
+    const { data } = await axios.post<IProducto>(
+      `${API_URL}/producto`,
+      nuevoProducto,
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+    Swal.fire({
+      icon: "success",
+      title: "Producto creado",
+      text: `"${data.nombre}" creado.`,
+      timer: 2000,
+      showConfirmButton: false,
+    });
+    return data;
+  } catch (error: any) {
+    console.error("[createProducto] Error:", error);
+    // Re-throw the error so the component can handle it
+    throw error;
+  }
 };
 
 export const updateProducto = async (

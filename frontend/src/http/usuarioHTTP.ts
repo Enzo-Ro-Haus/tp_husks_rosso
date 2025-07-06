@@ -7,36 +7,48 @@ const API_URL = "http://localhost:9000";
 export const registrarUsuario = async (
   nuevoUsuario: IUsuario
 ): Promise<IAuthResponse> => {
-  const payload: any = {
-    nombre: nuevoUsuario.nombre,
-    email: nuevoUsuario.email,
-    password: nuevoUsuario.password,
-  };
-  if (nuevoUsuario.imagenPerfilPublicId && nuevoUsuario.imagenPerfilPublicId.trim() !== "") {
-    payload.imagenPerfilPublicId = nuevoUsuario.imagenPerfilPublicId;
+  try {
+    const payload: any = {
+      nombre: nuevoUsuario.nombre,
+      email: nuevoUsuario.email,
+      password: nuevoUsuario.password,
+    };
+    if (nuevoUsuario.imagenPerfilPublicId && nuevoUsuario.imagenPerfilPublicId.trim() !== "") {
+      payload.imagenPerfilPublicId = nuevoUsuario.imagenPerfilPublicId;
+    }
+    const { data } = await axios.post<IAuthResponse>(
+      `${API_URL}/public/register`,
+      payload
+    );
+    Swal.fire({
+      icon: "success",
+      title: "Usuario registrado",
+      timer: 2000,
+      showConfirmButton: false,
+    });
+    return data;
+  } catch (error: any) {
+    console.error("[registrarUsuario] Error:", error);
+    // Re-throw the error so the component can handle it
+    throw error;
   }
-  const { data } = await axios.post<IAuthResponse>(
-    `${API_URL}/public/register`,
-    payload
-  );
-  Swal.fire({
-    icon: "success",
-    title: "Usuario registrado",
-    timer: 2000,
-    showConfirmButton: false,
-  });
-  return data;
 };
 
 export const loginUsuario = async (
   email: string,
   password: string
 ): Promise<IAuthResponse> => {
-  const { data } = await axios.post<IAuthResponse>(`${API_URL}/public/login`, {
-    email,
-    password,
-  });
-  return data;
+  try {
+    const { data } = await axios.post<IAuthResponse>(`${API_URL}/public/login`, {
+      email,
+      password,
+    });
+    return data;
+  } catch (error: any) {
+    console.error("[loginUsuario] Error:", error);
+    // Re-throw the error so the component can handle it
+    throw error;
+  }
 };
 
 export const getAllUsuarios = async (

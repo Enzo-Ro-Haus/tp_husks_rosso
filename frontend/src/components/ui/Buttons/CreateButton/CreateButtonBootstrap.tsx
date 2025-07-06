@@ -27,6 +27,7 @@ import { MetodoPago } from '../../../../types/enums/MetodoPago';
 import { EstadoOrden } from '../../../../types/enums/EstadoOrden';
 import { tipoStore } from "../../../../store/tipoStore";
 import { categoriaStore } from "../../../../store/categoriaStore";
+import { showErrorAlert } from "../../../../utils/errorHandler";
 
 type ViewType =
   | "Users"
@@ -414,7 +415,8 @@ export const CreateButtonBootstrap: React.FC<Props> = ({ view, onClose, onCreate
         Swal.fire({ icon: 'error', title: 'Error', text: 'No se pudo crear el elemento.' });
       }
     } catch (err: any) {
-      Swal.fire({ icon: 'error', title: 'Error', text: err?.message || 'Error inesperado.' });
+      console.error(`Error creating ${view}:`, err);
+      showErrorAlert(err, `Error al crear ${view}`);
     }
   };
 

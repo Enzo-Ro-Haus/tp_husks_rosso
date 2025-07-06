@@ -229,14 +229,22 @@ const createHandlers: Record<ViewType, (token: string, payload: any) => Promise<
         const usuarioCreado = usuarios.find(u => u.email === userData.email);
         
         if (usuarioCreado && usuarioCreado.id) {
-          for (const direccion of direcciones) {
+          for (const direccionData of direcciones) {
+            // Primero crear la dirección
+            const direccionCreada = await addressAPI.createDireccion(token, {
+              calle: direccionData.calle,
+              localidad: direccionData.localidad,
+              cp: direccionData.cp
+            });
+            
+            // Luego crear la relación usuario-dirección
             await addressAPI.createUsuarioDireccion(token, {
               usuario: { 
                 id: usuarioCreado.id,
                 nombre: usuarioCreado.nombre,
                 email: usuarioCreado.email
               },
-              direccion: direccion
+              direccion: direccionCreada
             });
           }
         }

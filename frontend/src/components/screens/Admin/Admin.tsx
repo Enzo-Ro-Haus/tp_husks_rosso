@@ -242,6 +242,7 @@ export const Admin = () => {
                 sizes={el.tallesDisponibles}
                 type={el.tipo}
                 producto={el}
+                activo={el.activo}
                 onEdited={getProductos}
                 onDeleted={getProductos}
                 onRestored={getProductos}
@@ -265,6 +266,7 @@ export const Admin = () => {
               imagenPerfilPublicId={u.imagenPerfilPublicId}
               address={u.direcciones}
               usuario={u}
+              activo={u.activo}
               onEdited={getUsuarios}
               onDeleted={getUsuarios}
               onRestored={getUsuarios}
@@ -283,6 +285,7 @@ export const Admin = () => {
               id={c.id || "NN"}
               name={c.nombre}
               category={c}
+              activo={c.activo}
               onEdited={getCategorias}
               onDeleted={getCategorias}
               onRestored={getCategorias}
@@ -301,6 +304,7 @@ export const Admin = () => {
               id={t.id || "NN"}
               name={t.nombre}
               categories={t.categorias ?? []}
+              activo={t.activo}
               onEdited={getTipos}
               onDeleted={getTipos}
               onRestored={getTipos}
@@ -320,6 +324,7 @@ export const Admin = () => {
               system={t.sistema}
               value={t.valor}
               sizes={[t]}
+              activo={t.activo}
               onEdited={getTalles}
               onDeleted={getTalles}
               onRestored={getTalles}
@@ -369,6 +374,7 @@ export const Admin = () => {
                 total={total}
                 usuario={typeof o.usuario === 'object' ? o.usuario : undefined}
                 usuarioDireccion={o.usuarioDireccion}
+                activo={o.activo}
                 onEdited={getOrdenes}
                 onDeleted={getOrdenes}
                 onRestored={getOrdenes}

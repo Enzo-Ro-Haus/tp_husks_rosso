@@ -99,7 +99,25 @@ public class SecurityConfig {
 
                                                 // ADMIN PATCH
                                                 .requestMatchers(HttpMethod.PATCH,
-                                                                "/**/soft-delete/**")
+                                                                "/usuario/soft-delete/**",
+                                                                "/producto/soft-delete/**",
+                                                                "/categoria/soft-delete/**",
+                                                                "/tipo/soft-delete/**",
+                                                                "/talle/soft-delete/**",
+                                                                "/usuario-direccion/soft-delete/**",
+                                                                "/orden-compra/soft-delete/**",
+                                                                "/usuario/restore/**",
+                                                                "/producto/restore/**",
+                                                                "/categoria/restore/**",
+                                                                "/tipo/restore/**",
+                                                                "/talle/restore/**",
+                                                                "/usuario-direccion/restore/**",
+                                                                "/orden-compra/restore/**",
+                                                                "/usuario/**/imagen-perfil",
+                                                                "/usuario/**/activar",
+                                                                "/usuario/**/desactivar",
+                                                                "/usuario/**/corregir-rol-admin",
+                                                                "/producto/**/imagen")
                                                 .hasRole("ADMIN")
 
                                                 // CLIENTE USUARIO DELETE
@@ -121,7 +139,7 @@ public class SecurityConfig {
         public CorsConfigurationSource corsConfigurationSource() {
                 CorsConfiguration config = new CorsConfiguration();
                 config.setAllowedOrigins(List.of("*"));
-                config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+                config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
                 config.setAllowedHeaders(List.of("*"));
                 config.setAllowCredentials(false);
 

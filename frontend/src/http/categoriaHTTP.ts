@@ -110,12 +110,6 @@ export const softDeleteCategoria = async (
   await axios.patch(`${API_URL}/categoria/soft-delete/${id}`, {}, {
     headers: { Authorization: `Bearer ${token}` },
   });
-  Swal.fire({
-    icon: "success",
-    title: "Categoría dada de baja (soft delete)",
-    timer: 2000,
-    showConfirmButton: false,
-  });
 };
 
 export const restoreCategoria = async (
@@ -124,12 +118,5 @@ export const restoreCategoria = async (
 ): Promise<void> => {
   await axios.patch(`${API_URL}/categoria/restore/${id}`, {}, {
     headers: { Authorization: `Bearer ${token}` },
-  });
-  Swal.fire({
-    icon: "success",
-    title: "Categoría restaurada",
-    text: `Categoría ID ${id} restaurada exitosamente.`,
-    timer: 2000,
-    showConfirmButton: false,
   });
 };

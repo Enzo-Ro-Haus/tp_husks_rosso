@@ -129,12 +129,6 @@ export const softDeleteUsuario = async (
   await axios.patch(`${API_URL}/usuario/soft-delete/${id}`, {}, {
     headers: { Authorization: `Bearer ${token}` },
   });
-  Swal.fire({
-    icon: "success",
-    title: "Usuario dado de baja (soft delete)",
-    timer: 2000,
-    showConfirmButton: false,
-  });
 };
 
 export const restoreUsuario = async (
@@ -143,13 +137,6 @@ export const restoreUsuario = async (
 ): Promise<void> => {
   await axios.patch(`${API_URL}/usuario/restore/${id}`, {}, {
     headers: { Authorization: `Bearer ${token}` },
-  });
-  Swal.fire({
-    icon: "success",
-    title: "Usuario restaurado",
-    text: `Usuario ID ${id} restaurado exitosamente.`,
-    timer: 2000,
-    showConfirmButton: false,
   });
 };
 

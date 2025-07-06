@@ -62,6 +62,12 @@
   background-color: #6c757d !important;
 }
 
+.softDeletedName {
+  text-decoration: line-through;
+  color: #6c757d;
+  font-weight: normal;
+}
+
 .restored {
   animation: fadeInRestored 1s;
   border: 2px solid #28a745 !important;

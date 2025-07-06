@@ -184,7 +184,7 @@ export const ListCard: React.FC<ListCardProps> = (props) => {
                     <strong>ID:</strong> {id}
                   </p>
                   <p>
-                    <strong>Name:</strong> {name}
+                    <strong>Name:</strong> <span className={activo === false ? styles.softDeletedName : ''}>{name}</span>
                   </p>
                   <p>
                     <strong>Description:</strong> {description}
@@ -220,7 +220,7 @@ export const ListCard: React.FC<ListCardProps> = (props) => {
                     <strong>ID:</strong> {id}
                   </p>
                   <p>
-                    <strong>Name:</strong> {name}
+                    <strong>Name:</strong> <span className={activo === false ? styles.softDeletedName : ''}>{name}</span>
                   </p>
                   <p>
                     <strong>Email:</strong> {email}
@@ -256,7 +256,7 @@ export const ListCard: React.FC<ListCardProps> = (props) => {
                     <strong>ID:</strong> {id}
                   </p>
                   <p>
-                    <strong>Name:</strong> {name}
+                    <strong>Name:</strong> <span className={activo === false ? styles.softDeletedName : ''}>{name}</span>
                   </p>
                   <p>
                     <strong>Types:</strong>{" "}
@@ -281,7 +281,7 @@ export const ListCard: React.FC<ListCardProps> = (props) => {
                     <strong>ID:</strong> {id}
                   </p>
                   <p>
-                    <strong>Name:</strong> {name}
+                    <strong>Name:</strong> <span className={activo === false ? styles.softDeletedName : ''}>{name}</span>
                   </p>
                   <p>
                     <strong>Categories:</strong>{" "}

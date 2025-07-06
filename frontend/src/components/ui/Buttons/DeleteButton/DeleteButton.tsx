@@ -136,7 +136,6 @@ export const DeleteButton: React.FC<DeleteButtonProps> = ({
         });
         if (onDeleted) {
           onDeleted();
-          window.location.reload();
         }
       } catch (error: any) {
         console.error("Error al eliminar:", error);

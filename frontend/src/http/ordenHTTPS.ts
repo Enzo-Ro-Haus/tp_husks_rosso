@@ -121,12 +121,6 @@ export const softDeleteOrden = async (
   await axios.patch(`${API_URL}/orden-compra/soft-delete/${id}`, {}, {
     headers: { Authorization: `Bearer ${token}` },
   });
-  Swal.fire({
-    icon: "success",
-    title: "Orden dada de baja (soft delete)",
-    timer: 2000,
-    showConfirmButton: false,
-  });
 };
 
 export const restoreOrden = async (

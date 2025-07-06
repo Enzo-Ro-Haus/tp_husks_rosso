@@ -4,4 +4,5 @@ export interface ITipo {
     id?: number,
     nombre: string,
     categorias?: ICategoria[],
+    activo?: boolean,
 }

@@ -91,12 +91,6 @@ export const softDeleteTalle = async (
   await axios.patch(`${API_URL}/talle/soft-delete/${id}`, {}, {
     headers: { Authorization: `Bearer ${token}` },
   });
-  Swal.fire({
-    icon: "success",
-    title: "Talle dado de baja (soft delete)",
-    timer: 2000,
-    showConfirmButton: false,
-  });
 };
 
 export const restoreTalle = async (
@@ -105,12 +99,5 @@ export const restoreTalle = async (
 ): Promise<void> => {
   await axios.patch(`${API_URL}/talle/restore/${id}`, {}, {
     headers: { Authorization: `Bearer ${token}` },
-  });
-  Swal.fire({
-    icon: "success",
-    title: "Talle restaurado",
-    text: `Talle ID ${id} restaurado exitosamente.`,
-    timer: 2000,
-    showConfirmButton: false,
   });
 };

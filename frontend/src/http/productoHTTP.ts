@@ -135,12 +135,6 @@ export const softDeleteProducto = async (
   await axios.patch(`${API_URL}/producto/soft-delete/${id}`, {}, {
     headers: { Authorization: `Bearer ${token}` },
   });
-  Swal.fire({
-    icon: "success",
-    title: "Producto dado de baja (soft delete)",
-    timer: 2000,
-    showConfirmButton: false,
-  });
 };
 
 export const restoreProducto = async (
@@ -149,13 +143,6 @@ export const restoreProducto = async (
 ): Promise<void> => {
   await axios.patch(`${API_URL}/producto/restore/${id}`, {}, {
     headers: { Authorization: `Bearer ${token}` },
-  });
-  Swal.fire({
-    icon: "success",
-    title: "Producto restaurado",
-    text: `Producto ID ${id} restaurado exitosamente.`,
-    timer: 2000,
-    showConfirmButton: false,
   });
 };
 

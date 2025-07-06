@@ -78,12 +78,6 @@ export const softDeleteTipo = async (
   await axios.patch(`${API_URL}/tipo/soft-delete/${id}`, {}, {
     headers: { Authorization: `Bearer ${token}` },
   });
-  Swal.fire({
-    icon: "success",
-    title: "Tipo dado de baja (soft delete)",
-    timer: 2000,
-    showConfirmButton: false,
-  });
 };
 
 export const restoreTipo = async (
@@ -92,12 +86,5 @@ export const restoreTipo = async (
 ): Promise<void> => {
   await axios.patch(`${API_URL}/tipo/restore/${id}`, {}, {
     headers: { Authorization: `Bearer ${token}` },
-  });
-  Swal.fire({
-    icon: "success",
-    title: "Tipo restaurado",
-    text: `Tipo ID ${id} restaurado exitosamente.`,
-    timer: 2000,
-    showConfirmButton: false,
   });
 };

@@ -122,7 +122,6 @@ export const RestoreButton: React.FC<RestoreButtonProps> = ({ view, id, onRestor
             timer: 1500,
             showConfirmButton: false,
           });
-          setTimeout(() => window.location.reload(), 1200);
         } else {
           Swal.fire({
             icon: 'error',

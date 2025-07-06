@@ -106,12 +106,6 @@ export const softDeleteUsuarioDireccion = async (
   await axios.patch(`${API_URL}/usuario-direccion/soft-delete/${id}`, {}, {
     headers: { Authorization: `Bearer ${token}` },
   });
-  Swal.fire({
-    icon: "success",
-    title: "Dirección dada de baja (soft delete)",
-    timer: 2000,
-    showConfirmButton: false,
-  });
 };
 
 export const restoreUsuarioDireccion = async (

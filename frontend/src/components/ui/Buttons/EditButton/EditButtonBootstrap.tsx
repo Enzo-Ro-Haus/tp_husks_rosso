@@ -241,37 +241,64 @@ export const EditButtonBootstrap: React.FC<Props> = ({ view, item, onClose, onUp
         
         // Manejar direcciones para Users
         if (view === "Users") {
-          // Obtener direcciones actuales del usuario
-          const direccionesActuales = await addressAPI.getAllUsuarioDirecciones(token);
-          const direccionesUsuario = direccionesActuales.filter(d => d.usuario.id === item.id);
-          
-          // Eliminar direcciones que ya no están en la lista
-          for (const direccionActual of direccionesUsuario) {
-            const sigueExistiendo = direcciones.some((d: any) => 
-              d.calle === direccionActual.direccion.calle && 
-              d.localidad === direccionActual.direccion.localidad && 
-              d.cp === direccionActual.direccion.cp
-            );
+          try {
+            // Obtener direcciones actuales del usuario
+            const direccionesActuales = await addressAPI.getAllUsuarioDirecciones(token);
+            const direccionesUsuario = direccionesActuales.filter(d => d.usuario.id === item.id);
             
-            if (!sigueExistiendo) {
-              await addressAPI.deleteUsuarioDireccion(token, direccionActual.id);
-            }
-          }
-          
-          // Agregar nuevas direcciones
-          for (const direccion of direcciones) {
-            const yaExiste = direccionesUsuario.some(d => 
-              d.direccion.calle === direccion.calle && 
-              d.direccion.localidad === direccion.localidad && 
-              d.direccion.cp === direccion.cp
-            );
+            // Obtener IDs de direcciones que ya no están en la lista (para eliminar)
+            const direccionesActualesIds = direccionesUsuario.map(d => d.id);
+            const direccionesMantenerIds = direcciones
+              .filter((d: any) => d.usuarioDireccionId)
+              .map((d: any) => d.usuarioDireccionId);
             
-            if (!yaExiste) {
-              await addressAPI.createUsuarioDireccion(token, {
-                usuario: { id: item.id },
-                direccion: direccion
-              });
+            const direccionesAEliminar = direccionesActualesIds.filter(id => !direccionesMantenerIds.includes(id));
+            
+            // Eliminar direcciones que ya no están en la lista
+            for (const id of direccionesAEliminar) {
+              try {
+                if (id !== undefined) {
+                  await addressAPI.deleteUsuarioDireccion(token, id);
+                }
+              } catch (error) {
+                console.error(`Error eliminando dirección ${id}:`, error);
+              }
             }
+            
+            // Agregar nuevas direcciones (las que no tienen usuarioDireccionId)
+            for (const direccion of direcciones) {
+              if (!direccion.usuarioDireccionId) {
+                try {
+                  // Primero crear la dirección
+                  const direccionCreada = await addressAPI.createDireccion(token, {
+                    calle: direccion.calle,
+                    localidad: direccion.localidad,
+                    cp: direccion.cp
+                  });
+                  
+                  // Luego crear la relación usuario-dirección
+                  await addressAPI.createUsuarioDireccion(token, {
+                    usuario: { 
+                      id: item.id!,
+                      nombre: item.nombre,
+                      email: item.email
+                    },
+                    direccion: direccionCreada
+                  });
+                } catch (error) {
+                  console.error('Error creando nueva dirección:', error);
+                  throw new Error(`Error al crear dirección: ${direccion.calle}, ${direccion.localidad}`);
+                }
+              }
+            }
+          } catch (error) {
+            console.error('Error manejando direcciones:', error);
+            Swal.fire({
+              icon: 'error',
+              title: 'Error con direcciones',
+              text: error instanceof Error ? error.message : 'Error al actualizar direcciones',
+            });
+            return;
           }
         }
       }
@@ -289,7 +316,12 @@ export const EditButtonBootstrap: React.FC<Props> = ({ view, item, onClose, onUp
         Swal.fire({ icon: 'error', title: 'Error', text: 'No se pudo actualizar el elemento.' });
       }
     } catch (err: any) {
-      Swal.fire({ icon: 'error', title: 'Error', text: err?.message || 'Error inesperado.' });
+      console.error('Error en handleSubmit:', err);
+      Swal.fire({ 
+        icon: 'error', 
+        title: 'Error', 
+        text: err?.message || 'Error inesperado al actualizar.' 
+      });
     }
   };
 
@@ -302,12 +334,20 @@ export const EditButtonBootstrap: React.FC<Props> = ({ view, item, onClose, onUp
 
     switch (view) {
       case "Users":
+        // Convertir UsuarioDireccion[] a objetos de dirección simples
+        const direccionesSimples = item.direcciones ? item.direcciones.map((ud: any) => ({
+          calle: ud.direccion?.calle || '',
+          localidad: ud.direccion?.localidad || '',
+          cp: ud.direccion?.cp || '',
+          usuarioDireccionId: ud.id // Guardar el ID para poder eliminar después
+        })) : [];
+        
         return {
           nombre: item.nombre || "",
           email: item.email || "",
-          password: item.password || "",
+          password: "", // Siempre vacío en edición
           imagenPerfilPublicId: item.imagenPerfilPublicId || "",
-          direcciones: item.direcciones || [],
+          direcciones: direccionesSimples,
           nuevaDireccionCalle: "",
           nuevaDireccionLocalidad: "",
           nuevaDireccionCP: ""
@@ -628,7 +668,7 @@ export const EditButtonBootstrap: React.FC<Props> = ({ view, item, onClose, onUp
                               <div key={index} className="d-flex justify-content-between align-items-center p-2 bg-light rounded mb-2">
                                 <span>
                                   <strong>Producto:</strong> {producto?.nombre || 'Producto no encontrado'} | 
-                                  <strong>Cantidad:</strong> {item.cantidad} | 
+                                  <strong>Cantidad:</strong> {item.cantidad || 0} | 
                                   <strong>Stock:</strong> {stockDisponible}
                                   {excedeStock && (
                                     <Badge bg="danger" className="ms-2">⚠️ Excede stock</Badge>
@@ -642,7 +682,7 @@ export const EditButtonBootstrap: React.FC<Props> = ({ view, item, onClose, onUp
                                     setFieldValue("detalle", newDetalle);
                                     const nuevoTotal = newDetalle.reduce((sum: number, item: any) => {
                                       const producto = productos.find(p => p.id === item.producto.id);
-                                      return sum + (producto?.precio || 0) * item.cantidad;
+                                      return sum + (producto?.precio || 0) * (item.cantidad || 0);
                                     }, 0);
                                     setFieldValue("total", nuevoTotal);
                                   }}
@@ -729,10 +769,10 @@ export const EditButtonBootstrap: React.FC<Props> = ({ view, item, onClose, onUp
                                     
                                     const nuevoTotal = newDetalle.reduce((sum: number, item: any) => {
                                       const producto = productos.find(p => p.id === item.producto.id);
-                                      return sum + (producto?.precio || 0) * item.cantidad;
+                                      return sum + (producto?.precio || 0) * (item.cantidad || 0);
                                     }, 0);
                                     setFieldValue("total", nuevoTotal);
-                                  } else if (cantidad > stockDisponible) {
+                                  } else if (cantidad && typeof cantidad === 'number' && cantidad > stockDisponible) {
                                     Swal.fire({
                                       icon: 'error',
                                       title: 'Stock insuficiente',

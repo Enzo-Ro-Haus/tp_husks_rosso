@@ -17,4 +17,10 @@ public class UsuarioDireccionController extends BaseControllerImpl<UsuarioDirecc
     public UsuarioDireccionController(UsuarioDireccionServiceImpl servicio) {
         super(servicio);
     }
+
+    @GetMapping("")
+    @PreAuthorize("hasAnyRole('ADMIN', 'CLIENTE')")
+    public org.springframework.http.ResponseEntity<?> getAllUsuarioDirecciones() {
+        return super.getAll();
+    }
 }

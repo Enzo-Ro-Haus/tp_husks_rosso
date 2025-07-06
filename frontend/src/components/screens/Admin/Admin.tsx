@@ -13,7 +13,7 @@ import { usuarioStore } from "../../../store/usuarioStore";
 import { categoriaStore } from "../../../store/categoriaStore";                                                                                                                                                               
 import { tipoStore } from "../../../store/tipoStore";                                                         
 import { talleStore } from "../../../store/talleStore";                         
-import { direccionFisicaStore } from "../../../store/direccionStore";
+import { direccionFisicaStore, direccionStore } from "../../../store/direccionStore";
 import { ordenStore } from "../../../store/ordenStore";
 import { useAdminView } from "../../../hooks/useViewState";
 
@@ -62,6 +62,10 @@ export const Admin = () => {
 
   const direcciones = direccionFisicaStore((s) => s.direccionesFisicas);
   const setArrayDirecciones = direccionFisicaStore((s) => s.setArrayDireccionesFisicas);
+  
+  // Store para direcciones de usuario-dirección
+  const direccionesUsuario = direccionStore((s) => s.direcciones);
+  const setArrayUsuarioDirecciones = direccionStore((s) => s.setArrayDirecciones);
 
   const ordenes = ordenStore((s) => s.ordenes);
   const setArrayOrdenes = ordenStore((s) => s.setArrayOrdenes);
@@ -138,14 +142,20 @@ export const Admin = () => {
   const getUsuarioDirecciones = useCallback(async () => {
     if (!token) return;
     try {
+      console.log("🔄 getUsuarioDirecciones - Obteniendo datos...");
       const data = await getAllUsuarioDirecciones(token);
-      console.log("Usuario-Direcciones obtenidas:", data);
+      console.log("✅ Usuario-Direcciones obtenidas:", data);
+      // Actualizar el store con los datos obtenidos
+      if (data) {
+        setArrayUsuarioDirecciones(data);
+        console.log("✅ Store de direcciones de usuario actualizado con", data.length, "elementos");
+      }
       return data;
     } catch (error) {
-      console.log("No hay asignaciones usuario-dirección o error:", error);
+      console.log("❌ No hay asignaciones usuario-dirección o error:", error);
       return [];
     }
-  }, [token]);
+  }, [token, setArrayUsuarioDirecciones]);
 
   const getOrdenes = useCallback(async () => {
     if (!token) {
@@ -178,8 +188,29 @@ export const Admin = () => {
       getTalles();
       getDirecciones();
       getOrdenes();
+      // También cargar las direcciones de usuario-dirección
+      getUsuarioDirecciones();
+      console.log("🔄 Admin - Cargando direcciones de usuario al inicializar...");
     }
-  }, [token, role, navigate, getUsuarios, getProductos, getCategorias, getTipos, getTalles, getDirecciones, getOrdenes]);
+  }, [token, role, navigate, getUsuarios, getProductos, getCategorias, getTipos, getTalles, getDirecciones, getOrdenes, getUsuarioDirecciones]);
+
+  // Callback personalizado para cuando se crea un usuario
+  const handleUserCreated = async () => {
+    console.log("🔄 handleUserCreated ejecutándose...");
+    await getUsuarios();
+    // También actualizar las direcciones de usuario-dirección para que aparezcan en otros componentes
+    try {
+      const direccionesActualizadas = await getUsuarioDirecciones();
+      console.log("✅ Direcciones de usuario actualizadas después de crear usuario:", direccionesActualizadas);
+      // El store ya se actualiza en getUsuarioDirecciones, no necesitamos hacerlo aquí de nuevo
+      
+      // Pequeño delay para asegurar que el store se actualice antes de que se cierre el modal
+      await new Promise(resolve => setTimeout(resolve, 100));
+      console.log("✅ handleUserCreated completado");
+    } catch (error) {
+      console.error("❌ Error actualizando direcciones después de crear usuario:", error);
+    }
+  };
 
   // render list by view
   const renderList = () => {
@@ -191,6 +222,7 @@ export const Admin = () => {
     console.log("ordenes:", ordenes, "tipo:", typeof ordenes, "esArray:", Array.isArray(ordenes));
     console.log("usuarios:", usuarios, "tipo:", typeof usuarios, "esArray:", Array.isArray(usuarios));
     console.log("direcciones:", direcciones, "tipo:", typeof direcciones, "esArray:", Array.isArray(direcciones));
+    console.log("direccionesUsuario:", direccionesUsuario, "tipo:", typeof direccionesUsuario, "esArray:", Array.isArray(direccionesUsuario));
     
     switch (view) {
       case "Products":
@@ -298,31 +330,26 @@ export const Admin = () => {
         );
 
       case "Addresses":
-        return Array.isArray(direcciones) && direcciones.length > 0 ? (
-          direcciones.map((d) => {
-            // Buscar si hay usuarios asignados a esta dirección
-            const usuariosAsignados = usuarios.filter(u => 
-              u.direcciones && u.direcciones.some(ud => ud.direccion.id === d.id)
-            );
-            
+        return Array.isArray(direccionesUsuario) && direccionesUsuario.length > 0 ? (
+          direccionesUsuario.map((ud) => {
             return (
               <ListCard
-                key={d.id}
+                key={ud.id}
                 variant="Addresses"
-                id={d.id || "NN"}
-                street={d.calle}
-                locality={d.localidad}
-                pc={d.cp}
-                usuario={usuariosAsignados.length > 0 ? usuariosAsignados[0] : undefined}
-                activo={d.activo}
-                onEdited={getDirecciones}
-                onDeleted={getDirecciones}
-                onRestored={getDirecciones}
+                id={ud.id || "NN"}
+                street={ud.direccion.calle}
+                locality={ud.direccion.localidad}
+                pc={ud.direccion.cp}
+                usuario={ud.usuario}
+                activo={ud.activo}
+                onEdited={getUsuarioDirecciones}
+                onDeleted={getUsuarioDirecciones}
+                onRestored={getUsuarioDirecciones}
               />
             );
           })
         ) : (
-          <h3>No hay direcciones</h3>
+          <h3>No hay direcciones de usuario registradas</h3>
         );
 
       case "Orders":
@@ -364,12 +391,12 @@ export const Admin = () => {
           view={view}
           onChangeView={setView}
           name={usuario?.nombre ?? "NN"}
-          onUserCreated={getUsuarios}
+          onUserCreated={handleUserCreated}
           onProductCreated={getProductos}
           onCategoryCreated={getCategorias}
           onTypeCreated={getTipos}
           onSizeCreated={getTalles}
-          onAddressCreated={getDirecciones}
+          onAddressCreated={getUsuarioDirecciones}
           onOrderCreated={getOrdenes}
         />
         <div className={styles.containerElelements}>{renderList()}</div>

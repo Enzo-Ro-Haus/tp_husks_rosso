@@ -19,11 +19,37 @@
   border: 2px solid #e9ecef;
 }
 
+.imageActions {
+  margin-top: 0.125rem;
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+}
+
+.changeButton {
+  background-color: rgba(255, 255, 255, 0.9);
+  border: 1px solid #007bff;
+  color: #007bff;
+  font-size: 0.8rem;
+  padding: 0.25rem 0.5rem;
+}
+
+.changeButton:hover {
+  background-color: #007bff;
+  color: white;
+}
+
 .removeButton {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  z-index: 10;
+  background-color: rgba(255, 255, 255, 0.9);
+  border: 1px solid #dc3545;
+  color: #dc3545;
+  font-size: 0.8rem;
+  padding: 0.25rem 0.5rem;
+}
+
+.removeButton:hover {
+  background-color: #dc3545;
+  color: white;
 }
 
 .previewContainer {

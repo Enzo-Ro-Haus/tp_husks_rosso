@@ -201,7 +201,7 @@ const schemaMap: Record<ViewType, yup.ObjectSchema<any>> = {
 const createHandlers: Record<ViewType, (token: string, payload: any) => Promise<boolean>> = {
   Users: async (token, payload) => {
     try {
-      const result = await userAPI.createUsuario(token, payload);
+      const result = await userAPI.registrarUsuario(payload);
       return !!result;
     } catch (error) {
       console.error('Error creating user:', error);
@@ -380,6 +380,8 @@ export const CreateButtonBootstrap: React.FC<Props> = ({ view, onClose, onCreate
   };
 
   const renderField = (key: string, values: any, setFieldValue: any) => {
+    console.log('renderField llamado con key:', key, 'para view:', view);
+    
     // Campos que no deben mostrarse en el formulario
     const camposAuxiliares = [
       "crearNuevoUsuario", "nuevoUsuarioNombre", "nuevoUsuarioEmail", "nuevoUsuarioPassword",
@@ -387,8 +389,14 @@ export const CreateButtonBootstrap: React.FC<Props> = ({ view, onClose, onCreate
       "productoSeleccionado", "cantidadProducto", "calle", "localidad", "cp"
     ];
     
+    // Excluir campos de imagen que se manejan con componentes especiales
+    const camposImagen = ["imagenPublicId", "imagenPerfilPublicId"];
+    if (camposImagen.includes(key)) return null;
+    
     if (camposAuxiliares.includes(key)) return null;
     if (view === "Orders" && (key === "detalle" || key === "total")) return null;
+
+
 
     // Manejar campos específicos
     if (view === "Addresses" || view === "Orders") {
@@ -502,8 +510,28 @@ export const CreateButtonBootstrap: React.FC<Props> = ({ view, onClose, onCreate
                   </Col>
                 )}
 
-                {Object.keys(initialValuesMap[view]).map((key) => 
-                  renderField(key, values, setFieldValue)
+                {(() => {
+                  const keys = Object.keys(initialValuesMap[view]);
+                  console.log('Keys para', view, ':', keys);
+                  return keys.map((key) => renderField(key, values, setFieldValue));
+                })()}
+
+                {view === "Products" && (
+                  <Col md={12}>
+                    <BootstrapForm.Group>
+                      <BootstrapForm.Label><strong>Imagen del producto</strong></BootstrapForm.Label>
+                      <ImageUpload
+                        label=""
+                        currentImagePublicId={values.imagenPublicId}
+                        onImageUpload={async (file) => {
+                          const publicId = await uploadImageToCloudinary(file, "productos");
+                          setFieldValue("imagenPublicId", publicId);
+                          return publicId;
+                        }}
+                        onImageRemove={() => setFieldValue("imagenPublicId", "")}
+                      />
+                    </BootstrapForm.Group>
+                  </Col>
                 )}
 
                 {view === "Users" && (
@@ -512,7 +540,7 @@ export const CreateButtonBootstrap: React.FC<Props> = ({ view, onClose, onCreate
                       <BootstrapForm.Label><strong>Imagen de perfil (opcional)</strong></BootstrapForm.Label>
                       <ImageUpload
                         label=""
-                        currentImagePublicId={values.imagenPerfilPublicId || DEFAULT_IMAGE_PUBLIC_ID}
+                        currentImagePublicId={values.imagenPerfilPublicId && values.imagenPerfilPublicId !== "" ? values.imagenPerfilPublicId : undefined}
                         onImageUpload={async (file) => {
                           const publicId = await uploadImageToCloudinary(file, "usuarios");
                           setFieldValue("imagenPerfilPublicId", publicId);

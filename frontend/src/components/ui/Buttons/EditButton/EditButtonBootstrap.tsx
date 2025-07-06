@@ -315,8 +315,14 @@ export const EditButtonBootstrap: React.FC<Props> = ({ view, item, onClose, onUp
       "productoSeleccionado", "cantidadProducto"
     ];
     
+    // Excluir campos de imagen que se manejan con componentes especiales
+    const camposImagen = ["imagenPublicId", "imagenPerfilPublicId"];
+    if (camposImagen.includes(key)) return null;
+    
     if (camposAuxiliares.includes(key)) return null;
     if (view === "Orders" && (key === "detalle" || key === "total")) return null;
+
+
 
     // Manejar campos específicos
     if (view === "Addresses" || view === "Orders") {
@@ -425,13 +431,31 @@ export const EditButtonBootstrap: React.FC<Props> = ({ view, item, onClose, onUp
                   renderField(key, values, setFieldValue)
                 )}
 
+                {view === "Products" && (
+                  <Col md={12}>
+                    <BootstrapForm.Group>
+                      <BootstrapForm.Label><strong>Imagen del producto</strong></BootstrapForm.Label>
+                      <ImageUpload
+                        label=""
+                        currentImagePublicId={values.imagenPublicId}
+                        onImageUpload={async (file) => {
+                          const publicId = await uploadImageToCloudinary(file, "productos");
+                          setFieldValue("imagenPublicId", publicId);
+                          return publicId;
+                        }}
+                        onImageRemove={() => setFieldValue("imagenPublicId", "")}
+                      />
+                    </BootstrapForm.Group>
+                  </Col>
+                )}
+
                 {view === "Users" && (
                   <Col md={12}>
                     <BootstrapForm.Group>
                       <BootstrapForm.Label><strong>Imagen de perfil (opcional)</strong></BootstrapForm.Label>
                       <ImageUpload
                         label=""
-                        currentImagePublicId={values.imagenPerfilPublicId || DEFAULT_IMAGE_PUBLIC_ID}
+                        currentImagePublicId={values.imagenPerfilPublicId && values.imagenPerfilPublicId !== "" ? values.imagenPerfilPublicId : undefined}
                         onImageUpload={async (file) => {
                           const publicId = await uploadImageToCloudinary(file, "usuarios");
                           setFieldValue("imagenPerfilPublicId", publicId);

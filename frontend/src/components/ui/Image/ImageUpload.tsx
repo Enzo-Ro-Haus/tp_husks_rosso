@@ -104,16 +104,28 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
             alt={label}
             className={style.currentImage}
           />
-          {!disabled && (
-            <Button
-              variant="outline-danger"
-              size="sm"
-              onClick={handleRemove}
-              className={style.removeButton}
-            >
-              Eliminar
-            </Button>
-          )}
+          <input
+            ref={inputRef}
+            type="file"
+            accept="image/*"
+            onChange={handleFileSelect}
+            className={style.fileInput}
+            disabled={disabled}
+            id={`image-upload-${label.toLowerCase().replace(/\s+/g, '-')}`}
+            style={{ display: "none" }}
+          />
+        </div>
+      )}
+      {displayImage && !disabled && (
+        <div className={style.imageActions}>
+          <Button
+            variant="outline-danger"
+            size="sm"
+            onClick={handleRemove}
+            className={style.removeButton}
+          >
+            Eliminar
+          </Button>
         </div>
       )}
       {previewUrl && !displayImage && (
@@ -145,7 +157,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
           </div>
         </div>
       )}
-      {/* Área de carga visible si no hay imagen ni preview */}
+      {/* Área de carga solo visible cuando no hay imagen actual ni preview */}
       {!displayImage && !previewUrl && (
         <div
           className={`${style.uploadArea} ${dragActive ? style.dragActive : ""}`}

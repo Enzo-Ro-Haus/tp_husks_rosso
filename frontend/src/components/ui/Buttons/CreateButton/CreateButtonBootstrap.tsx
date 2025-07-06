@@ -45,7 +45,16 @@ interface Props {
 
 // Valores iniciales simplificados por vista
 const initialValuesMap: Record<ViewType, any> = {
-  Users: { nombre: "", email: "", password: "", imagenPerfilPublicId: "" },
+  Users: { 
+    nombre: "", 
+    email: "", 
+    password: "", 
+    imagenPerfilPublicId: "",
+    direcciones: [],
+    nuevaDireccionCalle: "",
+    nuevaDireccionLocalidad: "",
+    nuevaDireccionCP: ""
+  },
   Products: {
     nombre: "",
     cantidad: 1,
@@ -96,6 +105,14 @@ const schemaMap: Record<ViewType, yup.ObjectSchema<any>> = {
     email: yup.string().email().required("❌ Obligatorio"),
     password: yup.string().min(6).required("❌ Obligatorio"),
     imagenPerfilPublicId: yup.string().optional(),
+    direcciones: yup.array().of(yup.object({
+      calle: yup.string().required(),
+      localidad: yup.string().required(),
+      cp: yup.string().required()
+    })).optional(),
+    nuevaDireccionCalle: yup.string().optional(),
+    nuevaDireccionLocalidad: yup.string().optional(),
+    nuevaDireccionCP: yup.string().optional(),
   }),
   Products: yup.object({
     nombre: yup.string().required(),
@@ -201,7 +218,29 @@ const schemaMap: Record<ViewType, yup.ObjectSchema<any>> = {
 const createHandlers: Record<ViewType, (token: string, payload: any) => Promise<boolean>> = {
   Users: async (token, payload) => {
     try {
-      const result = await userAPI.registrarUsuario(payload);
+      const { direcciones, ...userData } = payload;
+      const result = await userAPI.registrarUsuario(userData);
+      
+      // Si se creó el usuario exitosamente y hay direcciones, crearlas
+      if (result && direcciones && direcciones.length > 0) {
+        // Obtener el usuario recién creado para obtener su ID
+        const usuarios = await userAPI.getAllUsuarios(token);
+        const usuarioCreado = usuarios.find(u => u.email === userData.email);
+        
+        if (usuarioCreado && usuarioCreado.id) {
+          for (const direccion of direcciones) {
+            await addressAPI.createUsuarioDireccion(token, {
+              usuario: { 
+                id: usuarioCreado.id,
+                nombre: usuarioCreado.nombre,
+                email: usuarioCreado.email
+              },
+              direccion: direccion
+            });
+          }
+        }
+      }
+      
       return !!result;
     } catch (error) {
       console.error('Error creating user:', error);
@@ -386,7 +425,8 @@ export const CreateButtonBootstrap: React.FC<Props> = ({ view, onClose, onCreate
     const camposAuxiliares = [
       "crearNuevoUsuario", "nuevoUsuarioNombre", "nuevoUsuarioEmail", "nuevoUsuarioPassword",
       "crearNuevaDireccion", "nuevaDireccionCalle", "nuevaDireccionLocalidad", "nuevaDireccionCP",
-      "productoSeleccionado", "cantidadProducto", "calle", "localidad", "cp"
+      "productoSeleccionado", "cantidadProducto", "calle", "localidad", "cp",
+      "nuevaDireccionCalle", "nuevaDireccionLocalidad", "nuevaDireccionCP"
     ];
     
     // Excluir campos de imagen que se manejan con componentes especiales
@@ -396,7 +436,88 @@ export const CreateButtonBootstrap: React.FC<Props> = ({ view, onClose, onCreate
     if (camposAuxiliares.includes(key)) return null;
     if (view === "Orders" && (key === "detalle" || key === "total")) return null;
 
-
+    // Manejo especial para direcciones en Users
+    if (view === "Users" && key === "direcciones") {
+      return (
+        <Col md={12} key={key}>
+          <BootstrapForm.Group>
+            <BootstrapForm.Label><strong>Direcciones</strong></BootstrapForm.Label>
+            <div className="border rounded p-3">
+              {values.direcciones && values.direcciones.length > 0 ? (
+                values.direcciones.map((direccion: any, index: number) => (
+                  <div key={index} className="d-flex justify-content-between align-items-center p-2 bg-light rounded mb-2">
+                    <span>
+                      <strong>Dirección {index + 1}:</strong> {direccion.calle}, {direccion.localidad} ({direccion.cp})
+                    </span>
+                    <Button
+                      variant="danger"
+                      size="sm"
+                      onClick={() => {
+                        const newDirecciones = values.direcciones.filter((_: any, i: number) => i !== index);
+                        setFieldValue("direcciones", newDirecciones);
+                      }}
+                    >
+                      Eliminar
+                    </Button>
+                  </div>
+                ))
+              ) : (
+                <p className="text-muted fst-italic">No hay direcciones agregadas</p>
+              )}
+              
+              <div className="mt-3">
+                <Row>
+                  <Col md={4}>
+                    <Field
+                      name="nuevaDireccionCalle"
+                      placeholder="Calle"
+                      className="form-control"
+                    />
+                  </Col>
+                  <Col md={4}>
+                    <Field
+                      name="nuevaDireccionLocalidad"
+                      placeholder="Localidad"
+                      className="form-control"
+                    />
+                  </Col>
+                  <Col md={3}>
+                    <Field
+                      name="nuevaDireccionCP"
+                      placeholder="CP"
+                      className="form-control"
+                    />
+                  </Col>
+                  <Col md={1}>
+                    <Button
+                      variant="success"
+                      size="sm"
+                      onClick={() => {
+                        const nuevaDireccion = {
+                          calle: values.nuevaDireccionCalle,
+                          localidad: values.nuevaDireccionLocalidad,
+                          cp: values.nuevaDireccionCP
+                        };
+                        
+                        if (nuevaDireccion.calle && nuevaDireccion.localidad && nuevaDireccion.cp) {
+                          const newDirecciones = [...(values.direcciones || []), nuevaDireccion];
+                          setFieldValue("direcciones", newDirecciones);
+                          setFieldValue("nuevaDireccionCalle", "");
+                          setFieldValue("nuevaDireccionLocalidad", "");
+                          setFieldValue("nuevaDireccionCP", "");
+                        }
+                      }}
+                    >
+                      +
+                    </Button>
+                  </Col>
+                </Row>
+              </div>
+            </div>
+          </BootstrapForm.Group>
+        </Col>
+      );
+    }
 
     // Manejar campos específicos
     if (view === "Addresses" || view === "Orders") {

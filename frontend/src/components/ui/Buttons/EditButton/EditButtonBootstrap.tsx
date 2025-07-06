@@ -51,8 +51,16 @@ const schemaMap: Record<ViewType, yup.ObjectSchema<any>> = {
   Users: yup.object({
     nombre: yup.string().required("❌ Obligatorio"),
     email: yup.string().email().required("❌ Obligatorio"),
-    password: yup.string().min(6).required("❌ Obligatorio"),
+    password: yup.string().min(6).optional(),
     imagenPerfilPublicId: yup.string().optional(),
+    direcciones: yup.array().of(yup.object({
+      calle: yup.string().required(),
+      localidad: yup.string().required(),
+      cp: yup.string().required()
+    })).optional(),
+    nuevaDireccionCalle: yup.string().optional(),
+    nuevaDireccionLocalidad: yup.string().optional(),
+    nuevaDireccionCP: yup.string().optional(),
   }),
   Products: yup.object({
     nombre: yup.string().required(),
@@ -103,7 +111,7 @@ const schemaMap: Record<ViewType, yup.ObjectSchema<any>> = {
   Client: yup.object({
     nombre: yup.string().required("❌ Obligatorio"),
     email: yup.string().email().required("❌ Obligatorio"),
-    password: yup.string().min(6).required("❌ Obligatorio"),
+    password: yup.string().min(6).optional(),
     imagenPerfilPublicId: yup.string().optional(),
   }),
 };
@@ -221,8 +229,55 @@ export const EditButtonBootstrap: React.FC<Props> = ({ view, item, onClose, onUp
 
   const handleSubmit = async (values: any) => {
     try {
+      let payload = { ...values };
+      
+      // Para Users, solo incluir password si se proporcionó una nueva
+      if (view === "Users" || view === "Client") {
+        const { password, direcciones, nuevaDireccionCalle, nuevaDireccionLocalidad, nuevaDireccionCP, ...rest } = values;
+        payload = { ...rest };
+        if (password && password.trim() !== "") {
+          payload.password = password;
+        }
+        
+        // Manejar direcciones para Users
+        if (view === "Users") {
+          // Obtener direcciones actuales del usuario
+          const direccionesActuales = await addressAPI.getAllUsuarioDirecciones(token);
+          const direccionesUsuario = direccionesActuales.filter(d => d.usuario.id === item.id);
+          
+          // Eliminar direcciones que ya no están en la lista
+          for (const direccionActual of direccionesUsuario) {
+            const sigueExistiendo = direcciones.some((d: any) => 
+              d.calle === direccionActual.direccion.calle && 
+              d.localidad === direccionActual.direccion.localidad && 
+              d.cp === direccionActual.direccion.cp
+            );
+            
+            if (!sigueExistiendo) {
+              await addressAPI.deleteUsuarioDireccion(token, direccionActual.id);
+            }
+          }
+          
+          // Agregar nuevas direcciones
+          for (const direccion of direcciones) {
+            const yaExiste = direccionesUsuario.some(d => 
+              d.direccion.calle === direccion.calle && 
+              d.direccion.localidad === direccion.localidad && 
+              d.direccion.cp === direccion.cp
+            );
+            
+            if (!yaExiste) {
+              await addressAPI.createUsuarioDireccion(token, {
+                usuario: { id: item.id },
+                direccion: direccion
+              });
+            }
+          }
+        }
+      }
+      
       const handler = updateHandlers[view];
-      const ok = await handler(token, item.id, values);
+      const ok = await handler(token, item.id, payload);
       if (ok) {
         if (view === "Types") {
           const tiposActualizados = await typeAPI.getAllTipos(token);
@@ -252,6 +307,10 @@ export const EditButtonBootstrap: React.FC<Props> = ({ view, item, onClose, onUp
           email: item.email || "",
           password: item.password || "",
           imagenPerfilPublicId: item.imagenPerfilPublicId || "",
+          direcciones: item.direcciones || [],
+          nuevaDireccionCalle: "",
+          nuevaDireccionLocalidad: "",
+          nuevaDireccionCP: ""
         };
       case "Products":
         return {
@@ -312,7 +371,8 @@ export const EditButtonBootstrap: React.FC<Props> = ({ view, item, onClose, onUp
   const renderField = (key: string, values: any, setFieldValue: any) => {
     // Campos que no deben mostrarse en el formulario
     const camposAuxiliares = [
-      "productoSeleccionado", "cantidadProducto"
+      "productoSeleccionado", "cantidadProducto",
+      "nuevaDireccionCalle", "nuevaDireccionLocalidad", "nuevaDireccionCP"
     ];
     
     // Excluir campos de imagen que se manejan con componentes especiales
@@ -322,7 +382,88 @@ export const EditButtonBootstrap: React.FC<Props> = ({ view, item, onClose, onUp
     if (camposAuxiliares.includes(key)) return null;
     if (view === "Orders" && (key === "detalle" || key === "total")) return null;
 
-
+    // Manejo especial para direcciones en Users
+    if (view === "Users" && key === "direcciones") {
+      return (
+        <Col md={12} key={key}>
+          <BootstrapForm.Group>
+            <BootstrapForm.Label><strong>Direcciones</strong></BootstrapForm.Label>
+            <div className="border rounded p-3">
+              {values.direcciones && values.direcciones.length > 0 ? (
+                values.direcciones.map((direccion: any, index: number) => (
+                  <div key={index} className="d-flex justify-content-between align-items-center p-2 bg-light rounded mb-2">
+                    <span>
+                      <strong>Dirección {index + 1}:</strong> {direccion.calle}, {direccion.localidad} ({direccion.cp})
+                    </span>
+                    <Button
+                      variant="danger"
+                      size="sm"
+                      onClick={() => {
+                        const newDirecciones = values.direcciones.filter((_: any, i: number) => i !== index);
+                        setFieldValue("direcciones", newDirecciones);
+                      }}
+                    >
+                      Eliminar
+                    </Button>
+                  </div>
+                ))
+              ) : (
+                <p className="text-muted fst-italic">No hay direcciones agregadas</p>
+              )}
+              
+              <div className="mt-3">
+                <Row>
+                  <Col md={4}>
+                    <Field
+                      name="nuevaDireccionCalle"
+                      placeholder="Calle"
+                      className="form-control"
+                    />
+                  </Col>
+                  <Col md={4}>
+                    <Field
+                      name="nuevaDireccionLocalidad"
+                      placeholder="Localidad"
+                      className="form-control"
+                    />
+                  </Col>
+                  <Col md={3}>
+                    <Field
+                      name="nuevaDireccionCP"
+                      placeholder="CP"
+                      className="form-control"
+                    />
+                  </Col>
+                  <Col md={1}>
+                    <Button
+                      variant="success"
+                      size="sm"
+                      onClick={() => {
+                        const nuevaDireccion = {
+                          calle: values.nuevaDireccionCalle,
+                          localidad: values.nuevaDireccionLocalidad,
+                          cp: values.nuevaDireccionCP
+                        };
+                        
+                        if (nuevaDireccion.calle && nuevaDireccion.localidad && nuevaDireccion.cp) {
+                          const newDirecciones = [...(values.direcciones || []), nuevaDireccion];
+                          setFieldValue("direcciones", newDirecciones);
+                          setFieldValue("nuevaDireccionCalle", "");
+                          setFieldValue("nuevaDireccionLocalidad", "");
+                          setFieldValue("nuevaDireccionCP", "");
+                        }
+                      }}
+                    >
+                      +
+                    </Button>
+                  </Col>
+                </Row>
+              </div>
+            </div>
+          </BootstrapForm.Group>
+        </Col>
+      );
+    }
 
     // Manejar campos específicos
     if (view === "Addresses" || view === "Orders") {
@@ -394,12 +535,16 @@ export const EditButtonBootstrap: React.FC<Props> = ({ view, item, onClose, onUp
     return (
       <Col md={6} key={key}>
         <BootstrapForm.Group>
-          <BootstrapForm.Label><strong>{key.charAt(0).toUpperCase() + key.slice(1)}</strong></BootstrapForm.Label>
+          <BootstrapForm.Label>
+            <strong>
+              {key === "password" ? "Contraseña (opcional)" : key.charAt(0).toUpperCase() + key.slice(1)}
+            </strong>
+          </BootstrapForm.Label>
           <Field
             name={key}
             type={inputType}
             className="form-control"
-            placeholder={key}
+            placeholder={key === "password" ? "Dejar vacío para mantener la actual" : key}
           />
           <ErrorMessage name={key} component="div" className="text-danger small" />
         </BootstrapForm.Group>

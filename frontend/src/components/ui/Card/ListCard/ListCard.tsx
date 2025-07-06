@@ -238,7 +238,12 @@ export const ListCard: React.FC<ListCardProps> = (props) => {
                   <p>
                     <strong>Addresses:</strong>{" "}
                     {address && address.length > 0 
-                      ? address.map((d) => d.direccion.calle).join("; ")
+                      ? address.map((d, index) => (
+                          <span key={d.id}>
+                            {index > 0 && "; "}
+                            {d.direccion.calle}, {d.direccion.localidad} ({d.direccion.cp})
+                          </span>
+                        ))
                       : "No posee"
                     }
                   </p>

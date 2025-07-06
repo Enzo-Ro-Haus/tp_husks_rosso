@@ -28,6 +28,7 @@ import { MetodoPago } from '../../../../types/enums/MetodoPago';
 import { EstadoOrden } from '../../../../types/enums/EstadoOrden';
 import { tipoStore } from "../../../../store/tipoStore";
 import { categoriaStore } from "../../../../store/categoriaStore";
+import { direccionStore } from "../../../../store/direccionStore";
 
 type ViewType =
   | "Users"
@@ -203,6 +204,9 @@ export const EditButtonBootstrap: React.FC<Props> = ({ view, item, onClose, onUp
   const [direcciones, setDirecciones] = useState<IUsuarioDireccion[]>([]);
   const [talles, setTalles] = useState<any[]>([]);
   const [productos, setProductos] = useState<IProducto[]>([]);
+  
+  // Store de direcciones de usuario-dirección
+  const direccionesFromStore = direccionStore((s) => s.direcciones);
 
   useEffect(() => {
     // Carga select options según vista
@@ -219,13 +223,32 @@ export const EditButtonBootstrap: React.FC<Props> = ({ view, item, onClose, onUp
 
     if (view === "Addresses" || view === "Orders") {
       userAPI.getAllUsuarios(token).then(setUsuarios);
-      addressAPI.getAllUsuarioDirecciones(token).then(setDirecciones);
+      // Usar direcciones del store si están disponibles, sino cargar desde la API
+      if (direccionesFromStore && direccionesFromStore.length > 0) {
+        console.log("✅ EditButtonBootstrap - Usando direcciones del store:", direccionesFromStore.length, "direcciones");
+        setDirecciones(direccionesFromStore);
+      } else {
+        console.log("🔄 EditButtonBootstrap - Cargando direcciones desde la API...");
+        addressAPI.getAllUsuarioDirecciones(token).then(setDirecciones);
+      }
     }
 
     if (view === "Orders") {
       productAPI.getAllProductos(token).then(setProductos);
     }
-  }, [view, token]);
+  }, [view, token, direccionesFromStore]);
+
+  // Actualizar direcciones locales cuando cambie el store
+  useEffect(() => {
+    console.log("🔄 EditButtonBootstrap - direccionesFromStore actualizado:", direccionesFromStore);
+    if (direccionesFromStore && direccionesFromStore.length > 0) {
+      console.log("✅ Actualizando direcciones locales con datos del store");
+      setDirecciones(direccionesFromStore);
+    } else if (direccionesFromStore && direccionesFromStore.length === 0) {
+      console.log("🔄 Store vacío, limpiando direcciones locales");
+      setDirecciones([]);
+    }
+  }, [direccionesFromStore]);
 
   const handleSubmit = async (values: any) => {
     try {

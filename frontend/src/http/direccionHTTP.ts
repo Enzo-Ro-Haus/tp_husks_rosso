@@ -15,6 +15,16 @@ export const getAllUsuarioDirecciones = async (
   return data;
 };
 
+export const getActiveUsuarioDirecciones = async (
+  token: string | null
+): Promise<IUsuarioDireccion[]> => {
+  const { data } = await axios.get<IUsuarioDireccion[]>(
+    `${API_URL}/usuario-direccion/active`,
+    { headers: { Authorization: `Bearer ${token}` } }
+  );
+  return data;
+};
+
 export const getAllDirecciones = async (
   token: string | null
 ): Promise<IDireccion[]> => {

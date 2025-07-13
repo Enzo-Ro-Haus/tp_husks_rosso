@@ -295,9 +295,9 @@ export const EditButtonBootstrap: React.FC<Props> = ({ view, item, onClose, onUp
         // Manejar direcciones para Users
         if (view === "Users") {
           try {
-            // Obtener direcciones actuales del usuario
-            const direccionesActuales = await addressAPI.getAllUsuarioDirecciones(token);
-            const direccionesUsuario = direccionesActuales.filter(d => d.usuario.id === item.id);
+            // Obtener direcciones activas del usuario
+            const direccionesActuales = await addressAPI.getActiveUsuarioDirecciones(token);
+            const direccionesUsuario = direccionesActuales.filter(d => d.usuario.id === item.id && item.id !== undefined);
             
             // Obtener IDs de direcciones que ya no están en la lista (para eliminar)
             const direccionesActualesIds = direccionesUsuario.map(d => d.id);
@@ -307,11 +307,11 @@ export const EditButtonBootstrap: React.FC<Props> = ({ view, item, onClose, onUp
             
             const direccionesAEliminar = direccionesActualesIds.filter(id => !direccionesMantenerIds.includes(id));
             
-            // Eliminar direcciones que ya no están en la lista
+            // Eliminar direcciones que ya no están en la lista (soft delete)
             for (const id of direccionesAEliminar) {
               try {
                 if (id !== undefined) {
-                  await addressAPI.deleteUsuarioDireccion(token, id);
+                  await addressAPI.softDeleteUsuarioDireccion(token, id);
                 }
               } catch (error) {
                 console.error(`Error eliminando dirección ${id}:`, error);
@@ -357,7 +357,7 @@ export const EditButtonBootstrap: React.FC<Props> = ({ view, item, onClose, onUp
       }
       
       const handler = updateHandlers[view];
-      const ok = await handler(token, item.id, payload);
+      const ok = await handler(token, item.id!, payload);
       if (ok) {
         // Actualizar stores según la vista
         if (view === "Categories") {

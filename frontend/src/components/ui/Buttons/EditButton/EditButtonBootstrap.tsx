@@ -89,8 +89,10 @@ const schemaMap: Record<ViewType, yup.ObjectSchema<any>> = {
     valor: yup.string().required(),
   }),
   Addresses: yup.object({
-    usuario: yup.object({ id: yup.number().required() }).required(),
-    direccion: yup.object({ id: yup.number().required() }).required(),
+    usuario: yup.object({ id: yup.number().required() }).required("❌ Debe seleccionar un usuario"),
+    calle: yup.string().required("❌ Obligatorio"),
+    localidad: yup.string().required("❌ Obligatorio"),
+    cp: yup.string().required("❌ Obligatorio"),
   }),
   Orders: yup.object({
     usuario: yup.object({ id: yup.number().required() }).required(),
@@ -196,8 +198,22 @@ const updateHandlers: Record<ViewType, (token: string, id: number, payload: any)
   },
   Addresses: async (token, id, payload) => {
     try {
-      const result = await addressAPI.updateUsuarioDireccion(token, id, payload);
-      return !!result;
+      // Primero actualizar la dirección física
+      const direccionActualizada = await addressAPI.updateDireccion(token, payload.direccion.id, {
+        calle: payload.calle,
+        localidad: payload.localidad,
+        cp: payload.cp
+      });
+      
+      // Luego actualizar la relación usuario-dirección si el usuario cambió
+      if (payload.usuario.id !== payload.usuarioOriginal.id) {
+        const result = await addressAPI.updateUsuarioDireccion(token, id, {
+          usuario: payload.usuario
+        });
+        return !!result;
+      }
+      
+      return !!direccionActualizada;
     } catch (error) {
       console.error('Error updating address:', error);
       return false;
@@ -389,6 +405,11 @@ export const EditButtonBootstrap: React.FC<Props> = ({ view, item, onClose, onUp
           const tiposActualizados = await typeAPI.getAllTipos(token);
           tipoStore.getState().setArrayTipos(tiposActualizados);
         }
+        if (view === "Addresses") {
+          // Actualizar el store de direcciones con todas las direcciones (incluyendo soft delete)
+          const direccionesActualizadas = await addressAPI.getAllUsuarioDirecciones(token);
+          direccionStore.getState().setArrayDirecciones(direccionesActualizadas);
+        }
         onUpdated?.();
         onClose();
       } else {
@@ -462,7 +483,11 @@ export const EditButtonBootstrap: React.FC<Props> = ({ view, item, onClose, onUp
       case "Addresses":
         return {
           usuario: item.usuario || { id: 0 },
+          usuarioOriginal: item.usuario || { id: 0 }, // Guardar usuario original para comparar
           direccion: item.direccion || { id: 0 },
+          calle: item.direccion?.calle || "",
+          localidad: item.direccion?.localidad || "",
+          cp: item.direccion?.cp || "",
         };
       case "Orders":
         return {
@@ -492,7 +517,8 @@ export const EditButtonBootstrap: React.FC<Props> = ({ view, item, onClose, onUp
     // Campos que no deben mostrarse en el formulario
     const camposAuxiliares = [
       "productoSeleccionado", "cantidadProducto",
-      "nuevaDireccionCalle", "nuevaDireccionLocalidad", "nuevaDireccionCP"
+      "nuevaDireccionCalle", "nuevaDireccionLocalidad", "nuevaDireccionCP",
+      "usuarioOriginal"
     ];
     
     // Excluir campos de imagen que se manejan con componentes especiales
@@ -755,6 +781,32 @@ export const EditButtonBootstrap: React.FC<Props> = ({ view, item, onClose, onUp
                 </div>
               )}
             </div>
+          </BootstrapForm.Group>
+        </Col>
+      );
+    }
+
+    // Manejo específico para campos de dirección en Addresses
+    if (view === "Addresses" && (key === "calle" || key === "localidad" || key === "cp")) {
+      return (
+        <Col md={4} key={key}>
+          <BootstrapForm.Group>
+            <BootstrapForm.Label>
+              <strong>
+                {key === "calle" ? "Calle" : 
+                 key === "localidad" ? "Localidad" : 
+                 key === "cp" ? "CP" : key.charAt(0).toUpperCase() + key.slice(1)}
+              </strong>
+            </BootstrapForm.Label>
+            <Field
+              name={key}
+              type="text"
+              className="form-control"
+              placeholder={key === "calle" ? "Nombre de la calle" : 
+                         key === "localidad" ? "Ciudad/Localidad" : 
+                         key === "cp" ? "Código Postal" : key}
+            />
+            <ErrorMessage name={key} component="div" className="text-danger small" />
           </BootstrapForm.Group>
         </Col>
       );

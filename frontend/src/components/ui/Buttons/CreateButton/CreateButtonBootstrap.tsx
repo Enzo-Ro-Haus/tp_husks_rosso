@@ -78,8 +78,6 @@ const initialValuesMap: Record<ViewType, any> = {
   Sizes: { sistema: "", valor: "" },
   Addresses: { 
     usuario: { id: 0 }, 
-    direccion: { id: 0 },
-    crearNuevaDireccion: false,
     calle: "",
     localidad: "",
     cp: ""
@@ -153,28 +151,10 @@ const schemaMap: Record<ViewType, yup.ObjectSchema<any>> = {
     valor: yup.string().required(),
   }),
   Addresses: yup.object({
-    usuario: yup.object({ id: yup.number().required() }).required(),
-    direccion: yup.object({ id: yup.number().required() }).when('crearNuevaDireccion', {
-      is: false,
-      then: (schema) => schema.required(),
-      otherwise: (schema) => schema.notRequired(),
-    }),
-    crearNuevaDireccion: yup.boolean(),
-    calle: yup.string().when('crearNuevaDireccion', {
-      is: true,
-      then: (schema) => schema.required("❌ Obligatorio"),
-      otherwise: (schema) => schema.notRequired(),
-    }),
-    localidad: yup.string().when('crearNuevaDireccion', {
-      is: true,
-      then: (schema) => schema.required("❌ Obligatorio"),
-      otherwise: (schema) => schema.notRequired(),
-    }),
-    cp: yup.string().when('crearNuevaDireccion', {
-      is: true,
-      then: (schema) => schema.required("❌ Obligatorio"),
-      otherwise: (schema) => schema.notRequired(),
-    }),
+    usuario: yup.object({ id: yup.number().required() }).required("❌ Debe seleccionar un usuario"),
+    calle: yup.string().required("❌ Obligatorio"),
+    localidad: yup.string().required("❌ Obligatorio"),
+    cp: yup.string().required("❌ Obligatorio"),
   }),
   Orders: yup.object({
     usuario: yup.object({ id: yup.number().required() }).nullable().required("Debe seleccionar un usuario"),
@@ -336,7 +316,19 @@ const createHandlers: Record<ViewType, (token: string, payload: any) => Promise<
   },
   Addresses: async (token, payload) => {
     try {
-      const result = await addressAPI.createUsuarioDireccion(token, payload);
+      // Primero crear la dirección
+      const nuevaDireccion = await addressAPI.createDireccion(token, {
+        calle: payload.calle,
+        localidad: payload.localidad,
+        cp: payload.cp
+      });
+      
+      // Luego crear la relación usuario-dirección
+      const result = await addressAPI.createUsuarioDireccion(token, {
+        usuario: payload.usuario,
+        direccion: nuevaDireccion
+      });
+      
       return !!result;
     } catch (error) {
       console.error('Error creating address:', error);
@@ -489,6 +481,11 @@ export const CreateButtonBootstrap: React.FC<Props> = ({ view, onClose, onCreate
           tipoStore.getState().setArrayTipos(tiposActualizados);
           categoriaStore.getState().setArraycategorias(categoriasActualizadas);
         }
+        if (view === "Addresses") {
+          // Actualizar el store de direcciones con todas las direcciones (incluyendo soft delete)
+          const direccionesActualizadas = await addressAPI.getAllUsuarioDirecciones(token);
+          direccionStore.getState().setArrayDirecciones(direccionesActualizadas);
+        }
         onCreated?.();
         onClose();
       } else {
@@ -507,7 +504,7 @@ export const CreateButtonBootstrap: React.FC<Props> = ({ view, onClose, onCreate
     const camposAuxiliares = [
       "crearNuevoUsuario", "nuevoUsuarioNombre", "nuevoUsuarioEmail", "nuevoUsuarioPassword",
       "crearNuevaDireccion", "nuevaDireccionCalle", "nuevaDireccionLocalidad", "nuevaDireccionCP",
-      "productoSeleccionado", "cantidadProducto", "calle", "localidad", "cp",
+      "productoSeleccionado", "cantidadProducto",
       "nuevaDireccionCalle", "nuevaDireccionLocalidad", "nuevaDireccionCP",
       "tiposExistentes", "nuevoTipoNombre"
     ];
@@ -617,7 +614,9 @@ export const CreateButtonBootstrap: React.FC<Props> = ({ view, onClose, onCreate
                   const selected = usuarios.find(o => o.id === +e.target.value);
                   if (selected) {
                     setFieldValue("usuario", selected);
-                    setFieldValue("usuarioDireccion", null);
+                    if (view === "Orders") {
+                      setFieldValue("usuarioDireccion", null);
+                    }
                   }
                 }}
               >
@@ -634,7 +633,7 @@ export const CreateButtonBootstrap: React.FC<Props> = ({ view, onClose, onCreate
         );
       }
       
-      if (key === "usuarioDireccion") {
+      if (key === "usuarioDireccion" && view === "Orders") {
         const usuarioSeleccionado = values.usuario;
         const direccionesUsuario = direcciones.filter(d => 
           usuarioSeleccionado && d.usuario.id === usuarioSeleccionado.id
@@ -783,6 +782,32 @@ export const CreateButtonBootstrap: React.FC<Props> = ({ view, onClose, onCreate
       );
     }
 
+    // Manejo específico para campos de dirección en Addresses
+    if (view === "Addresses" && (key === "calle" || key === "localidad" || key === "cp")) {
+      return (
+        <Col md={4} key={key}>
+          <BootstrapForm.Group>
+            <BootstrapForm.Label>
+              <strong>
+                {key === "calle" ? "Calle" : 
+                 key === "localidad" ? "Localidad" : 
+                 key === "cp" ? "CP" : key.charAt(0).toUpperCase() + key.slice(1)}
+              </strong>
+            </BootstrapForm.Label>
+            <Field
+              name={key}
+              type="text"
+              className="form-control"
+              placeholder={key === "calle" ? "Nombre de la calle" : 
+                         key === "localidad" ? "Ciudad/Localidad" : 
+                         key === "cp" ? "Código Postal" : key}
+            />
+            <ErrorMessage name={key} component="div" className="text-danger small" />
+          </BootstrapForm.Group>
+        </Col>
+      );
+    }
+
     // Campos básicos
     const inputType = key === "password" ? "password" : 
                      key === "email" ? "email" : 
@@ -818,20 +843,6 @@ export const CreateButtonBootstrap: React.FC<Props> = ({ view, onClose, onCreate
           {({ values, setFieldValue, errors, touched }) => (
             <Form>
               <Row>
-                {view === "Addresses" && (
-                  <Col md={12}>
-                    <BootstrapForm.Check
-                      type="checkbox"
-                      label="Crear nueva dirección"
-                      checked={crearNuevaDireccion}
-                      onChange={(e) => {
-                        setCrearNuevaDireccion(e.target.checked);
-                        setFieldValue("crearNuevaDireccion", e.target.checked);
-                      }}
-                      className="mb-3"
-                    />
-                  </Col>
-                )}
 
                 {(() => {
                   const keys = Object.keys(initialValuesMap[view]);

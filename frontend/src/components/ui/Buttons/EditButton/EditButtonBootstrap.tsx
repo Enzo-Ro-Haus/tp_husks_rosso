@@ -409,6 +409,10 @@ export const EditButtonBootstrap: React.FC<Props> = ({ view, item, onClose, onUp
           // Actualizar el store de direcciones con todas las direcciones (incluyendo soft delete)
           const direccionesActualizadas = await addressAPI.getAllUsuarioDirecciones(token);
           direccionStore.getState().setArrayDirecciones(direccionesActualizadas);
+          
+          // Actualizar el store de usuarios para que aparezcan las direcciones en las ListCard
+          const usuariosActualizados = await userAPI.getAllUsuarios(token);
+          usuarioStore.getState().setArrayUsuarios(usuariosActualizados);
         }
         onUpdated?.();
         onClose();

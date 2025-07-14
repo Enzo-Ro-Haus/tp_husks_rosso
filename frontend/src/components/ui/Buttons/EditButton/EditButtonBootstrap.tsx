@@ -207,8 +207,26 @@ const updateHandlers: Record<ViewType, (token: string, id: number, payload: any)
       
       // Luego actualizar la relación usuario-dirección si el usuario cambió
       if (payload.usuario.id !== payload.usuarioOriginal.id) {
+        // Asegurarse de que el id de la dirección esté presente y válido
+        let direccionId = null;
+        if (payload.direccion && payload.direccion.id) {
+          direccionId = payload.direccion.id;
+        } else if (typeof payload.direccion === 'number') {
+          direccionId = payload.direccion;
+        } else if (payload.id) {
+          direccionId = payload.id;
+        }
+        if (!direccionId) {
+          throw new Error('No se encontró un id válido de dirección para actualizar la relación usuario-dirección.');
+        }
         const result = await addressAPI.updateUsuarioDireccion(token, id, {
-          usuario: payload.usuario
+          usuario: payload.usuario,
+          direccion: {
+            id: direccionId,
+            calle: payload.calle,
+            localidad: payload.localidad,
+            cp: payload.cp
+          }
         });
         return !!result;
       }
@@ -988,7 +1006,7 @@ export const EditButtonBootstrap: React.FC<Props> = ({ view, item, onClose, onUp
                   renderField(key, values, setFieldValue)
                 )}
 
-                {view === "Products" && (
+                {view === "Products" && "imagenPublicId" in values && (
                   <Col md={12}>
                     <BootstrapForm.Group>
                       <BootstrapForm.Label><strong>Imagen del producto</strong></BootstrapForm.Label>
@@ -1006,7 +1024,7 @@ export const EditButtonBootstrap: React.FC<Props> = ({ view, item, onClose, onUp
                   </Col>
                 )}
 
-                {view === "Users" && (
+                {view === "Users" && "imagenPerfilPublicId" in values && (
                   <Col md={12}>
                     <BootstrapForm.Group>
                       <BootstrapForm.Label><strong>Imagen de perfil (opcional)</strong></BootstrapForm.Label>
@@ -1024,18 +1042,17 @@ export const EditButtonBootstrap: React.FC<Props> = ({ view, item, onClose, onUp
                   </Col>
                 )}
 
-                {view === "Orders" && (
+                {view === "Orders" && "detalle" in values && Array.isArray(values.detalle) && (
                   <Col md={12}>
                     <BootstrapForm.Group>
                       <BootstrapForm.Label><strong>Productos de la orden</strong></BootstrapForm.Label>
                       <div className="border rounded p-3">
-                        {values.detalle && values.detalle.length > 0 ? (
+                        {values.detalle.length > 0 ? (
                           values.detalle.map((item: any, index: number) => {
                             const producto = productos.find(p => p.id === item.producto.id);
                             const stockDisponible = producto?.cantidad || 0;
                             const cantidadEnOrden = item.cantidad;
                             const excedeStock = cantidadEnOrden > stockDisponible;
-                            
                             return (
                               <div key={index} className="d-flex justify-content-between align-items-center p-2 bg-light rounded mb-2">
                                 <span>
@@ -1067,7 +1084,6 @@ export const EditButtonBootstrap: React.FC<Props> = ({ view, item, onClose, onUp
                         ) : (
                           <p className="text-muted fst-italic">No hay productos agregados</p>
                         )}
-                        
                         <div className="mt-3">
                           <Row>
                             <Col md={6}>
@@ -1082,6 +1098,7 @@ export const EditButtonBootstrap: React.FC<Props> = ({ view, item, onClose, onUp
                                     setFieldValue("cantidadProducto", 1);
                                   }
                                 }}
+                                value={"productoSeleccionado" in values ? values.productoSeleccionado : ""}
                               >
                                 <option value="">Seleccionar producto</option>
                                 {productos.map((p) => (
@@ -1100,29 +1117,27 @@ export const EditButtonBootstrap: React.FC<Props> = ({ view, item, onClose, onUp
                                 className="form-control"
                                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                                   const cantidad = parseInt(e.target.value) || 0;
-                                  const productoId = values.productoSeleccionado;
+                                  const productoId = "productoSeleccionado" in values ? values.productoSeleccionado : undefined;
                                   const producto = productos.find(p => p.id === productoId);
                                   const stockDisponible = producto?.cantidad || 0;
-                                  
                                   if (cantidad > stockDisponible) {
                                     e.target.setCustomValidity(`La cantidad no puede exceder el stock disponible (${stockDisponible})`);
                                   } else {
                                     e.target.setCustomValidity('');
                                   }
-                                  
                                   setFieldValue("cantidadProducto", cantidad);
                                 }}
+                                value={"cantidadProducto" in values ? values.cantidadProducto : 1}
                               />
                             </Col>
                             <Col md={3}>
                               <Button
                                 variant="success"
                                 onClick={() => {
-                                  const productoId = values.productoSeleccionado;
-                                  const cantidad = values.cantidadProducto;
+                                  const productoId = "productoSeleccionado" in values ? values.productoSeleccionado : undefined;
+                                  const cantidad = "cantidadProducto" in values ? values.cantidadProducto : 1;
                                   const producto = productos.find(p => p.id === productoId);
                                   const stockDisponible = producto?.cantidad || 0;
-                                  
                                   if (productoId && cantidad && cantidad > 0 && cantidad <= stockDisponible) {
                                     const productoYaAgregado = values.detalle?.some((item: any) => item.producto.id === productoId);
                                     if (productoYaAgregado) {
@@ -1133,12 +1148,10 @@ export const EditButtonBootstrap: React.FC<Props> = ({ view, item, onClose, onUp
                                       });
                                       return;
                                     }
-                                    
                                     const newDetalle = [...(values.detalle || []), { producto: { id: productoId }, cantidad }];
                                     setFieldValue("detalle", newDetalle);
                                     setFieldValue("productoSeleccionado", "");
                                     setFieldValue("cantidadProducto", 1);
-                                    
                                     const nuevoTotal = newDetalle.reduce((sum: number, item: any) => {
                                       const producto = productos.find(p => p.id === item.producto.id);
                                       return sum + (producto?.precio || 0) * (item.cantidad || 0);
@@ -1157,7 +1170,7 @@ export const EditButtonBootstrap: React.FC<Props> = ({ view, item, onClose, onUp
                               </Button>
                             </Col>
                           </Row>
-                          {values.productoSeleccionado && (
+                          {"productoSeleccionado" in values && values.productoSeleccionado && (
                             <small className="text-muted">
                               Stock disponible: {productos.find(p => p.id === Number(values.productoSeleccionado))?.cantidad || 0} unidades
                             </small>

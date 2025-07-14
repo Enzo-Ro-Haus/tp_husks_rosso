@@ -436,6 +436,15 @@ export const EditButtonBootstrap: React.FC<Props> = ({ view, item, onClose, onUp
       return {};
     }
 
+    // Debug para Addresses
+    if (view === "Addresses") {
+      console.log('🔍 EditButtonBootstrap - item para Addresses:', item);
+      console.log('🔍 EditButtonBootstrap - item.usuario:', item.usuario);
+      console.log('🔍 EditButtonBootstrap - item.direccion:', item.direccion);
+      console.log('🔍 EditButtonBootstrap - item keys:', Object.keys(item));
+      console.log('🔍 EditButtonBootstrap - item completo expandido:', JSON.stringify(item, null, 2));
+    }
+
     switch (view) {
       case "Users":
         // Convertir UsuarioDireccion[] a objetos de dirección simples
@@ -485,14 +494,25 @@ export const EditButtonBootstrap: React.FC<Props> = ({ view, item, onClose, onUp
           valor: item.valor || "",
         };
       case "Addresses":
-        return {
+        // Debug detallado para entender la estructura del item
+        console.log('🔍 EditButtonBootstrap - item completo para Addresses:', item);
+        console.log('🔍 EditButtonBootstrap - item.usuario:', item.usuario);
+        console.log('🔍 EditButtonBootstrap - item.direccion:', item.direccion);
+        console.log('🔍 EditButtonBootstrap - item.street:', item.street);
+        console.log('🔍 EditButtonBootstrap - item.locality:', item.locality);
+        console.log('🔍 EditButtonBootstrap - item.pc:', item.pc);
+        
+        const addressValues = {
           usuario: item.usuario || { id: 0 },
           usuarioOriginal: item.usuario || { id: 0 }, // Guardar usuario original para comparar
-          direccion: item.direccion || { id: 0 },
-          calle: item.direccion?.calle || "",
-          localidad: item.direccion?.localidad || "",
-          cp: item.direccion?.cp || "",
+          direccion: item.direccion || { id: item.id || 0 },
+          calle: item.street || item.direccion?.calle || "",
+          localidad: item.locality || item.direccion?.localidad || "",
+          cp: item.pc || item.direccion?.cp || "",
         };
+        
+        console.log('🔍 EditButtonBootstrap - addressValues calculados:', addressValues);
+        return addressValues;
       case "Orders":
         return {
           usuario: item.usuario || null,
@@ -518,11 +538,16 @@ export const EditButtonBootstrap: React.FC<Props> = ({ view, item, onClose, onUp
   };
 
   const renderField = (key: string, values: any, setFieldValue: any) => {
+    // Debug para Addresses
+    if (view === "Addresses") {
+      console.log('🔍 EditButtonBootstrap - renderField procesando key:', key, 'values[key]:', values[key]);
+    }
+    
     // Campos que no deben mostrarse en el formulario
     const camposAuxiliares = [
       "productoSeleccionado", "cantidadProducto",
       "nuevaDireccionCalle", "nuevaDireccionLocalidad", "nuevaDireccionCP",
-      "usuarioOriginal"
+      "usuarioOriginal", "direccion"
     ];
     
     // Excluir campos de imagen que se manejan con componentes especiales
@@ -531,6 +556,7 @@ export const EditButtonBootstrap: React.FC<Props> = ({ view, item, onClose, onUp
     
     if (camposAuxiliares.includes(key)) return null;
     if (view === "Orders" && (key === "detalle" || key === "total")) return null;
+    if (view === "Addresses" && key === "usuarioDireccion") return null;
 
     // Manejo especial para direcciones en Users
     if (view === "Users" && key === "direcciones") {
@@ -792,6 +818,7 @@ export const EditButtonBootstrap: React.FC<Props> = ({ view, item, onClose, onUp
 
     // Manejo específico para campos de dirección en Addresses
     if (view === "Addresses" && (key === "calle" || key === "localidad" || key === "cp")) {
+      console.log(`🔍 EditButtonBootstrap - Renderizando campo ${key} con valor:`, values[key]);
       return (
         <Col md={4} key={key}>
           <BootstrapForm.Group>
@@ -799,7 +826,7 @@ export const EditButtonBootstrap: React.FC<Props> = ({ view, item, onClose, onUp
               <strong>
                 {key === "calle" ? "Calle" : 
                  key === "localidad" ? "Localidad" : 
-                 key === "cp" ? "CP" : key.charAt(0).toUpperCase() + key.slice(1)}
+                 key === "cp" ? "CP" : (key as string).charAt(0).toUpperCase() + (key as string).slice(1)}
               </strong>
             </BootstrapForm.Label>
             <Field
@@ -817,7 +844,7 @@ export const EditButtonBootstrap: React.FC<Props> = ({ view, item, onClose, onUp
     }
 
     // Manejar campos específicos
-    if (view === "Addresses" || view === "Orders") {
+    if (view === "Orders") {
       if (key === "usuario") {
         return (
           <Col md={6} key={key}>
@@ -877,6 +904,36 @@ export const EditButtonBootstrap: React.FC<Props> = ({ view, item, onClose, onUp
         );
       }
     }
+    
+    // Manejar campo usuario específicamente para Addresses
+    if (view === "Addresses" && key === "usuario") {
+      return (
+        <Col md={6} key={key}>
+          <BootstrapForm.Group>
+            <BootstrapForm.Label><strong>Usuario</strong></BootstrapForm.Label>
+            <Field
+              as="select"
+              name="usuario.id"
+              className="form-select"
+              onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
+                const selected = usuarios.find(o => o.id === +e.target.value);
+                if (selected) {
+                  setFieldValue("usuario", selected);
+                }
+              }}
+            >
+              <option value="">Seleccionar usuario</option>
+              {usuarios.map((u) => (
+                <option key={u.id} value={u.id} selected={values.usuario?.id === u.id}>
+                  {u.nombre} ({u.email})
+                </option>
+              ))}
+            </Field>
+            <ErrorMessage name="usuario" component="div" className="text-danger small" />
+          </BootstrapForm.Group>
+        </Col>
+      );
+    }
 
     // Campos básicos
     const inputType = key === "password" ? "password" : 
@@ -909,6 +966,10 @@ export const EditButtonBootstrap: React.FC<Props> = ({ view, item, onClose, onUp
     return null;
   }
 
+  // Obtener valores iniciales una sola vez
+  const initialValues = getInitialValues();
+  console.log('🔍 EditButtonBootstrap - initialValues finales:', initialValues);
+
   return (
     <Modal show={true} onHide={onClose} size="lg" centered backdrop="static">
       <Modal.Header closeButton>
@@ -916,14 +977,14 @@ export const EditButtonBootstrap: React.FC<Props> = ({ view, item, onClose, onUp
       </Modal.Header>
       <Modal.Body>
         <Formik
-          initialValues={getInitialValues()}
+          initialValues={initialValues}
           validationSchema={schemaMap[view]}
           onSubmit={handleSubmit}
         >
           {({ values, setFieldValue, errors, touched }) => (
             <Form>
               <Row>
-                {Object.keys(getInitialValues()).map((key) => 
+                {Object.keys(initialValues).map((key) => 
                   renderField(key, values, setFieldValue)
                 )}
 

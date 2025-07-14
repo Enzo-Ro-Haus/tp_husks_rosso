@@ -297,7 +297,10 @@ export const EditButtonBootstrap: React.FC<Props> = ({ view, item, onClose, onUp
           try {
             // Obtener direcciones activas del usuario
             const direccionesActuales = await addressAPI.getActiveUsuarioDirecciones(token);
-            const direccionesUsuario = direccionesActuales.filter(d => d.usuario.id === item.id && item.id !== undefined);
+            let direccionesUsuario: any[] = [];
+            if (item.id !== undefined) {
+              direccionesUsuario = direccionesActuales.filter(d => d.usuario.id === item.id);
+            }
             
             // Obtener IDs de direcciones que ya no están en la lista (para eliminar)
             const direccionesActualesIds = direccionesUsuario.map(d => d.id);
@@ -330,9 +333,13 @@ export const EditButtonBootstrap: React.FC<Props> = ({ view, item, onClose, onUp
                   });
                   
                   // Luego crear la relación usuario-dirección
+                  if (item.id === undefined) {
+                    Swal.fire({ icon: 'error', title: 'Error', text: 'ID del usuario no encontrado.' });
+                    return;
+                  }
                   await addressAPI.createUsuarioDireccion(token, {
                     usuario: { 
-                      id: item.id!,
+                      id: item.id,
                       nombre: item.nombre,
                       email: item.email
                     },
@@ -356,10 +363,24 @@ export const EditButtonBootstrap: React.FC<Props> = ({ view, item, onClose, onUp
         }
       }
       
+      if (!item.id) {
+        Swal.fire({ icon: 'error', title: 'Error', text: 'ID del elemento no encontrado.' });
+        return;
+      }
+      
       const handler = updateHandlers[view];
-      const ok = await handler(token, item.id!, payload);
+      const ok = await handler(token, item.id, payload);
       if (ok) {
         // Actualizar stores según la vista
+        if (view === "Users") {
+          // Actualizar el store de usuarios con los datos actualizados
+          const usuariosActualizados = await userAPI.getAllUsuarios(token);
+          usuarioStore.getState().setArrayUsuarios(usuariosActualizados);
+          
+          // Actualizar el store de direcciones con TODAS las direcciones (incluyendo soft delete)
+          const direccionesActualizadas = await addressAPI.getAllUsuarioDirecciones(token);
+          direccionStore.getState().setArrayDirecciones(direccionesActualizadas);
+        }
         if (view === "Categories") {
           const categoriasActualizadas = await categoryAPI.getAllCategorias(token);
           categoriaStore.getState().setArraycategorias(categoriasActualizadas);
@@ -582,7 +603,7 @@ export const EditButtonBootstrap: React.FC<Props> = ({ view, item, onClose, onUp
                   value={(values.tiposExistentes || []).map((t: any) => t.id)}
                   onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
                     const ids = Array.from(e.target.selectedOptions).map((o) => +o.value);
-                    const tiposSeleccionados = tipos.filter(t => ids.includes(t.id));
+                    const tiposSeleccionados = tipos.filter(t => t.id && ids.includes(t.id));
                     setFieldValue("tiposExistentes", tiposSeleccionados);
                   }}
                 >

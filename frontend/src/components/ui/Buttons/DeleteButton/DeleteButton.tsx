@@ -1,6 +1,7 @@
 import React from "react";
 import style from "./DeleteButton.module.css";
 import { usuarioStore } from "../../../../store/usuarioStore";
+import { direccionStore } from "../../../../store/direccionStore";
 
 // HTTP services
 import * as userAPI from "../../../../http/usuarioHTTP";
@@ -136,6 +137,13 @@ export const DeleteButton: React.FC<DeleteButtonProps> = ({
         });
         if (onDeleted) {
           onDeleted();
+        }
+        
+        // Actualizar stores específicos según el tipo de entidad
+        if (view === "Addresses") {
+          // Actualizar el store de direcciones con todas las direcciones (incluyendo soft delete)
+          const direccionesActualizadas = await addressAPI.getAllUsuarioDirecciones(token);
+          direccionStore.getState().setArrayDirecciones(direccionesActualizadas);
         }
       } catch (error: any) {
         console.error("Error al eliminar:", error);

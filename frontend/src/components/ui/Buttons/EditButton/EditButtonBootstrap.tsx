@@ -272,6 +272,9 @@ export const EditButtonBootstrap: React.FC<Props> = ({ view, item, onClose, onUp
   // Store de direcciones de usuario-dirección
   const direccionesFromStore = direccionStore((s) => s.direcciones);
 
+  // Estado de búsqueda para tipos en Categories
+  const [searchTipos, setSearchTipos] = useState("");
+
   useEffect(() => {
     // Carga select options según vista
     if (view === "Products") {
@@ -315,8 +318,13 @@ export const EditButtonBootstrap: React.FC<Props> = ({ view, item, onClose, onUp
   }, [direccionesFromStore]);
 
   const handleSubmit = async (values: any) => {
+    let payload = { ...values };
     try {
-      let payload = { ...values };
+      // --- CORRECCIÓN PARA CATEGORIES ---
+      if (view === "Categories") {
+        // Solo actualizar el nombre de la categoría
+        payload = { nombre: values.nombre };
+      }
       
       // Para Users, solo incluir password si se proporcionó una nueva
       if (view === "Users" || view === "Client") {
@@ -405,6 +413,27 @@ export const EditButtonBootstrap: React.FC<Props> = ({ view, item, onClose, onUp
       const handler = updateHandlers[view];
       const ok = await handler(token, item.id, payload);
       if (ok) {
+        // --- SINCRONIZACIÓN EXPLÍCITA CATEGORIA-TIPO ---
+        if (view === "Categories") {
+          // 1. Obtener los tipos seleccionados tras la edición
+          const tiposSeleccionados: number[] = Array.isArray(values.tipos)
+            ? values.tipos.map((t: any) => Number(t))
+            : [];
+          // 2. Obtener los tipos originales antes de la edición
+          const tiposOriginales: number[] = Array.isArray(item.tipos)
+            ? item.tipos.map((t: any) => (typeof t === "object" && t.id ? Number(t.id) : Number(t)))
+            : [];
+          // 3. Calcular diferencias
+          const tiposAAgregar = tiposSeleccionados.filter(id => !tiposOriginales.includes(id));
+          const tiposAEliminar = tiposOriginales.filter(id => !tiposSeleccionados.includes(id));
+          // 4. Llamar a los endpoints explícitos
+          for (const tipoId of tiposAAgregar) {
+            await categoryAPI.createCategoriaTipoRelation(token, item.id, tipoId);
+          }
+          for (const tipoId of tiposAEliminar) {
+            await categoryAPI.deleteCategoriaTipoRelation(token, item.id, tipoId);
+          }
+        }
         // Actualizar stores según la vista
         if (view === "Users") {
           // Actualizar el store de usuarios con los datos actualizados
@@ -498,7 +527,9 @@ export const EditButtonBootstrap: React.FC<Props> = ({ view, item, onClose, onUp
       case "Categories":
         return {
           nombre: item.nombre || "",
-          tipos: [],
+          tipos: Array.isArray(item.tipos)
+            ? item.tipos.map((t: any) => typeof t === "object" && t.id ? Number(t.id) : Number(t))
+            : [],
         };
       case "Types":
         return {
@@ -660,11 +691,9 @@ export const EditButtonBootstrap: React.FC<Props> = ({ view, item, onClose, onUp
 
     // Reemplazo el renderizado de la selección múltiple de tipos en Categoría
     if (view === "Categories" && key === "tipos") {
-      // Estado local para búsqueda
-      const [search, setSearch] = useState("");
-      const selectedIds = (values.tipos || []).map((t: any) => t.id);
-      const tiposSeleccionados = tipos.filter((t) => selectedIds.includes(t.id));
-      const tiposNoSeleccionados = tipos.filter((t) => !selectedIds.includes(t.id) && t.nombre.toLowerCase().includes(search.toLowerCase()));
+      const selectedIds = (values.tipos || []).map((t: any) => Number(t));
+      const tiposSeleccionados = tipos.filter((t) => selectedIds.includes(Number(t.id)));
+      const tiposNoSeleccionados = tipos.filter((t) => !selectedIds.includes(Number(t.id)) && t.nombre.toLowerCase().includes(searchTipos.toLowerCase()));
       return (
         <Col md={12} key={key}>
           <BootstrapForm.Group>
@@ -675,8 +704,8 @@ export const EditButtonBootstrap: React.FC<Props> = ({ view, item, onClose, onUp
                   <BootstrapForm.Control
                     type="text"
                     placeholder="Buscar tipo..."
-                    value={search}
-                    onChange={e => setSearch(e.target.value)}
+                    value={searchTipos}
+                    onChange={e => setSearchTipos(e.target.value)}
                     size="sm"
                   />
                 </Col>
@@ -685,7 +714,7 @@ export const EditButtonBootstrap: React.FC<Props> = ({ view, item, onClose, onUp
                     variant="outline-primary"
                     size="sm"
                     className="me-2"
-                    onClick={() => setFieldValue("tipos", tipos)}
+                    onClick={() => setFieldValue("tipos", tipos.map(t => Number(t.id)))}
                     disabled={tipos.length === 0}
                   >
                     Seleccionar todos
@@ -714,7 +743,7 @@ export const EditButtonBootstrap: React.FC<Props> = ({ view, item, onClose, onUp
                       className="me-2 mb-2"
                       style={{ cursor: "pointer" }}
                       pill
-                      onClick={() => setFieldValue("tipos", tiposSeleccionados.filter((t: any) => t.id !== tipo.id))}
+                      onClick={() => setFieldValue("tipos", selectedIds.filter((id: number) => id !== Number(tipo.id)))}
                     >
                       {tipo.nombre} <span style={{ marginLeft: 4, cursor: "pointer" }}>×</span>
                     </Badge>
@@ -727,19 +756,21 @@ export const EditButtonBootstrap: React.FC<Props> = ({ view, item, onClose, onUp
                   {tiposNoSeleccionados.length === 0 && (
                     <span className="text-muted ms-2">Ninguno</span>
                   )}
-                  {tiposNoSeleccionados.map((tipo: any) => (
-                    <Badge
-                      key={tipo.id}
-                      bg="light"
-                      text="dark"
-                      className="me-2 mb-2"
-                      style={{ cursor: "pointer", border: "1px solid #0dcaf0" }}
-                      pill
-                      onClick={() => setFieldValue("tipos", [...tiposSeleccionados, tipo])}
-                    >
-                      {tipo.nombre} <span style={{ marginLeft: 4, color: "#0dcaf0" }}>+</span>
-                    </Badge>
-                  ))}
+                  {tiposNoSeleccionados
+                    .filter((tipo: any) => tipo.nombre.toLowerCase().includes(searchTipos.toLowerCase()))
+                    .map((tipo: any) => (
+                      <Badge
+                        key={tipo.id}
+                        bg="light"
+                        text="dark"
+                        className="me-2 mb-2"
+                        style={{ cursor: "pointer", border: "1px solid #0dcaf0" }}
+                        pill
+                        onClick={() => setFieldValue("tipos", [...selectedIds, Number(tipo.id)])}
+                      >
+                        {tipo.nombre} <span style={{ marginLeft: 4, color: "#0dcaf0" }}>+</span>
+                      </Badge>
+                    ))}
                 </div>
               </div>
               <ErrorMessage name="tipos" component="div" className="text-danger small" />
@@ -797,17 +828,21 @@ export const EditButtonBootstrap: React.FC<Props> = ({ view, item, onClose, onUp
                     <span className="text-muted ms-2">Ninguna</span>
                   )}
                   {categoriasSeleccionadas.map((categoria: any) => (
-                    <Badge
-                      key={categoria.id}
-                      bg="info"
-                      text="dark"
-                      className="me-2 mb-2"
-                      style={{ cursor: "pointer" }}
-                      pill
-                      onClick={() => setFieldValue("categorias", categoriasSeleccionadas.filter((c: any) => c.id !== categoria.id))}
-                    >
-                      {categoria.nombre} <span style={{ marginLeft: 4, cursor: "pointer" }}>×</span>
-                    </Badge>
+                    <label key={categoria.id} className="me-3 mb-2" style={{ cursor: 'pointer' }}>
+                      <input
+                        type="checkbox"
+                        checked={true}
+                        onChange={() => {
+                          // Quitar de seleccionadas
+                          setFieldValue(
+                            "categorias",
+                            categoriasSeleccionadas.filter((c: any) => c.id !== categoria.id)
+                          );
+                        }}
+                        className="me-1"
+                      />
+                      <span className="badge bg-info text-dark">{categoria.nombre}</span>
+                    </label>
                   ))}
                 </div>
               </div>
@@ -818,87 +853,25 @@ export const EditButtonBootstrap: React.FC<Props> = ({ view, item, onClose, onUp
                     <span className="text-muted ms-2">Ninguna</span>
                   )}
                   {categoriasNoSeleccionadas.map((categoria: any) => (
-                    <Badge
-                      key={categoria.id}
-                      bg="light"
-                      text="dark"
-                      className="me-2 mb-2"
-                      style={{ cursor: "pointer", border: "1px solid #0dcaf0" }}
-                      pill
-                      onClick={() => setFieldValue("categorias", [...categoriasSeleccionadas, categoria])}
-                    >
-                      {categoria.nombre} <span style={{ marginLeft: 4, color: "#0dcaf0" }}>+</span>
-                    </Badge>
-                  ))}
-                </div>
-              </div>
-              <ErrorMessage name="categorias" component="div" className="text-danger small" />
-            </div>
-          </BootstrapForm.Group>
-        </Col>
-      );
-    }
-
-    // Manejo especial para tipos en Categories
-    if (view === "Categories" && key === "tipos") {
-      // Tipos seleccionados y no seleccionados
-      const selectedIds = (values.tipos || []).map((t: any) => t.id);
-      const tiposSeleccionados = tipos.filter((t) => selectedIds.includes(t.id));
-      const tiposNoSeleccionados = tipos.filter((t) => !selectedIds.includes(t.id));
-      return (
-        <Col md={12} key={key}>
-          <BootstrapForm.Group>
-            <BootstrapForm.Label><strong>Tipos asociados</strong></BootstrapForm.Label>
-            <div className="border rounded p-3">
-              <div className="mb-2">
-                <strong>Tipos seleccionados:</strong>
-                {tiposSeleccionados.length === 0 && (
-                  <span className="text-muted ms-2">Ninguno</span>
-                )}
-                <div className="d-flex flex-wrap mt-2">
-                  {tiposSeleccionados.map((tipo: any) => (
-                    <label key={tipo.id} className="me-3 mb-2" style={{ cursor: 'pointer' }}>
-                      <input
-                        type="checkbox"
-                        checked={true}
-                        onChange={() => {
-                          setFieldValue(
-                            "tipos",
-                            tiposSeleccionados.filter((t: any) => t.id !== tipo.id)
-                          );
-                        }}
-                        className="me-1"
-                      />
-                      <span className="badge bg-info text-dark">{tipo.nombre}</span>
-                    </label>
-                  ))}
-                </div>
-              </div>
-              <div className="mb-2">
-                <strong>Otros tipos:</strong>
-                {tiposNoSeleccionados.length === 0 && (
-                  <span className="text-muted ms-2">Ninguno</span>
-                )}
-                <div className="d-flex flex-wrap mt-2">
-                  {tiposNoSeleccionados.map((tipo: any) => (
-                    <label key={tipo.id} className="me-3 mb-2" style={{ cursor: 'pointer' }}>
+                    <label key={categoria.id} className="me-3 mb-2" style={{ cursor: 'pointer' }}>
                       <input
                         type="checkbox"
                         checked={false}
                         onChange={() => {
+                          // Agregar a seleccionadas
                           setFieldValue(
-                            "tipos",
-                            [...tiposSeleccionados, tipo]
+                            "categorias",
+                            [...categoriasSeleccionadas, categoria]
                           );
                         }}
                         className="me-1"
                       />
-                      <span>{tipo.nombre}</span>
+                      <span>{categoria.nombre}</span>
                     </label>
                   ))}
                 </div>
               </div>
-              <ErrorMessage name="tipos" component="div" className="text-danger small" />
+              <ErrorMessage name="categorias" component="div" className="text-danger small" />
             </div>
           </BootstrapForm.Group>
         </Col>

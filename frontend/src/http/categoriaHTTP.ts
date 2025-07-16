@@ -51,32 +51,19 @@ export const deleteCategoriaTipoRelation = async (token: string | null, categori
 // Modifica createCategoria para sincronizar relaciones explícitas
 export const createCategoria = async (
   token: string | null,
-  nuevaCategoria: ICategoria
+  nombreCategoria: string,
+  tiposIds: number[]
 ): Promise<ICategoria> => {
   console.log('=== DEBUG CREATE CATEGORIA ===');
   console.log('Token:', token);
-  console.log('Payload completo:', JSON.stringify(nuevaCategoria, null, 2));
+  console.log('Nombre:', nombreCategoria);
+  console.log('Tipos seleccionados:', tiposIds);
   console.log('Headers:', { Authorization: `Bearer ${token}` });
   console.log('URL:', `${API_URL}/categoria`);
   console.log('==============================');
 
-  // Si hay tipos sin id, primero créalos y reemplaza por sus ids
-  let tiposFinal = [];
-  if (nuevaCategoria.tipos && nuevaCategoria.tipos.length > 0) {
-    for (const t of nuevaCategoria.tipos) {
-      if (!t.id && t.nombre) {
-        // Crear tipo nuevo
-        const tipoCreado = await (await import('./tipoHTTP')).createTipo(token, { nombre: t.nombre, categorias: [] });
-        if (tipoCreado && tipoCreado.id) {
-          tiposFinal.push({ id: tipoCreado.id });
-        }
-      } else if (t.id) {
-        tiposFinal.push({ id: t.id });
-      }
-    }
-  }
-  const payload: any = { nombre: nuevaCategoria.nombre };
-  payload.tipos = tiposFinal;
+  // 1. Crear la categoría solo con el nombre (sin tipos)
+  const payload: any = { nombre: nombreCategoria };
   const { data } = await axios.post<ICategoria>(
     `${API_URL}/categoria`,
     payload,
@@ -84,19 +71,22 @@ export const createCategoria = async (
       headers: { Authorization: `Bearer ${token}` },
     }
   );
-  // Sincroniza relaciones explícitas
-  for (const t of tiposFinal) {
-    if (data.id !== undefined && t.id !== undefined) {
-      await createCategoriaTipoRelation(token, data.id, t.id);
+  // 2. Crear la relación explícita para cada tipo seleccionado
+  for (const tipoId of tiposIds) {
+    if (data.id !== undefined && tipoId !== undefined) {
+      await createCategoriaTipoRelation(token, data.id, tipoId);
     }
   }
+  // 3. Obtener la categoría actualizada con sus relaciones
+  const categoriasActualizadas = await getAllCategorias(token);
+  const categoriaFinal = categoriasActualizadas.find((c) => c.id === data.id) || data;
   Swal.fire({
     icon: "success",
     title: "Categoría creada",
     timer: 2000,
     showConfirmButton: false,
   });
-  return data;
+  return categoriaFinal;
 };
 
 export const updateCategoria = async (

@@ -231,12 +231,9 @@ const createHandlers: Record<
     !!(await productAPI.createProducto(token, values)),
 
   Categories: async (token, values) => {
-    // Limpiar el payload para enviar solo los campos necesarios
-    const payload = {
-      nombre: values.nombre,
-      tipos: values.tipos.map((id: number) => ({ id })),
-    };
-    const nuevaCategoria = await categoryAPI.createCategoria(token, payload);
+    // Enviar solo el nombre y los IDs de los tipos seleccionados
+    const tiposIds = values.tipos;
+    const nuevaCategoria = await categoryAPI.createCategoria(token, values.nombre, tiposIds);
     categoriaStore.getState().agregarNuevaCategiria(nuevaCategoria);
     return !!nuevaCategoria;
   },
@@ -830,42 +827,24 @@ export const CreateButton: React.FC<Props> = ({ view, onClose, onCreated }) => {
                       <React.Fragment key="tipos-alternancia">
                         <div className={style.Input}>
                           <label>
-                            <input
-                              type="checkbox"
-                              checked={crearNuevoTipo}
-                              onChange={() => setCrearNuevoTipo((v) => !v)}
-                            />
-                            Crear nuevo tipo
+                            <b>Tipos</b>
                           </label>
+                          <Field
+                            as="select"
+                            multiple
+                            name="tipos"
+                            className={style.Field}
+                            onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
+                              const ids = Array.from(e.target.selectedOptions).map((o) => +o.value);
+                              setFieldValue("tipos", ids);
+                            }}
+                          >
+                            {tipos.map((t) => (
+                              <option key={t.id} value={t.id}>{t.nombre}</option>
+                            ))}
+                          </Field>
+                          <ErrorMessage name="tipos" component="div" className="error-message" />
                         </div>
-                        {crearNuevoTipo ? (
-                          <div className={style.Input}>
-                            <label>Nombre del nuevo tipo</label>
-                            <Field name="nuevoTipoNombre" className={style.Field} />
-                            <ErrorMessage name="nuevoTipoNombre" component="div" className="error-message" />
-                          </div>
-                        ) : (
-                          <div className={style.Input}>
-                            <label>
-                              <b>Tipos</b>
-                            </label>
-                            <Field
-                              as="select"
-                              multiple
-                              name="tipos"
-                              className={style.Field}
-                              onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
-                                const ids = Array.from(e.target.selectedOptions).map((o) => +o.value);
-                                setFieldValue("tipos", ids);
-                              }}
-                            >
-                              {tipos.map((t) => (
-                                <option key={t.id} value={t.id}>{t.nombre}</option>
-                              ))}
-                            </Field>
-                            <ErrorMessage name="tipos" component="div" className="error-message" />
-                          </div>
-                        )}
                       </React.Fragment>
                     );
                   }
@@ -1259,7 +1238,7 @@ export const CreateButton: React.FC<Props> = ({ view, onClose, onCreated }) => {
                     <ErrorMessage name="detalle" component="div" className="error-message" />
                   </div>
                 )}
-              </div>
+              </Row>
 
               <Modal.Footer>
                 <Button variant="secondary" onClick={onClose}>

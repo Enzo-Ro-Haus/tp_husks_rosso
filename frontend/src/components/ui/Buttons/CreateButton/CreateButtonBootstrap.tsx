@@ -259,37 +259,12 @@ const createHandlers: Record<ViewType, (token: string, payload: any) => Promise<
   },
   Categories: async (token, payload) => {
     try {
-      const tiposIds = [];
-      
-      // Agregar IDs de tipos existentes seleccionados
-      if (payload.tiposExistentes && payload.tiposExistentes.length > 0) {
-        for (const tipoData of payload.tiposExistentes) {
-          if (tipoData.id) {
-            tiposIds.push(tipoData.id);
-          }
-        }
-      }
-      
-      // Crear nuevos tipos y agregar sus IDs
+      // Obtener los IDs de los tipos seleccionados desde 'tipos'
+      let tiposIds = [];
       if (payload.tipos && payload.tipos.length > 0) {
-        for (const tipoData of payload.tipos) {
-          if (tipoData.nombre) {
-            const nuevoTipo = await typeAPI.createTipo(token, { 
-              nombre: tipoData.nombre,
-              categorias: []
-            });
-            if (nuevoTipo && nuevoTipo.id) {
-              tiposIds.push(nuevoTipo.id);
-            }
-          }
-        }
+        tiposIds = payload.tipos.map((tipo: any) => tipo.id ?? tipo);
       }
-      
-      // Limpiar campos auxiliares antes de enviar
-      const { tiposExistentes, nuevoTipoNombre, ...categoriaData } = payload;
-      categoriaData.tipos = tiposIds;
-      
-      const result = await categoryAPI.createCategoria(token, categoriaData);
+      const result = await categoryAPI.createCategoria(token, payload.nombre, tiposIds);
       return !!result;
     } catch (error) {
       console.error('Error creating category:', error);
@@ -423,10 +398,7 @@ export const CreateButtonBootstrap: React.FC<Props> = ({ view, onClose, onCreate
       // Products: crear nueva categoría/talle si corresponde
       if (view === "Products") {
         if (crearNuevaCategoria) {
-          const nuevaCategoria = await categoryAPI.createCategoria(token, { 
-            nombre: values.nuevaCategoriaNombre, 
-            tipos: [] 
-          });
+          const nuevaCategoria = await categoryAPI.createCategoria(token, values.nuevaCategoriaNombre, []);
           payload.categoria = nuevaCategoria;
         }
         if (crearNuevoTalle) {
@@ -459,6 +431,7 @@ export const CreateButtonBootstrap: React.FC<Props> = ({ view, onClose, onCreate
         return;
       }
       
+      // Eliminar lógica de creación de nuevos Types en Categories
       const handler = createHandlers[view];
       const ok = await handler(token, payload);
       if (ok) {

@@ -1,4 +1,5 @@
 import CloudinaryImg from './CoudinaryImg';
+import userImg from '../../../assets/user_img.jpg';
 
 interface UserProfileImageProps {
   imagenPerfilPublicId?: string;
@@ -35,11 +36,11 @@ const UserProfileImage = ({
     console.log("No hay imagenPerfilPublicId válido, usando imagen por defecto");
     return (
       <img
-        src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23e0e0e0'/%3E%3Ccircle cx='50' cy='35' r='20' fill='%23ccc'/%3E%3Cpath d='M20 80 Q50 60 80 80' fill='%23ccc'/%3E%3C/svg%3E"
+        src={userImg}
         alt={alt}
         width={width}
         height={height}
-        className={`rounded-circle ${className || ''}`}
+        className={className || ''}
         style={{ objectFit: 'cover', ...style }}
       />
     );
@@ -52,7 +53,7 @@ const UserProfileImage = ({
       width={width}
       height={height}
       alt={alt}
-      className={`rounded-circle ${className || ''}`}
+      className={className || ''}
       style={style}
     />
   );

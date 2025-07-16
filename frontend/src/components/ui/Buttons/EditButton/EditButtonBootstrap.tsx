@@ -692,53 +692,66 @@ export const EditButtonBootstrap: React.FC<Props> = ({ view, item, onClose, onUp
 
     // Manejo especial para categorías en Types
     if (view === "Types" && key === "categorias") {
+      // Categorías seleccionadas y no seleccionadas
+      const selectedIds = (values.categorias || []).map((c: any) => c.id);
+      const categoriasSeleccionadas = categorias.filter((c) => selectedIds.includes(c.id));
+      const categoriasNoSeleccionadas = categorias.filter((c) => !selectedIds.includes(c.id));
       return (
         <Col md={12} key={key}>
           <BootstrapForm.Group>
-            <BootstrapForm.Label><strong>Categorías</strong></BootstrapForm.Label>
+            <BootstrapForm.Label><strong>Categorías asociadas</strong></BootstrapForm.Label>
             <div className="border rounded p-3">
-              <div className="mb-3">
-                <Field
-                  as="select"
-                  multiple
-                  name="categorias"
-                  className="form-select"
-                  value={(values.categorias || []).map((c: any) => c.id).filter((id: any) => id !== undefined)}
-                  onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
-                    const ids = Array.from(e.target.selectedOptions).map((o) => +o.value);
-                    const categoriasSeleccionadas = categorias.filter(c => c.id && ids.includes(c.id));
-                    setFieldValue("categorias", categoriasSeleccionadas);
-                  }}
-                >
-                  {categorias.map((c) => (
-                    <option key={c.id} value={c.id}>{c.nombre}</option>
+              <div className="mb-2">
+                <strong>Categorías seleccionadas:</strong>
+                {categoriasSeleccionadas.length === 0 && (
+                  <span className="text-muted ms-2">Ninguna</span>
+                )}
+                <div className="d-flex flex-wrap mt-2">
+                  {categoriasSeleccionadas.map((categoria: any) => (
+                    <label key={categoria.id} className="me-3 mb-2" style={{ cursor: 'pointer' }}>
+                      <input
+                        type="checkbox"
+                        checked={true}
+                        onChange={() => {
+                          // Quitar de seleccionadas
+                          setFieldValue(
+                            "categorias",
+                            categoriasSeleccionadas.filter((c: any) => c.id !== categoria.id)
+                          );
+                        }}
+                        className="me-1"
+                      />
+                      <span className="badge bg-info text-dark">{categoria.nombre}</span>
+                    </label>
                   ))}
-                </Field>
-                <small className="text-muted">
-                  Mantén presionado Ctrl (Cmd en Mac) para seleccionar múltiples categorías
-                </small>
-                <ErrorMessage name="categorias" component="div" className="text-danger small" />
+                </div>
               </div>
-              
-              {/* Mostrar categorías seleccionadas */}
-              {values.categorias && values.categorias.length > 0 && (
-                <div className="mt-3">
-                  <strong>Categorías seleccionadas:</strong>
-                  <div className="mt-2">
-                    {values.categorias.map((categoria: any) => (
-                      <Badge key={categoria.id} bg="info" className="me-2 mb-1">
-                        {categoria.nombre}
-                      </Badge>
-                    ))}
-                  </div>
+              <div className="mb-2">
+                <strong>Otras categorías:</strong>
+                {categoriasNoSeleccionadas.length === 0 && (
+                  <span className="text-muted ms-2">Ninguna</span>
+                )}
+                <div className="d-flex flex-wrap mt-2">
+                  {categoriasNoSeleccionadas.map((categoria: any) => (
+                    <label key={categoria.id} className="me-3 mb-2" style={{ cursor: 'pointer' }}>
+                      <input
+                        type="checkbox"
+                        checked={false}
+                        onChange={() => {
+                          // Agregar a seleccionadas
+                          setFieldValue(
+                            "categorias",
+                            [...categoriasSeleccionadas, categoria]
+                          );
+                        }}
+                        className="me-1"
+                      />
+                      <span>{categoria.nombre}</span>
+                    </label>
+                  ))}
                 </div>
-              )}
-              
-              {(!values.categorias || values.categorias.length === 0) && (
-                <div className="mt-3">
-                  <p className="text-muted fst-italic">No hay categorías seleccionadas</p>
-                </div>
-              )}
+              </div>
+              <ErrorMessage name="categorias" component="div" className="text-danger small" />
             </div>
           </BootstrapForm.Group>
         </Col>

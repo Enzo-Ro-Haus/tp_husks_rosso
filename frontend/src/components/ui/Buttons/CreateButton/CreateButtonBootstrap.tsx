@@ -699,32 +699,67 @@ export const CreateButtonBootstrap: React.FC<Props> = ({ view, onClose, onCreate
 
     // Manejo especial para categorías en Types
     if (view === "Types" && key === "categorias") {
+      // Categorías seleccionadas y no seleccionadas
+      const selectedIds = (values.categorias || []).map((c: any) => c.id);
+      const categoriasSeleccionadas = categorias.filter((c) => selectedIds.includes(c.id));
+      const categoriasNoSeleccionadas = categorias.filter((c) => !selectedIds.includes(c.id));
       return (
         <Col md={12} key={key}>
           <BootstrapForm.Group>
-            <BootstrapForm.Label><strong>Categorías</strong></BootstrapForm.Label>
-            <Field
-              as="select"
-              name="categorias"
-              multiple
-              className="form-control"
-              onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
-                const selectedCategoriaIds = Array.from(e.target.selectedOptions).map((o) => +o.value);
-                const validSelectedCategoriaIds = selectedCategoriaIds.filter((id): id is number => Number.isFinite(id) && id !== 0);
-                setFieldValue(
-                  "categorias",
-                  categorias
-                    .filter((c) => Number.isFinite(c.id) && c.id !== 0)
-                    .filter((c) => validSelectedCategoriaIds.includes(c.id as number))
-                );
-              }}
-            >
-              {categorias.map((cat) => (
-                <option key={cat.id} value={cat.id}>{cat.nombre}</option>
-              ))}
-            </Field>
-            <div className="form-text">Puedes dejar vacío si el tipo no tiene categorías asociadas.</div>
-            <ErrorMessage name="categorias" component="div" className="text-danger small" />
+            <BootstrapForm.Label><strong>Categorías asociadas</strong></BootstrapForm.Label>
+            <div className="border rounded p-3">
+              <div className="mb-2">
+                <strong>Categorías seleccionadas:</strong>
+                {categoriasSeleccionadas.length === 0 && (
+                  <span className="text-muted ms-2">Ninguna</span>
+                )}
+                <div className="d-flex flex-wrap mt-2">
+                  {categoriasSeleccionadas.map((categoria: any) => (
+                    <label key={categoria.id} className="me-3 mb-2" style={{ cursor: 'pointer' }}>
+                      <input
+                        type="checkbox"
+                        checked={true}
+                        onChange={() => {
+                          // Quitar de seleccionadas
+                          setFieldValue(
+                            "categorias",
+                            categoriasSeleccionadas.filter((c: any) => c.id !== categoria.id)
+                          );
+                        }}
+                        className="me-1"
+                      />
+                      <span className="badge bg-info text-dark">{categoria.nombre}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+              <div className="mb-2">
+                <strong>Otras categorías:</strong>
+                {categoriasNoSeleccionadas.length === 0 && (
+                  <span className="text-muted ms-2">Ninguna</span>
+                )}
+                <div className="d-flex flex-wrap mt-2">
+                  {categoriasNoSeleccionadas.map((categoria: any) => (
+                    <label key={categoria.id} className="me-3 mb-2" style={{ cursor: 'pointer' }}>
+                      <input
+                        type="checkbox"
+                        checked={false}
+                        onChange={() => {
+                          // Agregar a seleccionadas
+                          setFieldValue(
+                            "categorias",
+                            [...categoriasSeleccionadas, categoria]
+                          );
+                        }}
+                        className="me-1"
+                      />
+                      <span>{categoria.nombre}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+              <ErrorMessage name="categorias" component="div" className="text-danger small" />
+            </div>
           </BootstrapForm.Group>
         </Col>
       );

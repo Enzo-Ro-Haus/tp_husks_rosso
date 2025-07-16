@@ -28,7 +28,7 @@ export const tipoStore = create<ITipoStore>((set) => ({
     set((state) => {
       const arreglotipos = state.tipos.map((tipo) =>
         tipo.id === tipoEditado.id
-          ? { ...tipo, tipoEditado }
+          ? { ...tipoEditado }
           : tipo
       );
       return { tipos: arreglotipos };

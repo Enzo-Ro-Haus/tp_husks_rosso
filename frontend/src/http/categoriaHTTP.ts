@@ -32,6 +32,23 @@ export const getAllCategorias = async (
   }
 };
 
+// Relación explícita Categoria-Tipo
+export const createCategoriaTipoRelation = async (token: string | null, categoriaId: number, tipoId: number) => {
+  await axios.post(
+    `http://localhost:9000/categoria-tipo?categoriaId=${categoriaId}&tipoId=${tipoId}`,
+    {},
+    { headers: { Authorization: `Bearer ${token}` } }
+  );
+};
+
+export const deleteCategoriaTipoRelation = async (token: string | null, categoriaId: number, tipoId: number) => {
+  await axios.delete(
+    `http://localhost:9000/categoria-tipo?categoriaId=${categoriaId}&tipoId=${tipoId}`,
+    { headers: { Authorization: `Bearer ${token}` } }
+  );
+};
+
+// Modifica createCategoria para sincronizar relaciones explícitas
 export const createCategoria = async (
   token: string | null,
   nuevaCategoria: ICategoria
@@ -42,11 +59,24 @@ export const createCategoria = async (
   console.log('Headers:', { Authorization: `Bearer ${token}` });
   console.log('URL:', `${API_URL}/categoria`);
   console.log('==============================');
-  
-  const payload: any = { nombre: nuevaCategoria.nombre };
+
+  // Si hay tipos sin id, primero créalos y reemplaza por sus ids
+  let tiposFinal = [];
   if (nuevaCategoria.tipos && nuevaCategoria.tipos.length > 0) {
-    payload.tipos = nuevaCategoria.tipos.map(t => ({ id: t.id }));
+    for (const t of nuevaCategoria.tipos) {
+      if (!t.id && t.nombre) {
+        // Crear tipo nuevo
+        const tipoCreado = await (await import('./tipoHTTP')).createTipo(token, { nombre: t.nombre, categorias: [] });
+        if (tipoCreado && tipoCreado.id) {
+          tiposFinal.push({ id: tipoCreado.id });
+        }
+      } else if (t.id) {
+        tiposFinal.push({ id: t.id });
+      }
+    }
   }
+  const payload: any = { nombre: nuevaCategoria.nombre };
+  payload.tipos = tiposFinal;
   const { data } = await axios.post<ICategoria>(
     `${API_URL}/categoria`,
     payload,
@@ -54,6 +84,12 @@ export const createCategoria = async (
       headers: { Authorization: `Bearer ${token}` },
     }
   );
+  // Sincroniza relaciones explícitas
+  for (const t of tiposFinal) {
+    if (data.id !== undefined && t.id !== undefined) {
+      await createCategoriaTipoRelation(token, data.id, t.id);
+    }
+  }
   Swal.fire({
     icon: "success",
     title: "Categoría creada",
@@ -69,9 +105,7 @@ export const updateCategoria = async (
   categoriaUpdated: Partial<ICategoria>
 ): Promise<ICategoria> => {
   const payload: any = { nombre: categoriaUpdated.nombre };
-  if (categoriaUpdated.tipos && categoriaUpdated.tipos.length > 0) {
-    payload.tipos = categoriaUpdated.tipos.map(t => ({ id: t.id }));
-  }
+  payload.tipos = (categoriaUpdated.tipos || []).map(t => ({ id: t.id })); // Siempre enviar array
   const { data } = await axios.put<ICategoria>(
     `${API_URL}/categoria/${id}`,
     payload,

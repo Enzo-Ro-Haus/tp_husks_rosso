@@ -658,6 +658,187 @@ export const EditButtonBootstrap: React.FC<Props> = ({ view, item, onClose, onUp
       );
     }
 
+    // Reemplazo el renderizado de la selección múltiple de tipos en Categoría
+    if (view === "Categories" && key === "tipos") {
+      // Estado local para búsqueda
+      const [search, setSearch] = useState("");
+      const selectedIds = (values.tipos || []).map((t: any) => t.id);
+      const tiposSeleccionados = tipos.filter((t) => selectedIds.includes(t.id));
+      const tiposNoSeleccionados = tipos.filter((t) => !selectedIds.includes(t.id) && t.nombre.toLowerCase().includes(search.toLowerCase()));
+      return (
+        <Col md={12} key={key}>
+          <BootstrapForm.Group>
+            <BootstrapForm.Label><strong>Tipos asociados</strong></BootstrapForm.Label>
+            <div className="border rounded p-3">
+              <Row className="mb-2 align-items-center">
+                <Col xs={12} md={6} className="mb-2 mb-md-0">
+                  <BootstrapForm.Control
+                    type="text"
+                    placeholder="Buscar tipo..."
+                    value={search}
+                    onChange={e => setSearch(e.target.value)}
+                    size="sm"
+                  />
+                </Col>
+                <Col xs="auto">
+                  <Button
+                    variant="outline-primary"
+                    size="sm"
+                    className="me-2"
+                    onClick={() => setFieldValue("tipos", tipos)}
+                    disabled={tipos.length === 0}
+                  >
+                    Seleccionar todos
+                  </Button>
+                  <Button
+                    variant="outline-secondary"
+                    size="sm"
+                    onClick={() => setFieldValue("tipos", [])}
+                    disabled={tiposSeleccionados.length === 0}
+                  >
+                    Deseleccionar todos
+                  </Button>
+                </Col>
+              </Row>
+              <div className="mb-2">
+                <strong>Seleccionados ({tiposSeleccionados.length}):</strong>
+                <div className="d-flex flex-wrap mt-2">
+                  {tiposSeleccionados.length === 0 && (
+                    <span className="text-muted ms-2">Ninguno</span>
+                  )}
+                  {tiposSeleccionados.map((tipo: any) => (
+                    <Badge
+                      key={tipo.id}
+                      bg="info"
+                      text="dark"
+                      className="me-2 mb-2"
+                      style={{ cursor: "pointer" }}
+                      pill
+                      onClick={() => setFieldValue("tipos", tiposSeleccionados.filter((t: any) => t.id !== tipo.id))}
+                    >
+                      {tipo.nombre} <span style={{ marginLeft: 4, cursor: "pointer" }}>×</span>
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+              <div className="mb-2">
+                <strong>Otros tipos:</strong>
+                <div className="d-flex flex-wrap mt-2">
+                  {tiposNoSeleccionados.length === 0 && (
+                    <span className="text-muted ms-2">Ninguno</span>
+                  )}
+                  {tiposNoSeleccionados.map((tipo: any) => (
+                    <Badge
+                      key={tipo.id}
+                      bg="light"
+                      text="dark"
+                      className="me-2 mb-2"
+                      style={{ cursor: "pointer", border: "1px solid #0dcaf0" }}
+                      pill
+                      onClick={() => setFieldValue("tipos", [...tiposSeleccionados, tipo])}
+                    >
+                      {tipo.nombre} <span style={{ marginLeft: 4, color: "#0dcaf0" }}>+</span>
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+              <ErrorMessage name="tipos" component="div" className="text-danger small" />
+            </div>
+          </BootstrapForm.Group>
+        </Col>
+      );
+    }
+
+    // Reemplazo el renderizado de la selección múltiple de categorías en Tipo
+    if (view === "Types" && key === "categorias") {
+      const [search, setSearch] = useState("");
+      const selectedIds = (values.categorias || []).map((c: any) => c.id);
+      const categoriasSeleccionadas = categorias.filter((c) => selectedIds.includes(c.id));
+      const categoriasNoSeleccionadas = categorias.filter((c) => !selectedIds.includes(c.id) && c.nombre.toLowerCase().includes(search.toLowerCase()));
+      return (
+        <Col md={12} key={key}>
+          <BootstrapForm.Group>
+            <BootstrapForm.Label><strong>Categorías asociadas</strong></BootstrapForm.Label>
+            <div className="border rounded p-3">
+              <Row className="mb-2 align-items-center">
+                <Col xs={12} md={6} className="mb-2 mb-md-0">
+                  <BootstrapForm.Control
+                    type="text"
+                    placeholder="Buscar categoría..."
+                    value={search}
+                    onChange={e => setSearch(e.target.value)}
+                    size="sm"
+                  />
+                </Col>
+                <Col xs="auto">
+                  <Button
+                    variant="outline-primary"
+                    size="sm"
+                    className="me-2"
+                    onClick={() => setFieldValue("categorias", categorias)}
+                    disabled={categorias.length === 0}
+                  >
+                    Seleccionar todas
+                  </Button>
+                  <Button
+                    variant="outline-secondary"
+                    size="sm"
+                    onClick={() => setFieldValue("categorias", [])}
+                    disabled={categoriasSeleccionadas.length === 0}
+                  >
+                    Deseleccionar todas
+                  </Button>
+                </Col>
+              </Row>
+              <div className="mb-2">
+                <strong>Seleccionadas ({categoriasSeleccionadas.length}):</strong>
+                <div className="d-flex flex-wrap mt-2">
+                  {categoriasSeleccionadas.length === 0 && (
+                    <span className="text-muted ms-2">Ninguna</span>
+                  )}
+                  {categoriasSeleccionadas.map((categoria: any) => (
+                    <Badge
+                      key={categoria.id}
+                      bg="info"
+                      text="dark"
+                      className="me-2 mb-2"
+                      style={{ cursor: "pointer" }}
+                      pill
+                      onClick={() => setFieldValue("categorias", categoriasSeleccionadas.filter((c: any) => c.id !== categoria.id))}
+                    >
+                      {categoria.nombre} <span style={{ marginLeft: 4, cursor: "pointer" }}>×</span>
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+              <div className="mb-2">
+                <strong>Otras categorías:</strong>
+                <div className="d-flex flex-wrap mt-2">
+                  {categoriasNoSeleccionadas.length === 0 && (
+                    <span className="text-muted ms-2">Ninguna</span>
+                  )}
+                  {categoriasNoSeleccionadas.map((categoria: any) => (
+                    <Badge
+                      key={categoria.id}
+                      bg="light"
+                      text="dark"
+                      className="me-2 mb-2"
+                      style={{ cursor: "pointer", border: "1px solid #0dcaf0" }}
+                      pill
+                      onClick={() => setFieldValue("categorias", [...categoriasSeleccionadas, categoria])}
+                    >
+                      {categoria.nombre} <span style={{ marginLeft: 4, color: "#0dcaf0" }}>+</span>
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+              <ErrorMessage name="categorias" component="div" className="text-danger small" />
+            </div>
+          </BootstrapForm.Group>
+        </Col>
+      );
+    }
+
     // Manejo especial para tipos en Categories
     if (view === "Categories" && key === "tipos") {
       // Tipos seleccionados y no seleccionados

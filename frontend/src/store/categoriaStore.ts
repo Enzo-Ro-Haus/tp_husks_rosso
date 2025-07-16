@@ -29,7 +29,7 @@ export const categoriaStore = create<Icategoriastore>((set) => ({
     set((state) => {
       const arreglocategorias = state.categorias.map((categoria) =>
         categoria.id === categoriaEditado.id
-          ? { ...categoria, categoriaEditado }
+          ? { ...categoriaEditado }
           : categoria
       );
       return { categorias: arreglocategorias };

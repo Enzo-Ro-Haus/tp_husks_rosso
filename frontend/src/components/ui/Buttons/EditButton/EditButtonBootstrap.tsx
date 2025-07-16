@@ -660,31 +660,65 @@ export const EditButtonBootstrap: React.FC<Props> = ({ view, item, onClose, onUp
 
     // Manejo especial para tipos en Categories
     if (view === "Categories" && key === "tipos") {
+      // Tipos seleccionados y no seleccionados
+      const selectedIds = (values.tipos || []).map((t: any) => t.id);
+      const tiposSeleccionados = tipos.filter((t) => selectedIds.includes(t.id));
+      const tiposNoSeleccionados = tipos.filter((t) => !selectedIds.includes(t.id));
       return (
         <Col md={12} key={key}>
           <BootstrapForm.Group>
-            <BootstrapForm.Label><strong>Tipos</strong></BootstrapForm.Label>
-            <Field
-              as="select"
-              name="tipos"
-              multiple
-              className="form-control"
-              value={(values.tipos || []).map((t: any) => t.id)}
-              onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
-                const selectedIds = Array.from(e.target.selectedOptions)
-                  .map((o) => +o.value)
-                  .filter((id) => !isNaN(id)); // Solo ids válidos
-                setFieldValue(
-                  "tipos",
-                  tipos.filter((t) => t.id !== undefined && selectedIds.includes(t.id!))
-                );
-              }}
-            >
-              {tipos.map((tipo) => (
-                <option key={tipo.id} value={tipo.id}>{tipo.nombre}</option>
-              ))}
-            </Field>
-            <div className="form-text">Puedes dejar vacío si la categoría no tiene tipos.</div>
+            <BootstrapForm.Label><strong>Tipos asociados</strong></BootstrapForm.Label>
+            <div className="border rounded p-3">
+              <div className="mb-2">
+                <strong>Tipos seleccionados:</strong>
+                {tiposSeleccionados.length === 0 && (
+                  <span className="text-muted ms-2">Ninguno</span>
+                )}
+                <div className="d-flex flex-wrap mt-2">
+                  {tiposSeleccionados.map((tipo: any) => (
+                    <label key={tipo.id} className="me-3 mb-2" style={{ cursor: 'pointer' }}>
+                      <input
+                        type="checkbox"
+                        checked={true}
+                        onChange={() => {
+                          setFieldValue(
+                            "tipos",
+                            tiposSeleccionados.filter((t: any) => t.id !== tipo.id)
+                          );
+                        }}
+                        className="me-1"
+                      />
+                      <span className="badge bg-info text-dark">{tipo.nombre}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+              <div className="mb-2">
+                <strong>Otros tipos:</strong>
+                {tiposNoSeleccionados.length === 0 && (
+                  <span className="text-muted ms-2">Ninguno</span>
+                )}
+                <div className="d-flex flex-wrap mt-2">
+                  {tiposNoSeleccionados.map((tipo: any) => (
+                    <label key={tipo.id} className="me-3 mb-2" style={{ cursor: 'pointer' }}>
+                      <input
+                        type="checkbox"
+                        checked={false}
+                        onChange={() => {
+                          setFieldValue(
+                            "tipos",
+                            [...tiposSeleccionados, tipo]
+                          );
+                        }}
+                        className="me-1"
+                      />
+                      <span>{tipo.nombre}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+              <ErrorMessage name="tipos" component="div" className="text-danger small" />
+            </div>
           </BootstrapForm.Group>
         </Col>
       );

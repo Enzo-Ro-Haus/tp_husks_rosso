@@ -120,7 +120,7 @@ const schemaMap: Record<ViewType, yup.ObjectSchema<any>> = {
 };
 
 // Handlers para actualizar elementos
-const updateHandlers: Record<ViewType, (token: string, id: number, payload: any) => Promise<boolean>> = {
+const updateHandlers: Record<ViewType, (token: string, id: number, payload: any) => Promise<any>> = {
   Users: async (token, id, payload) => {
     try {
       const result = await userAPI.updateUsuario(token, id, payload);
@@ -162,7 +162,7 @@ const updateHandlers: Record<ViewType, (token: string, id: number, payload: any)
       console.log('========================================');
       
       const result = await categoryAPI.updateCategoria(token, id, categoriaData);
-      return !!result;
+      return result; // Retornar la categoría actualizada en lugar de boolean
     } catch (error) {
       console.error('Error updating category:', error);
       return false;
@@ -171,7 +171,7 @@ const updateHandlers: Record<ViewType, (token: string, id: number, payload: any)
   Types: async (token, id, payload) => {
     try {
       const result = await typeAPI.updateTipo(token, id, payload);
-      return !!result;
+      return result; // Retornar el tipo actualizado en lugar de boolean
     } catch (error) {
       console.error('Error updating type:', error);
       return false;
@@ -404,8 +404,8 @@ export const EditButtonBootstrap: React.FC<Props> = ({ view, item, onClose, onUp
       }
       
       const handler = updateHandlers[view];
-      const ok = await handler(token, item.id, payload);
-      if (ok) {
+      const result = await handler(token, item.id, payload);
+      if (result) {
         // Actualizar stores según la vista
         if (view === "Users") {
           // Actualizar el store de usuarios con los datos actualizados
@@ -417,12 +417,44 @@ export const EditButtonBootstrap: React.FC<Props> = ({ view, item, onClose, onUp
           direccionStore.getState().setArrayDirecciones(direccionesActualizadas);
         }
         if (view === "Categories") {
-          const categoriasActualizadas = await categoryAPI.getAllCategorias(token);
-          categoriaStore.getState().setArraycategorias(categoriasActualizadas);
+          // Usar el método específico para editar una categoría en lugar de recargar todo
+          if (result && typeof result === 'object' && result.id) {
+            console.log('✅ Actualizando store con categoría editada:', result);
+            categoriaStore.getState().editarUnaCategoria(result);
+            
+            // También actualizar el store de tipos porque las relaciones son bidireccionales
+            console.log('🔄 Actualizando store de tipos debido a cambios en categoría');
+            const tiposActualizados = await typeAPI.getAllTipos(token);
+            tipoStore.getState().setArrayTipos(tiposActualizados);
+          } else {
+            console.log('🔄 Recargando todas las categorías desde la API');
+            const categoriasActualizadas = await categoryAPI.getAllCategorias(token);
+            categoriaStore.getState().setArraycategorias(categoriasActualizadas);
+            
+            // También actualizar tipos
+            const tiposActualizados = await typeAPI.getAllTipos(token);
+            tipoStore.getState().setArrayTipos(tiposActualizados);
+          }
         }
         if (view === "Types") {
-          const tiposActualizados = await typeAPI.getAllTipos(token);
-          tipoStore.getState().setArrayTipos(tiposActualizados);
+          // Usar el método específico para editar un tipo en lugar de recargar todo
+          if (result && typeof result === 'object' && result.id) {
+            console.log('✅ Actualizando store con tipo editado:', result);
+            tipoStore.getState().editarUnTipo(result);
+            
+            // También actualizar el store de categorías porque las relaciones son bidireccionales
+            console.log('🔄 Actualizando store de categorías debido a cambios en tipo');
+            const categoriasActualizadas = await categoryAPI.getAllCategorias(token);
+            categoriaStore.getState().setArraycategorias(categoriasActualizadas);
+          } else {
+            console.log('🔄 Recargando todos los tipos desde la API');
+            const tiposActualizados = await typeAPI.getAllTipos(token);
+            tipoStore.getState().setArrayTipos(tiposActualizados);
+            
+            // También actualizar categorías
+            const categoriasActualizadas = await categoryAPI.getAllCategorias(token);
+            categoriaStore.getState().setArraycategorias(categoriasActualizadas);
+          }
         }
         if (view === "Addresses") {
           // Actualizar el store de direcciones con todas las direcciones (incluyendo soft delete)

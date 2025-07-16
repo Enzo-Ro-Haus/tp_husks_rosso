@@ -1032,6 +1032,7 @@ export const EditButton: React.FC<EditButtonProps> = ({ view, initialData, onClo
                               {tipos.map(t => <option key={t.id} value={t.id}>{t.nombre}</option>)}
                             </select>
                             <ErrorMessage name="tipos" component="div" className="error-message" />
+                            <div className="form-text">Puedes dejar vacío si la categoría no tiene tipos.</div>
                           </div>
                           <div className={style.Input}>
                             <label><b>Productos vinculados a esta categoría</b></label>

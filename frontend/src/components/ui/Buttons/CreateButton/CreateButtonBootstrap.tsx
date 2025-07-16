@@ -673,114 +673,24 @@ export const CreateButtonBootstrap: React.FC<Props> = ({ view, onClose, onCreate
         <Col md={12} key={key}>
           <BootstrapForm.Group>
             <BootstrapForm.Label><strong>Tipos</strong></BootstrapForm.Label>
-            <div className="border rounded p-3">
-              {/* Campo para crear nuevo tipo */}
-              <div className="mb-3">
-                <label className="form-label"><strong>Crear nuevo tipo:</strong></label>
-                <Row>
-                  <Col md={11}>
-                    <Field
-                      name="nuevoTipoNombre"
-                      placeholder="Nombre del nuevo tipo"
-                      className="form-control"
-                    />
-                  </Col>
-                  <Col md={1}>
-                    <Button
-                      variant="success"
-                      size="sm"
-                      onClick={() => {
-                        const nuevoTipo = {
-                          nombre: values.nuevoTipoNombre
-                        };
-                        
-                        if (nuevoTipo.nombre && nuevoTipo.nombre.trim()) {
-                          const newTipos = [...(values.tipos || []), nuevoTipo];
-                          setFieldValue("tipos", newTipos);
-                          setFieldValue("nuevoTipoNombre", "");
-                        }
-                      }}
-                    >
-                      +
-                    </Button>
-                  </Col>
-                </Row>
-              </div>
-              
-              {/* Selector de tipos existentes */}
-              <div className="mb-3">
-                <label className="form-label"><strong>Seleccionar tipos existentes:</strong></label>
-                <Field
-                  as="select"
-                  multiple
-                  name="tiposExistentes"
-                  className="form-select"
-                  onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
-                    const ids = Array.from(e.target.selectedOptions).map((o) => +o.value);
-                    const tiposSeleccionados = tipos.filter(t => t.id && ids.includes(t.id));
-                    setFieldValue("tiposExistentes", tiposSeleccionados);
-                  }}
-                >
-                  {tipos.map((t) => (
-                    <option key={t.id} value={t.id}>{t.nombre}</option>
-                  ))}
-                </Field>
-                <small className="text-muted">
-                  Mantén presionado Ctrl (Cmd en Mac) para seleccionar múltiples tipos
-                </small>
-              </div>
-              
-              {/* Lista de todos los tipos seleccionados */}
-              <div className="mt-3">
-                <strong>Tipos seleccionados:</strong>
-                <div className="mt-2">
-                  {/* Tipos existentes */}
-                  {values.tiposExistentes && values.tiposExistentes.length > 0 && (
-                    <div className="mb-2">
-                      <small className="text-muted">Tipos existentes:</small>
-                      <div>
-                        {values.tiposExistentes.map((tipo: any) => (
-                          <Badge key={tipo.id} bg="primary" className="me-2 mb-1">
-                            {tipo.nombre}
-                          </Badge>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                  
-                  {/* Nuevos tipos */}
-                  {values.tipos && values.tipos.length > 0 && (
-                    <div className="mb-2">
-                      <small className="text-muted">Nuevos tipos a crear:</small>
-                      <div>
-                        {values.tipos.map((tipo: any, index: number) => (
-                          <div key={index} className="d-inline-block me-2 mb-1">
-                            <Badge bg="success" className="me-1">
-                              {tipo.nombre}
-                            </Badge>
-                            <Button
-                              variant="outline-danger"
-                              size="sm"
-                              onClick={() => {
-                                const newTipos = values.tipos.filter((_: any, i: number) => i !== index);
-                                setFieldValue("tipos", newTipos);
-                              }}
-                            >
-                              ×
-                            </Button>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                  
-                  {(!values.tiposExistentes || values.tiposExistentes.length === 0) && 
-                   (!values.tipos || values.tipos.length === 0) && (
-                    <p className="text-muted fst-italic">No hay tipos seleccionados</p>
-                  )}
-                </div>
-              </div>
-            </div>
+            <Field
+              as="select"
+              name="tiposExistentes"
+              multiple
+              className="form-control"
+              onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
+                const selectedIds = Array.from(e.target.selectedOptions).map((o) => +o.value);
+                setFieldValue(
+                  "tiposExistentes",
+                  tipos.filter((t) => selectedIds.includes(t.id))
+                );
+              }}
+            >
+              {tipos.map((tipo) => (
+                <option key={tipo.id} value={tipo.id}>{tipo.nombre}</option>
+              ))}
+            </Field>
+            <div className="form-text">Puedes dejar vacío si la categoría no tiene tipos.</div>
           </BootstrapForm.Group>
         </Col>
       );

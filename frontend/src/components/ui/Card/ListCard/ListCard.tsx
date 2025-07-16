@@ -265,13 +265,7 @@ export const ListCard: React.FC<ListCardProps> = (props) => {
                       : "No posee"
                     }
                   </p>
-                  <p>
-                    <strong>Products:</strong>{" "}
-                    {category?.productos && category.productos.length > 0
-                      ? category.productos.map((p) => p.nombre).join(", ")
-                      : "No posee"
-                    }
-                  </p>
+                  {/* Eliminada la sección de productos */}
                 </>
               )}
 

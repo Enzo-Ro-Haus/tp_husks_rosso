@@ -95,7 +95,27 @@ export const updateCategoria = async (
   categoriaUpdated: Partial<ICategoria>
 ): Promise<ICategoria> => {
   const payload: any = { nombre: categoriaUpdated.nombre };
-  payload.tipos = (categoriaUpdated.tipos || []).map(t => ({ id: t.id })); // Siempre enviar array
+  
+  // Manejar diferentes formatos de tipos que pueden venir
+  if (categoriaUpdated.tipos && Array.isArray(categoriaUpdated.tipos)) {
+    // Convertir cualquier formato a objetos con id
+    payload.tipos = categoriaUpdated.tipos.map((t: any) => {
+      if (typeof t === 'number') {
+        return { id: t };
+      } else if (t && typeof t === 'object' && 'id' in t) {
+        return { id: t.id };
+      }
+      return null;
+    }).filter(Boolean); // Filtrar valores null
+  } else {
+    payload.tipos = [];
+  }
+  
+  console.log('=== DEBUG UPDATE CATEGORIA ===');
+  console.log('Payload enviado:', payload);
+  console.log('Tipos en payload:', payload.tipos);
+  console.log('==============================');
+  
   const { data } = await axios.put<ICategoria>(
     `${API_URL}/categoria/${id}`,
     payload,

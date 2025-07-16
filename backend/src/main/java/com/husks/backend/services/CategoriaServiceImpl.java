@@ -63,6 +63,16 @@ public class CategoriaServiceImpl extends BaseServiceImpl<Categoria, Long> imple
 
     @Override
     public Categoria update(Long id, Categoria categoria) throws Exception {
+        System.out.println("[DEBUG] update Categoria - ID: " + id);
+        System.out.println("[DEBUG] update Categoria - Nombre recibido: " + categoria.getNombre());
+        System.out.println("[DEBUG] update Categoria - Tipos recibidos: " + (categoria.getTipos() != null ? categoria.getTipos().size() : "null"));
+        
+        if (categoria.getTipos() != null) {
+            for (Tipo tipo : categoria.getTipos()) {
+                System.out.println("[DEBUG] update Categoria - Tipo recibido: " + tipo.getId() + " - " + tipo.getNombre());
+            }
+        }
+        
         Categoria existente = categoriaRepository.findById(id)
             .orElseThrow(() -> new Exception("Categoría no encontrada"));
 
@@ -76,14 +86,18 @@ public class CategoriaServiceImpl extends BaseServiceImpl<Categoria, Long> imple
                     Tipo tipoEntity = tipoRepository.findById(tipo.getId())
                         .orElseThrow(() -> new Exception("Tipo no encontrado"));
                     tiposAdjuntos.add(tipoEntity);
+                    System.out.println("[DEBUG] update Categoria - Tipo asociado: " + tipoEntity.getId() + " - " + tipoEntity.getNombre());
                 }
             }
             existente.setTipos(tiposAdjuntos);
         } else {
             existente.setTipos(new ArrayList<>());
+            System.out.println("[DEBUG] update Categoria - No se encontraron tipos, limpiando relaciones");
         }
 
-        return categoriaRepository.save(existente);
+        Categoria resultado = categoriaRepository.save(existente);
+        System.out.println("[DEBUG] update Categoria - Tipos finales: " + (resultado.getTipos() != null ? resultado.getTipos().size() : "null"));
+        return resultado;
     }
 
     @Override

@@ -141,35 +141,25 @@ const updateHandlers: Record<ViewType, (token: string, id: number, payload: any)
   },
   Categories: async (token, id, payload) => {
     try {
-      const tiposIds = [];
+      console.log('=== DEBUG UPDATE HANDLER CATEGORIES ===');
+      console.log('Payload recibido:', payload);
+      console.log('Payload.tipos:', payload.tipos);
+      console.log('Payload.tipos type:', typeof payload.tipos);
+      console.log('Payload.tipos isArray:', Array.isArray(payload.tipos));
       
-      // Agregar IDs de tipos existentes seleccionados
-      if (payload.tiposExistentes && payload.tiposExistentes.length > 0) {
-        for (const tipoData of payload.tiposExistentes) {
-          if (tipoData.id) {
-            tiposIds.push(tipoData.id);
-          }
-        }
-      }
+      // Procesar los tipos seleccionados (que ahora vienen en payload.tipos)
+      const tiposIds = Array.isArray(payload.tipos) 
+        ? payload.tipos.map((t: any) => Number(t))
+        : [];
       
-      // Crear nuevos tipos y agregar sus IDs
-      if (payload.tipos && payload.tipos.length > 0) {
-        for (const tipoData of payload.tipos) {
-          if (tipoData.nombre) {
-            const nuevoTipo = await typeAPI.createTipo(token, { 
-              nombre: tipoData.nombre,
-              categorias: []
-            });
-            if (nuevoTipo && nuevoTipo.id) {
-              tiposIds.push(nuevoTipo.id);
-            }
-          }
-        }
-      }
+      console.log('TiposIds procesados:', tiposIds);
       
       // Limpiar campos auxiliares antes de enviar
       const { tiposExistentes, nuevoTipoNombre, ...categoriaData } = payload;
       categoriaData.tipos = tiposIds;
+      
+      console.log('CategoriaData final:', categoriaData);
+      console.log('========================================');
       
       const result = await categoryAPI.updateCategoria(token, id, categoriaData);
       return !!result;
@@ -322,8 +312,11 @@ export const EditButtonBootstrap: React.FC<Props> = ({ view, item, onClose, onUp
     try {
       // --- CORRECCIÓN PARA CATEGORIES ---
       if (view === "Categories") {
-        // Solo actualizar el nombre de la categoría
-        payload = { nombre: values.nombre };
+        // Mantener tanto el nombre como los tipos seleccionados
+        payload = { 
+          nombre: values.nombre,
+          tipos: values.tipos || []
+        };
       }
       
       // Para Users, solo incluir password si se proporcionó una nueva
@@ -413,27 +406,6 @@ export const EditButtonBootstrap: React.FC<Props> = ({ view, item, onClose, onUp
       const handler = updateHandlers[view];
       const ok = await handler(token, item.id, payload);
       if (ok) {
-        // --- SINCRONIZACIÓN EXPLÍCITA CATEGORIA-TIPO ---
-        if (view === "Categories") {
-          // 1. Obtener los tipos seleccionados tras la edición
-          const tiposSeleccionados: number[] = Array.isArray(values.tipos)
-            ? values.tipos.map((t: any) => Number(t))
-            : [];
-          // 2. Obtener los tipos originales antes de la edición
-          const tiposOriginales: number[] = Array.isArray(item.tipos)
-            ? item.tipos.map((t: any) => (typeof t === "object" && t.id ? Number(t.id) : Number(t)))
-            : [];
-          // 3. Calcular diferencias
-          const tiposAAgregar = tiposSeleccionados.filter(id => !tiposOriginales.includes(id));
-          const tiposAEliminar = tiposOriginales.filter(id => !tiposSeleccionados.includes(id));
-          // 4. Llamar a los endpoints explícitos
-          for (const tipoId of tiposAAgregar) {
-            await categoryAPI.createCategoriaTipoRelation(token, item.id, tipoId);
-          }
-          for (const tipoId of tiposAEliminar) {
-            await categoryAPI.deleteCategoriaTipoRelation(token, item.id, tipoId);
-          }
-        }
         // Actualizar stores según la vista
         if (view === "Users") {
           // Actualizar el store de usuarios con los datos actualizados

@@ -284,20 +284,7 @@ export const ListCard: React.FC<ListCardProps> = (props) => {
                       : "No posee"
                     }
                   </p>
-                  <p>
-                    <strong>Products:</strong>{" "}
-                    {categories && categories.length > 0 && categories
-                      .flatMap((c) => c.productos ?? [])
-                      .filter((p, i, arr) => p && arr.findIndex(pp => pp.id === p.id) === i)
-                      .length > 0
-                      ? categories
-                          .flatMap((c) => c.productos ?? [])
-                          .filter((p, i, arr) => p && arr.findIndex(pp => pp.id === p.id) === i)
-                          .map((p) => p.nombre)
-                          .join(", ")
-                      : "No posee"
-                    }
-                  </p>
+                  {/* Eliminada la sección de productos para Types */}
                 </>
               )}
 

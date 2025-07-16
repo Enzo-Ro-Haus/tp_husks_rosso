@@ -144,7 +144,7 @@ const schemaMap: Record<ViewType, yup.ObjectSchema<any>> = {
     nombre: yup.string().required(),
     categorias: yup.array().of(
       yup.object({ id: yup.number().required(), nombre: yup.string().required() })
-    ).min(1),
+    ).min(0),
   }),
   Sizes: yup.object({
     sistema: yup.string().required(),
@@ -680,9 +680,10 @@ export const CreateButtonBootstrap: React.FC<Props> = ({ view, onClose, onCreate
               className="form-control"
               onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
                 const selectedIds = Array.from(e.target.selectedOptions).map((o) => +o.value);
+                const validSelectedIds = selectedIds.filter((id): id is number => typeof id === "number" && !isNaN(id) && id !== undefined);
                 setFieldValue(
                   "tiposExistentes",
-                  tipos.filter((t) => selectedIds.includes(t.id))
+                  tipos.filter((t) => typeof t.id === 'number' && validSelectedIds.includes(t.id))
                 );
               }}
             >
@@ -691,6 +692,39 @@ export const CreateButtonBootstrap: React.FC<Props> = ({ view, onClose, onCreate
               ))}
             </Field>
             <div className="form-text">Puedes dejar vacío si la categoría no tiene tipos.</div>
+          </BootstrapForm.Group>
+        </Col>
+      );
+    }
+
+    // Manejo especial para categorías en Types
+    if (view === "Types" && key === "categorias") {
+      return (
+        <Col md={12} key={key}>
+          <BootstrapForm.Group>
+            <BootstrapForm.Label><strong>Categorías</strong></BootstrapForm.Label>
+            <Field
+              as="select"
+              name="categorias"
+              multiple
+              className="form-control"
+              onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
+                const selectedCategoriaIds = Array.from(e.target.selectedOptions).map((o) => +o.value);
+                const validSelectedCategoriaIds = selectedCategoriaIds.filter((id): id is number => Number.isFinite(id) && id !== 0);
+                setFieldValue(
+                  "categorias",
+                  categorias
+                    .filter((c) => Number.isFinite(c.id) && c.id !== 0)
+                    .filter((c) => validSelectedCategoriaIds.includes(c.id as number))
+                );
+              }}
+            >
+              {categorias.map((cat) => (
+                <option key={cat.id} value={cat.id}>{cat.nombre}</option>
+              ))}
+            </Field>
+            <div className="form-text">Puedes dejar vacío si el tipo no tiene categorías asociadas.</div>
+            <ErrorMessage name="categorias" component="div" className="text-danger small" />
           </BootstrapForm.Group>
         </Col>
       );
@@ -705,7 +739,7 @@ export const CreateButtonBootstrap: React.FC<Props> = ({ view, onClose, onCreate
               <strong>
                 {key === "calle" ? "Calle" : 
                  key === "localidad" ? "Localidad" : 
-                 key === "cp" ? "CP" : key.charAt(0).toUpperCase() + key.slice(1)}
+                 key === "cp" ? "CP" : String(key).charAt(0).toUpperCase() + String(key).slice(1)}
               </strong>
             </BootstrapForm.Label>
             <Field

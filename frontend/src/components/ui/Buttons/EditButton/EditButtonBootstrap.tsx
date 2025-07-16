@@ -82,7 +82,7 @@ const schemaMap: Record<ViewType, yup.ObjectSchema<any>> = {
     nombre: yup.string().required(),
     categorias: yup.array().of(
       yup.object({ id: yup.number().required(), nombre: yup.string().required() })
-    ).min(1),
+    ).min(0),
   }),
   Sizes: yup.object({
     sistema: yup.string().required(),
@@ -502,7 +502,7 @@ export const EditButtonBootstrap: React.FC<Props> = ({ view, item, onClose, onUp
         };
       case "Types":
         return {
-          nombre: item.nombre || "",
+          nombre: item.nombre || item.name || "",
           categorias: item.categorias || [],
         };
       case "Sizes":

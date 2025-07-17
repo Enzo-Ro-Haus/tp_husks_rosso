@@ -29,6 +29,7 @@ import { MetodoPago } from '../../../../types/enums/MetodoPago';
 import { EstadoOrden } from '../../../../types/enums/EstadoOrden';
 import { tipoStore } from "../../../../store/tipoStore";
 import { categoriaStore } from "../../../../store/categoriaStore";
+import style from "./CreateButton.module.css";
 
 type ViewType =
   | "Users"
@@ -399,10 +400,7 @@ export const CreateButton: React.FC<Props> = ({ view, onClose, onCreated }) => {
               if (view === "Products") {
                 if (crearNuevaCategoria) {
                   // Crear la categoría con tipos vacíos por defecto
-                  const nuevaCategoria = await categoryAPI.createCategoria(token, { 
-                    nombre: values.nuevaCategoriaNombre, 
-                    tipos: [] 
-                  });
+                  const nuevaCategoria = await categoryAPI.createCategoria(token, values.nuevaCategoriaNombre, []);
                   payload.categoria = nuevaCategoria;
                 }
                 if (crearNuevoTalle) {
@@ -986,51 +984,45 @@ export const CreateButton: React.FC<Props> = ({ view, onClose, onCreated }) => {
                     );
                   }
 
-                  // Campo específico para talles - sistema
+                  // Campos específicos para Sizes
                   if (view === "Sizes" && key === "sistema") {
                     return (
-                      <div key={key} className={style.Input}>
-                        <label htmlFor={key}><b>Sistema de talle</b></label>
-                        <Field as="select" name={key} className={style.Field}>
-                          <option value="">-- Seleccionar --</option>
-                          {Object.values(SistemaTalle).map((v) => (
-                            <option key={v} value={v}>{v}</option>
-                          ))}
+                      <BootstrapForm.Group key={key} className={style.Input} controlId={key}>
+                        <BootstrapForm.Label><b>Sistema de Talle</b></BootstrapForm.Label>
+                        <Field name={key}>
+                          {({ field }: any) => (
+                            <div style={{ display: 'flex', gap: '2rem', marginBottom: '0.5rem' }}>
+                              {Object.values(SistemaTalle).map((v) => (
+                                <BootstrapForm.Check
+                                  key={v}
+                                  type="radio"
+                                  id={`sistema-${v}`}
+                                  label={v.charAt(0).toUpperCase() + v.slice(1)}
+                                  value={v}
+                                  checked={field.value === v}
+                                  onChange={() => field.onChange({ target: { name: key, value: v } })}
+                                  name={field.name}
+                                  className="me-2"
+                                />
+                              ))}
+                            </div>
+                          )}
                         </Field>
-                        <ErrorMessage
-                          name={key}
-                          component="div"
-                          className="error-message visible"
-                        />
-                      </div>
+                        <ErrorMessage name={key} component="div" className="error-message visible" />
+                      </BootstrapForm.Group>
                     );
                   }
-
-                  if (view === "Orders" && key === "total") {
-                    // Calcular el total automáticamente basado en los productos
-                    const totalCalculado = values.detalle?.reduce((sum: number, item: any) => {
-                      const producto = productos.find(p => p.id === item.producto.id);
-                      return sum + (producto?.precio || 0) * item.cantidad;
-                    }, 0) || 0;
-                    
-                    // Actualizar el total en el formulario
-                    if (totalCalculado !== values.total) {
-                      setFieldValue("total", totalCalculado);
-                    }
-                    
+                  if (view === "Sizes" && key === "valor") {
                     return (
-                      <div key={key} className={style.Input}>
-                        <label htmlFor={key}><b>Total</b></label>
-                        <div style={{ 
-                          padding: '10px', 
-                          backgroundColor: '#f5f5f5', 
-                          borderRadius: '5px',
-                          fontWeight: 'bold',
-                          fontSize: '16px'
-                        }}>
-                          ${totalCalculado.toFixed(2)}
-                        </div>
-                      </div>
+                      <BootstrapForm.Group key={key} className={style.Input} controlId={key}>
+                        <BootstrapForm.Label><b>Valor</b></BootstrapForm.Label>
+                        <Field name={key}>
+                          {({ field }: any) => (
+                            <BootstrapForm.Control type="text" {...field} className={style.Field} />
+                          )}
+                        </Field>
+                        <ErrorMessage name={key} component="div" className="error-message visible" />
+                      </BootstrapForm.Group>
                     );
                   }
 

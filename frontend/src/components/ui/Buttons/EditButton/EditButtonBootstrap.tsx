@@ -950,6 +950,67 @@ export const EditButtonBootstrap: React.FC<Props> = ({ view, item, onClose, onUp
       );
     }
 
+    // Campos específicos para Sizes
+    if (view === "Sizes" && key === "sistema") {
+      return (
+        <BootstrapForm.Group key={key} className="mb-3" controlId={key}>
+          <BootstrapForm.Label><b>Sistema de Talle</b></BootstrapForm.Label>
+          <Field name={key}>
+            {({ field }: any) => (
+              <div style={{ display: 'flex', gap: '2rem', marginBottom: '0.5rem' }}>
+                {Object.values(SistemaTalle).map((v) => (
+                  <BootstrapForm.Check
+                    key={v}
+                    type="radio"
+                    id={`sistema-${v}`}
+                    label={v.charAt(0).toUpperCase() + v.slice(1)}
+                    value={v}
+                    checked={field.value === v}
+                    onChange={() => field.onChange({ target: { name: key, value: v } })}
+                    name={field.name}
+                    className="me-2"
+                  />
+                ))}
+              </div>
+            )}
+          </Field>
+          <ErrorMessage name={key} component="div" className="error-message visible" />
+        </BootstrapForm.Group>
+      );
+    }
+    if (view === "Sizes" && key === "valor") {
+      return (
+        <BootstrapForm.Group key={key} className="mb-3" controlId={key}>
+          <BootstrapForm.Label><b>Valor</b></BootstrapForm.Label>
+          <Field name={key}>
+            {({ field }: any) => (
+              <BootstrapForm.Control type="text" {...field} />
+            )}
+          </Field>
+          <ErrorMessage name={key} component="div" className="error-message visible" />
+        </BootstrapForm.Group>
+      );
+    }
+
+    // Manejo especial para el campo sistema en Sizes
+    if (view === "Sizes" && key === "sistema") {
+      return (
+        <Col md={6} key={key}>
+          <BootstrapForm.Group>
+            <BootstrapForm.Label>
+              <strong>Sistema de Talle</strong>
+            </BootstrapForm.Label>
+            <Field as="select" name={key} className="form-select">
+              <option value="">Seleccionar sistema</option>
+              <option value="americano">Americano</option>
+              <option value="europeo">Europeo</option>
+            </Field>
+            <ErrorMessage name={key} component="div" className="text-danger small" />
+          </BootstrapForm.Group>
+        </Col>
+      );
+    }
+
     // Manejo específico para campos de dirección en Addresses
     if (view === "Addresses" && (key === "calle" || key === "localidad" || key === "cp")) {
       console.log(`🔍 EditButtonBootstrap - Renderizando campo ${key} con valor:`, values[key]);

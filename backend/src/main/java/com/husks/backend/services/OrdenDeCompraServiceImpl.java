@@ -60,22 +60,46 @@ public class OrdenDeCompraServiceImpl
     Optional<OrdenDeCompra> ordenOptional = ordenRepo.findById(id);
     if (ordenOptional.isPresent()) {
       OrdenDeCompra existingOrden = ordenOptional.get();
-      
-      // Copiar propiedades básicas
       BeanUtils.copyProperties(orden, existingOrden, "id", "detalles");
-      
-      // Manejar detalles si se proporcionan
-      if (orden.getDetalles() != null && !orden.getDetalles().isEmpty()) {
-        // Limpiar detalles existentes
-        existingOrden.getDetalles().clear();
-        
-        // Agregar nuevos detalles
-        for (Detalle detalle : orden.getDetalles()) {
-          detalle.setOrdenDeCompra(existingOrden);
-          existingOrden.getDetalles().add(detalle);
+
+      // --- SOFT DELETE EN DETALLES ---
+      List<Detalle> detallesActuales = existingOrden.getDetalles();
+      List<Long> idsDetallesRecibidos = new java.util.ArrayList<>();
+      if (orden.getDetalles() != null) {
+        for (Detalle d : orden.getDetalles()) {
+          if (d.getId() != null) idsDetallesRecibidos.add(d.getId());
         }
       }
-      
+      // Marcar como inactivos los detalles que ya no están en la orden recibida
+      for (Detalle detalleExistente : detallesActuales) {
+        if (detalleExistente.getId() != null && !idsDetallesRecibidos.contains(detalleExistente.getId())) {
+          detalleExistente.setActivo(false);
+        }
+      }
+      // Limpiar detalles existentes solo lógicamente (no físicamente)
+      detallesActuales.removeIf(d -> !d.isActivo());
+
+      // Agregar o actualizar detalles recibidos
+      if (orden.getDetalles() != null && !orden.getDetalles().isEmpty()) {
+        for (Detalle detalle : orden.getDetalles()) {
+          detalle.setOrdenDeCompra(existingOrden);
+          detalle.setActivo(true);
+          // Si es un detalle existente, actualizar cantidad
+          if (detalle.getId() != null) {
+            Detalle existente = detallesActuales.stream().filter(d -> d.getId().equals(detalle.getId())).findFirst().orElse(null);
+            if (existente != null) {
+              existente.setCantidad(detalle.getCantidad());
+              existente.setProducto(detalle.getProducto());
+              existente.setActivo(true);
+            } else {
+              detallesActuales.add(detalle);
+            }
+          } else {
+            detallesActuales.add(detalle);
+          }
+        }
+      }
+      existingOrden.setDetalles(detallesActuales);
       return ordenRepo.save(existingOrden);
     } else {
       throw new RuntimeException("Orden no encontrada");

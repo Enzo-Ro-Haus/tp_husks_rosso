@@ -82,8 +82,8 @@ const initialValuesMap: Record<ViewType, any> = {
     precio: 0.01,
     color: "",
     talles: [],
-    categoria: { id: 0 },
-    tipo: { id: 0 },
+    categoria: null,
+    tipo: null,
     descripcion: "",
     imagenPublicId: "",
   },
@@ -839,7 +839,7 @@ export const CreateButtonBootstrap: React.FC<Props> = ({ view, onClose, onCreate
                     setFieldValue("categoria", null);
                   }
                 }}
-                value={values.categoria?.id || ""}
+                value={values.categoria && values.categoria.id ? values.categoria.id : ""}
               >
                 <option value="">Seleccionar categoría</option>
                 {categorias.map((categoria) => (
@@ -871,7 +871,7 @@ export const CreateButtonBootstrap: React.FC<Props> = ({ view, onClose, onCreate
                     setFieldValue("tipo", null);
                   }
                 }}
-                value={values.tipo?.id || ""}
+                value={values.tipo && values.tipo.id ? values.tipo.id : ""}
               >
                 <option value="">Seleccionar tipo</option>
                 {tipos.map((tipo) => (
@@ -903,7 +903,7 @@ export const CreateButtonBootstrap: React.FC<Props> = ({ view, onClose, onCreate
                     setFieldValue("talles", []);
                   }
                 }}
-                value={values.talles?.[0] || ""}
+                value={values.talles && values.talles[0] ? values.talles[0] : ""}
               >
                 <option value="">Seleccionar talle</option>
                 {talles.map((talle) => (
@@ -1233,7 +1233,7 @@ export const CreateButtonBootstrap: React.FC<Props> = ({ view, onClose, onCreate
                                   const stockDisponible = producto?.cantidad || 0;
                                   
                                   if (productoId && cantidad && cantidad > 0 && cantidad <= stockDisponible) {
-                                    const productoYaAgregado = values.detalle?.some((item: any) => item.producto.id === productoId);
+                                    const productoYaAgregado = values.detalles?.some((item: any) => item.producto.id === productoId);
                                                                       if (productoYaAgregado) {
                                     Swal.fire({
                                       icon: 'warning',

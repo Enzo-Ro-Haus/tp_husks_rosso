@@ -376,6 +376,18 @@ export const EditButtonBootstrap: React.FC<Props> = ({ view, item, onClose, onUp
     
     let payload = { ...values };
     try {
+      // --- CORRECCIÓN PARA DETALLES DE ORDENES ---
+      if (view === "Orders") {
+        // Solo enviar detalles con id si existen, y sin id si son nuevos
+        payload.detalles = (values.detalles || []).map((detalle: any) => {
+          if (detalle.id) {
+            return { id: detalle.id, producto: { id: detalle.producto.id }, cantidad: detalle.cantidad };
+          } else {
+            return { producto: { id: detalle.producto.id }, cantidad: detalle.cantidad };
+          }
+        });
+      }
+      
       // --- CORRECCIÓN PARA CATEGORIES ---
       if (view === "Categories") {
         // Mantener tanto el nombre como los tipos seleccionados
@@ -655,18 +667,19 @@ export const EditButtonBootstrap: React.FC<Props> = ({ view, item, onClose, onUp
         const detalles = item.detalle || item.detalles || [];
         const precioTotal = item.total || item.precioTotal || 0;
         
-        // 🔧 LIMPIAR DETALLES DUPLICADOS
+        // 🔧 LIMPIAR DETALLES DUPLICADOS Y CONSERVAR ID
         const detallesUnicos = detalles.reduce((acc: any[], detalle: any) => {
           const productoId = detalle.producto?.id;
           const detalleExistente = acc.find(d => d.producto?.id === productoId);
-          
           if (detalleExistente) {
-            // Si ya existe, sumar las cantidades
-            const cantidadDetalle = detalle.cantidad || 0;
-            detalleExistente.cantidad += cantidadDetalle;
-            console.log(`🔧 Consolidando producto ${productoId}: ${cantidadDetalle} + ${detalleExistente.cantidad - cantidadDetalle} = ${detalleExistente.cantidad}`);
+            // Si ya existe, sumar las cantidades y conservar el id del detalle existente
+            detalleExistente.cantidad += detalle.cantidad || 0;
+            // Si el detalle existente no tiene id pero el nuevo sí, asignar el id
+            if (!detalleExistente.id && detalle.id) {
+              detalleExistente.id = detalle.id;
+            }
           } else {
-            // Si no existe, agregarlo
+            // Si no existe, agregarlo (con id si tiene)
             acc.push({ ...detalle });
           }
           return acc;
@@ -1526,8 +1539,10 @@ export const EditButtonBootstrap: React.FC<Props> = ({ view, item, onClose, onUp
                                   variant="danger"
                                   size="sm"
                                   onClick={() => {
-                                    const newDetalles = (values as any).detalles.filter((_: any, i: number) => i !== index);
+                                    // Eliminar el producto del array de detalles completamente
+                                    const newDetalles = (values as any).detalles.filter((detalle: any, i: number) => detalle.producto.id !== item.producto.id);
                                     setFieldValue("detalles", newDetalles);
+                                    // Recalcular el total
                                     const nuevoTotal = newDetalles.reduce((sum: number, item: any) => {
                                       const producto = productos.find(p => p.id === item.producto.id);
                                       return sum + (producto?.precio || 0) * (item.cantidad || 0);
@@ -1597,52 +1612,37 @@ export const EditButtonBootstrap: React.FC<Props> = ({ view, item, onClose, onUp
                                   const cantidad = "cantidadProducto" in values ? values.cantidadProducto : 1;
                                   const producto = productos.find(p => p.id === productoId);
                                   const stockDisponible = producto?.cantidad || 0;
-                                  
-                                  console.log('🔧 Agregar producto - productoId:', productoId);
-                                  console.log('🔧 Agregar producto - cantidad:', cantidad);
-                                  console.log('🔧 Agregar producto - stockDisponible:', stockDisponible);
-                                  console.log('🔧 Agregar producto - detalles actuales:', (values as any).detalles);
-                                  
                                   if (productoId && cantidad && cantidad > 0 && cantidad <= stockDisponible) {
-                                    const productoYaAgregado = (values as any).detalles?.some((item: any) => item.producto.id === productoId);
-                                    console.log('🔧 Agregar producto - productoYaAgregado:', productoYaAgregado);
-                                    
-                                    if (productoYaAgregado) {
-                                      console.log('🔧 Agregar producto - PRODUCTO YA AGREGADO, mostrando alerta');
-                                      Swal.fire({
-                                        icon: 'warning',
-                                        title: 'Producto ya agregado',
-                                        text: 'Este producto ya está en la orden.',
-                                      });
-                                      return;
+                                    // Buscar si ya existe el producto en detalles
+                                    const detallesActuales = (values as any).detalles || [];
+                                    const indexExistente = detallesActuales.findIndex((item: any) => item.producto.id === productoId);
+                                    let newDetalles;
+                                    if (indexExistente !== -1) {
+                                      // Si ya existe, sumamos la cantidad
+                                      newDetalles = detallesActuales.map((item: any, idx: number) =>
+                                        idx === indexExistente
+                                          ? { ...item, cantidad: item.cantidad + cantidad }
+                                          : item
+                                      );
+                                    } else {
+                                      // Si no existe, lo agregamos
+                                      newDetalles = [...detallesActuales, { producto: { id: productoId }, cantidad }];
                                     }
-                                    
-                                    console.log('🔧 Agregar producto - agregando nuevo detalle');
-                                    const newDetalles = [...((values as any).detalles || []), { producto: { id: productoId }, cantidad }];
                                     setFieldValue("detalles", newDetalles);
                                     setFieldValue("productoSeleccionado", "");
                                     setFieldValue("cantidadProducto", 1);
-                                    
+                                    // Recalcular el total
                                     const nuevoTotal = newDetalles.reduce((sum: number, item: any) => {
                                       const producto = productos.find(p => p.id === item.producto.id);
                                       return sum + (producto?.precio || 0) * (item.cantidad || 0);
                                     }, 0);
                                     setFieldValue("precioTotal", nuevoTotal);
-                                    
-                                    console.log('🔧 Agregar producto - detalle agregado exitosamente');
                                   } else if (cantidad && Number(cantidad) > stockDisponible) {
-                                    console.log('🔧 Agregar producto - STOCK INSUFICIENTE, mostrando alerta');
                                     Swal.fire({
                                       icon: 'error',
                                       title: 'Stock insuficiente',
                                       text: `La cantidad solicitada (${cantidad}) excede el stock disponible (${stockDisponible})`,
                                     });
-                                  } else {
-                                    console.log('🔧 Agregar producto - VALIDACIÓN FALLIDA');
-                                    console.log('🔧 Agregar producto - productoId válido:', !!productoId);
-                                    const cantidadNum = cantidad || 0;
-                                    console.log('🔧 Agregar producto - cantidad válida:', cantidadNum > 0);
-                                    console.log('🔧 Agregar producto - stock suficiente:', cantidadNum <= stockDisponible);
                                   }
                                 }}
                               >

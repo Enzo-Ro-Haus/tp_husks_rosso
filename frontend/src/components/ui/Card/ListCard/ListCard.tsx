@@ -206,17 +206,16 @@ export const ListCard: React.FC<ListCardProps> = (props) => {
                     <strong>Color:</strong> {color}
                   </p>
                   <p>
-                    <strong>Category:</strong> {category?.nombre}
+                    <strong>Category:</strong> {category && typeof category === 'object' && typeof category.nombre === 'string' ? category.nombre : 'Sin categoría'}
                   </p>
                   <p>
-                    <strong>Type:</strong> {type?.nombre || "Sin tipo"}
+                    <strong>Type:</strong> {type && typeof type === 'object' && typeof type.nombre === 'string' ? type.nombre : 'Sin tipo'}
                   </p>
                   <p>
                     <strong>Sizes:</strong>{" "}
-                    {sizes && sizes.length > 0 
-                      ? sizes.map((s) => `${s.sistema} ${s.valor}`).join(", ")
-                      : "No hay talles disponibles"
-                    }
+                    {Array.isArray(sizes) && sizes.length > 0
+                      ? sizes.map((s) => (s && typeof s === 'object' && s.sistema && s.valor ? `${s.sistema} ${s.valor}` : null)).filter(Boolean).join(", ")
+                      : "Sin talles"}
                   </p>
                   <p>
                     <strong>Price:</strong> ${price}
@@ -355,7 +354,13 @@ export const ListCard: React.FC<ListCardProps> = (props) => {
                   <p>
                     <strong>Items:</strong>{" "}
                     {detail
-                      ?.map((d) => `${d.cantidad}× ${d.producto.nombre}`)
+                      ?.map((d) => {
+                        if (d && d.producto && typeof d.producto.nombre === 'string') {
+                          return `${d.cantidad}× ${d.producto.nombre}`;
+                        } else {
+                          return `${d.cantidad}× Producto desconocido`;
+                        }
+                      })
                       .join(", ")}
                   </p>
                   <p>

@@ -13,6 +13,10 @@ import com.husks.backend.entities.Usuario;
 import com.husks.backend.enums.Rol;
 import com.husks.backend.repositories.UsuarioRepository;
 import java.util.Optional;
+import com.husks.backend.entities.Direccion;
+import com.husks.backend.repositories.DireccionRepository;
+import com.husks.backend.entities.UsuarioDireccion;
+import com.husks.backend.repositories.UsuarioDireccionRepository;
 
 @EnableJpaAuditing
 @SpringBootApplication
@@ -25,10 +29,10 @@ public class BackendApplication {
 	}
 
 	@Bean
-	public CommandLineRunner createDefaultAdmin(UsuarioRepository usuarioRepository, PasswordEncoder passwordEncoder) {
+	public CommandLineRunner createDefaultAdmin(UsuarioRepository usuarioRepository, PasswordEncoder passwordEncoder,
+												 DireccionRepository direccionRepository, UsuarioDireccionRepository usuarioDireccionRepository) {
 		return args -> {
 			System.out.println("🚀 Iniciando creación de usuario administrador por defecto...");
-			
 			try {
 				// Verificar si ya existe un usuario admin con ese email
 				Optional<Usuario> existingAdmin = usuarioRepository.findByEmail("admin@email.com");
@@ -39,44 +43,77 @@ public class BackendApplication {
 					System.out.println("   - Email: " + admin.getEmail());
 					System.out.println("   - Rol: " + admin.getRol());
 					System.out.println("   - Activo: " + admin.isActivo());
-					return;
-				}
-
-				System.out.println("📝 Creando usuario administrador por defecto...");
-				
-				// Crear usuario administrador por defecto
-				Usuario adminUser = Usuario.builder()
+				} else {
+					System.out.println("📝 Creando usuario administrador por defecto...");
+					Usuario adminUser = Usuario.builder()
 						.nombre("Administrador")
 						.email("admin@email.com")
 						.password(passwordEncoder.encode("123456"))
 						.rol(Rol.ADMIN)
 						.imagenPerfilPublicId("user_img")
 						.build();
-				
-				// El campo activo se hereda de Base y por defecto es true
-				// Pero lo establecemos explícitamente para mayor claridad
-				adminUser.setActivo(true);
-				
-				Usuario savedAdmin = usuarioRepository.save(adminUser);
-				
-				System.out.println("✅ Usuario administrador creado exitosamente:");
-				System.out.println("   - ID: " + savedAdmin.getId());
-				System.out.println("   - Nombre: " + savedAdmin.getNombre());
-				System.out.println("   - Email: " + savedAdmin.getEmail());
-				System.out.println("   - Rol: " + savedAdmin.getRol());
-				System.out.println("   - Activo: " + savedAdmin.isActivo());
-				System.out.println("   - Imagen: " + savedAdmin.getImagenPerfilPublicId());
-				System.out.println("🔑 Credenciales de acceso:");
-				System.out.println("   - Email: admin@email.com");
-				System.out.println("   - Password: 123456");
-				
+					adminUser.setActivo(true);
+					Usuario savedAdmin = usuarioRepository.save(adminUser);
+					System.out.println("✅ Usuario administrador creado exitosamente:");
+					System.out.println("   - ID: " + savedAdmin.getId());
+					System.out.println("   - Nombre: " + savedAdmin.getNombre());
+					System.out.println("   - Email: " + savedAdmin.getEmail());
+					System.out.println("   - Rol: " + savedAdmin.getRol());
+					System.out.println("   - Activo: " + savedAdmin.isActivo());
+					System.out.println("   - Imagen: " + savedAdmin.getImagenPerfilPublicId());
+					System.out.println("🔑 Credenciales de acceso:");
+					System.out.println("   - Email: admin@email.com");
+					System.out.println("   - Password: 123456");
+				}
+
+				// === USUARIO CLIENTE LUIS ===
+				System.out.println("🚀 Iniciando creación de usuario cliente por defecto (Luis)...");
+				Usuario luisUser = Usuario.builder()
+					.nombre("Luis")
+					.email("luis@email.com")
+					.password(passwordEncoder.encode("123456"))
+					.rol(Rol.CLIENTE)
+					.imagenPerfilPublicId("user_img")
+					.build();
+				luisUser.setActivo(true);
+				Usuario savedLuis = usuarioRepository.save(luisUser);
+				System.out.println("✅ Usuario cliente creado exitosamente:");
+				System.out.println("   - ID: " + savedLuis.getId());
+				System.out.println("   - Nombre: " + savedLuis.getNombre());
+				System.out.println("   - Email: " + savedLuis.getEmail());
+				System.out.println("   - Rol: " + savedLuis.getRol());
+				System.out.println("   - Activo: " + savedLuis.isActivo());
+
+				// Crear dirección
+				Direccion direccionLuis = Direccion.builder()
+					.calle("Los tilos")
+					.localidad("6ta seccion")
+					.cp("5501")
+					.build();
+				Direccion savedDireccion = direccionRepository.save(direccionLuis);
+				System.out.println("✅ Dirección creada para Luis:");
+				System.out.println("   - ID: " + savedDireccion.getId());
+				System.out.println("   - Calle: " + savedDireccion.getCalle());
+				System.out.println("   - Localidad: " + savedDireccion.getLocalidad());
+				System.out.println("   - CP: " + savedDireccion.getCp());
+
+				// Relacionar usuario y dirección
+				UsuarioDireccion usuarioDireccion = UsuarioDireccion.builder()
+					.usuario(savedLuis)
+					.direccion(savedDireccion)
+					.build();
+				usuarioDireccion.setActivo(true);
+				UsuarioDireccion savedUsuarioDireccion = usuarioDireccionRepository.save(usuarioDireccion);
+				System.out.println("✅ Relación usuario-dirección creada para Luis:");
+				System.out.println("   - ID: " + savedUsuarioDireccion.getId());
+				System.out.println("   - Usuario: " + savedUsuarioDireccion.getUsuario().getNombre());
+				System.out.println("   - Dirección: " + savedUsuarioDireccion.getDireccion().getCalle() + ", " + savedUsuarioDireccion.getDireccion().getLocalidad() + " (" + savedUsuarioDireccion.getDireccion().getCp() + ")");
+
 			} catch (Exception e) {
-				System.err.println("❌ Error al crear usuario administrador por defecto:");
+				System.err.println("❌ Error al crear usuario administrador o cliente por defecto:");
 				System.err.println("   - Error: " + e.getMessage());
 				System.err.println("   - Tipo: " + e.getClass().getSimpleName());
 				e.printStackTrace();
-				
-				// Intentar obtener más información sobre el error
 				if (e.getCause() != null) {
 					System.err.println("   - Causa: " + e.getCause().getMessage());
 				}

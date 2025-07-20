@@ -18,7 +18,14 @@ const router = createBrowserRouter([
   { path: "/catalog", element: <Catalog /> },
   { path: "/login", element: <Login /> },
   { path: "/register", element: <Register /> },
-  { path: "/cart", element: <Cart /> },
+  {
+    path: "/cart",
+    element: (
+      <ProtectedRoute rolesPermitidos={["ADMIN", "CLIENTE"]}>
+        <Cart />
+      </ProtectedRoute>
+    ),
+  },
   { path: "/about", element: <AboutUs /> },
   { path: "*", element: <NotFound /> },
 

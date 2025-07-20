@@ -75,7 +75,7 @@ export const Login = () => {
     console.log("✅ Login montado");
     console.log("🔍 Token actual:", token);
     // Solo redirigir si ya hay un usuario activo con token
-   /* if (token) {
+    if (token) {
       console.log("🔄 Token encontrado, redirigiendo según rol...");
       const usuario = usuarioStore.getState().usuarioActivo;
       if (usuario?.rol === "ADMIN") {
@@ -85,7 +85,7 @@ export const Login = () => {
       } else {
         navigate("/");
       }
-    }*/
+    }
   }, [token, navigate]);
   return (
     <div className={style.containerPrincipalLogin}>

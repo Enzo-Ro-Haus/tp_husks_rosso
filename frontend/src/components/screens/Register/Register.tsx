@@ -51,9 +51,16 @@ export const Register = () => {
 
   // Si ya hay token, redirige al home
   useEffect(() => {
-   /* if (token) {
-      navigate("/");
-    }*/
+    if (token) {
+      const usuario = usuarioStore.getState().usuarioActivo;
+      if (usuario?.rol === "ADMIN") {
+        navigate("/admin");
+      } else if (usuario?.rol === "CLIENTE") {
+        navigate("/client");
+      } else {
+        navigate("/");
+      }
+    }
   }, [token, navigate]);
 
   const handleSubmit = async (values: { 

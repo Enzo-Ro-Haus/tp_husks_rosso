@@ -10,6 +10,8 @@ import { useClientView } from "../../../hooks/useViewState";
 import { ListCard } from "../../ui/Card/ListCard/ListCard";
 import { getAllUsuarios, getUsuarioActual } from "../../../http/usuarioHTTP";
 import { getAllOrdenes } from "../../../http/ordenHTTPS";
+import Container from "react-bootstrap/Container";
+import Row from "react-bootstrap/Row";
 
 export const Client = () => {
   const navigate = useNavigate();
@@ -68,64 +70,70 @@ export const Client = () => {
 
   return (
     <div className={styles.containerPrincipalClient}>
-      <div>
-        <Header />
-      </div>
-      <div className={styles.containerClientUi}>
-        <ClientSideBar
-          view={view}
-          onChangeView={setView}
-          name={usuario?.nombre ?? "NN"}
-        />
-        <div className={styles.containerElelements}>
-          {errorMsg ? (
-            <h3 style={{ color: 'red' }}>{errorMsg}</h3>
-          ) : view === "Client" ? (
-            usuario ? (
-              <ListCard
-                key={usuario.id}
-                variant="Client"
-                id={usuario.id || "NN"}
-                name={usuario.nombre}
-                email={usuario.email}
-                rol={usuario.rol}
-                imagenPerfilPublicId={usuario.imagenPerfilPublicId}
-                onEdited={getUsuario}
-                onDeleted={getUsuario}
-                onRestored={getUsuario}
-              />
-            ) : (
-              <h3>No se encontró el usuario</h3>
-            )
-          ) : view === "Orders" ? (
-            Array.isArray(ordenes) && ordenes.length > 0 ? (
-              ordenes.map((o) => {
-                const total = o.precioTotal ?? (o.detalles?.reduce((sum, d) => sum + (d.producto?.precio || 0) * d.cantidad, 0) || 0);
-                return (
+      <Container fluid>
+        <Row>
+          <Header />
+        </Row>
+        <Row>
+          <div className={styles.containerClientUi}>
+            <ClientSideBar
+              view={view}
+              onChangeView={setView}
+              name={usuario?.nombre ?? "NN"}
+            />
+            <div className={styles.containerElelements}>
+              {errorMsg ? (
+                <h3 style={{ color: 'red' }}>{errorMsg}</h3>
+              ) : view === "Client" ? (
+                usuario ? (
                   <ListCard
-                    key={String(o.id ?? 'NN')}
-                    variant="Orders"
-                    id={String(o.id ?? 'NN')}
-                    date={o.fecha}
-                    detail={o.detalles}
-                    payMethod={o.metodoPago}
-                    Dstatus={o.estado}
-                    total={total}
-                    usuario={typeof o.usuario === 'object' ? o.usuario : undefined}
-                    usuarioDireccion={o.usuarioDireccion}
-                    onEdited={getOrdenes}
-                    onDeleted={getOrdenes}
-                    onRestored={getOrdenes}
+                    key={usuario.id}
+                    variant="Client"
+                    id={usuario.id || "NN"}
+                    name={usuario.nombre}
+                    email={usuario.email}
+                    rol={usuario.rol}
+                    imagenPerfilPublicId={usuario.imagenPerfilPublicId}
+                    onEdited={getUsuario}
+                    onDeleted={getUsuario}
+                    onRestored={getUsuario}
                   />
-                );
-              })
-            ) : (
-              <h3>No hay ordenes</h3>
-            )
-          ) : null}
-        </div>
-      </div>
-      <Footer />
+                ) : (
+                  <h3>No se encontró el usuario</h3>
+                )
+              ) : view === "Orders" ? (
+                Array.isArray(ordenes) && ordenes.length > 0 ? (
+                  ordenes.map((o) => {
+                    const total = o.precioTotal ?? (o.detalles?.reduce((sum, d) => sum + (d.producto?.precio || 0) * d.cantidad, 0) || 0);
+                    return (
+                      <ListCard
+                        key={String(o.id ?? 'NN')}
+                        variant="Orders"
+                        id={String(o.id ?? 'NN')}
+                        date={o.fecha}
+                        detail={o.detalles}
+                        payMethod={o.metodoPago}
+                        Dstatus={o.estado}
+                        total={total}
+                        usuario={typeof o.usuario === 'object' ? o.usuario : undefined}
+                        usuarioDireccion={o.usuarioDireccion}
+                        onEdited={getOrdenes}
+                        onDeleted={getOrdenes}
+                        onRestored={getOrdenes}
+                      />
+                    );
+                  })
+                ) : (
+                  <h3>No hay ordenes</h3>
+                )
+              ) : null}
+            </div>
+          </div>
+        </Row>
+        <Row>
+          <Footer />
+        </Row>
+      </Container>
     </div>
   )
 };

@@ -22,13 +22,6 @@ export const Cart = () => {
   const editarDetalleActivo = cartStore((s) => s.editarDetalle);
 
   useEffect(() => {
-    if (!token) {
-      console.warn("No hay token");
-      navigate("/login");
-    }
-  }, [token, navigate]);
-
-  useEffect(() => {
     setTotal(detalles);
   }, [detalles]);
 

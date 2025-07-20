@@ -124,7 +124,7 @@ const schemaMap: Record<ViewType, yup.ObjectSchema<any>> = {
     cantidad: yup.number().min(1, "❌ La cantidad debe ser mayor a 0").required("❌ La cantidad es obligatoria"),
     precio: yup.number().min(0.01, "❌ El precio debe ser mayor a 0").required("❌ El precio es obligatorio"),
     color: yup.string().required("❌ El color es obligatorio"),
-    talles: yup.array().of(yup.number()).min(1, "❌ Debe seleccionar al menos un talle").required("❌ Los talles son obligatorios"),
+    talles: yup.array().of(yup.number()).length(1, "❌ Debe seleccionar exactamente un talle").required("❌ El talle es obligatorio"),
     categoria: yup.object({ id: yup.number().required() }).required("❌ Debe seleccionar una categoría"),
     tipo: yup.object({ id: yup.number().required() }).required("❌ Debe seleccionar un tipo"),
     descripcion: yup.string().required("❌ La descripción es obligatoria"),
@@ -260,12 +260,12 @@ const createHandlers: Record<ViewType, (token: string, payload: any) => Promise<
       // Encontrar los objetos completos basados en los IDs
       const categoriaCompleta = categorias.find(c => c.id === payload.categoria.id);
       const tipoCompleto = tipos.find(t => t.id === payload.tipo.id);
-      const tallesCompletos = talles.filter(t => payload.talles.includes(t.id));
+      const talleCompleto = talles.find(t => t.id === payload.talles[0]);
       
       console.log('🔍 Products handler - objetos encontrados:', {
         categoria: categoriaCompleta,
         tipo: tipoCompleto,
-        talles: tallesCompletos
+        talle: talleCompleto
       });
       
       // Validar que se encontraron todos los objetos necesarios
@@ -275,8 +275,8 @@ const createHandlers: Record<ViewType, (token: string, payload: any) => Promise<
       if (!tipoCompleto) {
         throw new Error(`No se encontró el tipo con ID ${payload.tipo.id}`);
       }
-      if (tallesCompletos.length === 0) {
-        throw new Error('No se encontraron los talles seleccionados');
+      if (!talleCompleto) {
+        throw new Error('No se encontró el talle seleccionado');
       }
       
       // Crear el payload con la estructura correcta
@@ -288,7 +288,7 @@ const createHandlers: Record<ViewType, (token: string, payload: any) => Promise<
         color: payload.color,
         categoria: categoriaCompleta!,
         tipo: tipoCompleto!,
-        tallesDisponibles: tallesCompletos,
+        tallesDisponibles: [talleCompleto],
         imagenPublicId: payload.imagenPublicId || undefined
       };
       
@@ -858,65 +858,31 @@ export const CreateButtonBootstrap: React.FC<Props> = ({ view, onClose, onCreate
       }
       
       if (key === "talles") {
-        // Talles seleccionados y no seleccionados
-        const selectedIds = values.talles || [];
-        const tallesSeleccionados = talles.filter((t) => selectedIds.includes(t.id));
-        const tallesNoSeleccionados = talles.filter((t) => !selectedIds.includes(t.id));
         return (
-          <Col md={12} key={key}>
+          <Col md={6} key={key}>
             <BootstrapForm.Group>
-              <BootstrapForm.Label><strong>Talles disponibles</strong></BootstrapForm.Label>
-              <div className="border rounded p-3">
-                <div className="mb-2">
-                  <strong>Talles seleccionados:</strong>
-                  {tallesSeleccionados.length === 0 && (
-                    <span className="text-muted ms-2">Ninguno</span>
-                  )}
-                  <div className="d-flex flex-wrap mt-2">
-                    {tallesSeleccionados.map((talle: any) => (
-                      <label key={talle.id} className="me-3 mb-2" style={{ cursor: 'pointer' }}>
-                        <input
-                          type="checkbox"
-                          checked={true}
-                          onChange={() => {
-                            setFieldValue(
-                              "talles",
-                              tallesSeleccionados.filter((t: any) => t.id !== talle.id).map((t: any) => t.id)
-                            );
-                          }}
-                          className="me-1"
-                        />
-                        <span className="badge bg-info text-dark">{talle.sistema} - {talle.valor}</span>
-                      </label>
-                    ))}
-                  </div>
-                </div>
-                <div className="mb-2">
-                  <strong>Otros talles:</strong>
-                  {tallesNoSeleccionados.length === 0 && (
-                    <span className="text-muted ms-2">Ninguno</span>
-                  )}
-                  <div className="d-flex flex-wrap mt-2">
-                    {tallesNoSeleccionados.map((talle: any) => (
-                      <label key={talle.id} className="me-3 mb-2" style={{ cursor: 'pointer' }}>
-                        <input
-                          type="checkbox"
-                          checked={false}
-                          onChange={() => {
-                            setFieldValue(
-                              "talles",
-                              [...tallesSeleccionados.map((t: any) => t.id), talle.id]
-                            );
-                          }}
-                          className="me-1"
-                        />
-                        <span>{talle.sistema} - {talle.valor}</span>
-                      </label>
-                    ))}
-                  </div>
-                </div>
-                <ErrorMessage name="talles" component="div" className="text-danger small" />
-              </div>
+              <BootstrapForm.Label><strong>Talle</strong></BootstrapForm.Label>
+              <Field
+                as="select"
+                name="talles"
+                className="form-select"
+                onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
+                  const selected = talles.find(t => t.id === +e.target.value);
+                  if (selected) {
+                    setFieldValue("talles", [selected.id]);
+                  } else {
+                    setFieldValue("talles", []);
+                  }
+                }}
+              >
+                <option value="">Seleccionar talle</option>
+                {talles.map((talle) => (
+                  <option key={talle.id} value={talle.id}>
+                    {talle.sistema} - {talle.valor}
+                  </option>
+                ))}
+              </Field>
+              <ErrorMessage name="talles" component="div" className="text-danger small" />
             </BootstrapForm.Group>
           </Col>
         );

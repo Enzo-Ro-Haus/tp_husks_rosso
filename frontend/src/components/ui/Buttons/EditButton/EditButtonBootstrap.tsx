@@ -29,6 +29,7 @@ import { EstadoOrden } from '../../../../types/enums/EstadoOrden';
 import { tipoStore } from "../../../../store/tipoStore";
 import { categoriaStore } from "../../../../store/categoriaStore";
 import { direccionStore } from "../../../../store/direccionStore";
+import { productoStore } from "../../../../store/prodcutoStore";
 
 type ViewType =
   | "Users"
@@ -64,14 +65,18 @@ const schemaMap: Record<ViewType, yup.ObjectSchema<any>> = {
     nuevaDireccionCP: yup.string().optional(),
   }),
   Products: yup.object({
-    nombre: yup.string().required(),
-    cantidad: yup.number().min(1).required(),
-    precio: yup.number().min(0.01).required(),
-    color: yup.string().required(),
-    talles: yup.array().of(yup.number()).min(1).required(),
-    categoria: yup.object({ id: yup.number().required() }).required(),
-    tipo: yup.object({ id: yup.number().required() }).required(),
-    descripcion: yup.string().required(),
+    nombre: yup.string().required("❌ El nombre es obligatorio"),
+    cantidad: yup.number().min(1, "❌ La cantidad debe ser mayor a 0").required("❌ La cantidad es obligatoria"),
+    precio: yup.number().min(0.01, "❌ El precio debe ser mayor a 0").required("❌ El precio es obligatorio"),
+    color: yup.string().required("❌ El color es obligatorio"),
+    talles: yup.array().of(yup.number().min(1, "❌ Debe seleccionar un talle válido")).length(1, "❌ Debe seleccionar exactamente un talle").required("❌ El talle es obligatorio"),
+    categoria: yup.object({ 
+      id: yup.number().min(1, "❌ Debe seleccionar una categoría válida").required("❌ Debe seleccionar una categoría") 
+    }).nullable().required("❌ Debe seleccionar una categoría"),
+    tipo: yup.object({ 
+      id: yup.number().min(1, "❌ Debe seleccionar un tipo válido").required("❌ Debe seleccionar un tipo") 
+    }).nullable().required("❌ Debe seleccionar un tipo"),
+    descripcion: yup.string().required("❌ La descripción es obligatoria"),
     imagenPublicId: yup.string().optional(),
   }),
   Categories: yup.object({
@@ -132,10 +137,47 @@ const updateHandlers: Record<ViewType, (token: string, id: number, payload: any)
   },
   Products: async (token, id, payload) => {
     try {
-      const result = await productAPI.updateProducto(token, id, payload);
+      console.log('🔍 Products update handler - payload original:', payload);
+      
+      // Obtener los datos completos de categoría, tipo y talles
+      const categorias = await categoryAPI.getAllCategorias(token);
+      const tipos = await typeAPI.getAllTipos(token);
+      const talles = await sizeAPI.getAllTalles(token);
+      
+      // Encontrar los objetos completos basados en los IDs
+      const categoriaCompleta = payload.categoria && payload.categoria.id ? categorias.find(c => c.id === payload.categoria.id) : null;
+      const tipoCompleto = payload.tipo && payload.tipo.id ? tipos.find(t => t.id === payload.tipo.id) : null;
+      const talleCompleto = payload.talles?.[0] ? talles.find(t => t.id === payload.talles[0]) : null;
+      
+      console.log('🔍 Products update handler - objetos encontrados:', {
+        categoria: categoriaCompleta,
+        tipo: tipoCompleto,
+        talle: talleCompleto
+      });
+      
+      // Crear el payload con la estructura correcta
+      const processedPayload: any = {};
+      
+      // Solo incluir campos que tengan valores
+      if (payload.nombre !== undefined) processedPayload.nombre = payload.nombre;
+      if (payload.precio !== undefined) processedPayload.precio = payload.precio;
+      if (payload.cantidad !== undefined) processedPayload.cantidad = payload.cantidad;
+      if (payload.descripcion !== undefined) processedPayload.descripcion = payload.descripcion;
+      if (payload.color !== undefined) processedPayload.color = payload.color;
+      if (payload.imagenPublicId !== undefined) processedPayload.imagenPublicId = payload.imagenPublicId;
+      
+      // Solo incluir relaciones si se proporcionaron
+      if (categoriaCompleta) processedPayload.categoria = categoriaCompleta;
+      if (tipoCompleto) processedPayload.tipo = tipoCompleto;
+      if (talleCompleto) processedPayload.tallesDisponibles = [talleCompleto];
+      
+      console.log('🔍 Products update handler - payload procesado:', processedPayload);
+      
+      const result = await productAPI.updateProducto(token, id, processedPayload);
+      console.log('🔍 Products update handler - resultado:', result);
       return !!result;
     } catch (error) {
-      console.error('Error updating product:', error);
+      console.error('❌ Error updating product:', error);
       return false;
     }
   },
@@ -456,6 +498,12 @@ export const EditButtonBootstrap: React.FC<Props> = ({ view, item, onClose, onUp
             categoriaStore.getState().setArraycategorias(categoriasActualizadas);
           }
         }
+        if (view === "Products") {
+          // Actualizar el store de productos
+          const productosActualizados = await productAPI.getAllProductos(token);
+          productoStore.getState().setArrayProductos(productosActualizados);
+          console.log('✅ Producto actualizado exitosamente');
+        }
         if (view === "Addresses") {
           // Actualizar el store de direcciones con todas las direcciones (incluyendo soft delete)
           const direccionesActualizadas = await addressAPI.getAllUsuarioDirecciones(token);
@@ -523,8 +571,8 @@ export const EditButtonBootstrap: React.FC<Props> = ({ view, item, onClose, onUp
           precio: item.precio || 0.01,
           color: item.color || "",
           talles: item.tallesDisponibles?.map((t: any) => t.id) || [],
-          categoria: item.categoria || { id: 0 },
-          tipo: item.tipo || { id: 0 },
+          categoria: item.categoria || null,
+          tipo: item.tipo || null,
           descripcion: item.descripcion || "",
           imagenPublicId: item.imagenPublicId || "",
         };
@@ -1036,6 +1084,105 @@ export const EditButtonBootstrap: React.FC<Props> = ({ view, item, onClose, onUp
           </BootstrapForm.Group>
         </Col>
       );
+    }
+
+    // Manejo especial para campos de Products
+    if (view === "Products") {
+      if (key === "categoria") {
+        return (
+          <Col md={6} key={key}>
+            <BootstrapForm.Group>
+              <BootstrapForm.Label><strong>Categoría</strong></BootstrapForm.Label>
+              <Field
+                as="select"
+                name="categoria.id"
+                className="form-select"
+                onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
+                  const selected = categorias.find(c => c.id === +e.target.value);
+                  if (selected) {
+                    setFieldValue("categoria", selected);
+                  } else {
+                    setFieldValue("categoria", null);
+                  }
+                }}
+                value={values.categoria?.id || ""}
+              >
+                <option value="">Seleccionar categoría</option>
+                {categorias.map((categoria) => (
+                  <option key={categoria.id} value={categoria.id}>
+                    {categoria.nombre}
+                  </option>
+                ))}
+              </Field>
+              <ErrorMessage name="categoria" component="div" className="text-danger small" />
+            </BootstrapForm.Group>
+          </Col>
+        );
+      }
+      
+      if (key === "tipo") {
+        return (
+          <Col md={6} key={key}>
+            <BootstrapForm.Group>
+              <BootstrapForm.Label><strong>Tipo</strong></BootstrapForm.Label>
+              <Field
+                as="select"
+                name="tipo.id"
+                className="form-select"
+                onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
+                  const selected = tipos.find(t => t.id === +e.target.value);
+                  if (selected) {
+                    setFieldValue("tipo", selected);
+                  } else {
+                    setFieldValue("tipo", null);
+                  }
+                }}
+                value={values.tipo?.id || ""}
+              >
+                <option value="">Seleccionar tipo</option>
+                {tipos.map((tipo) => (
+                  <option key={tipo.id} value={tipo.id}>
+                    {tipo.nombre}
+                  </option>
+                ))}
+              </Field>
+              <ErrorMessage name="tipo" component="div" className="text-danger small" />
+            </BootstrapForm.Group>
+          </Col>
+        );
+      }
+      
+      if (key === "talles") {
+        return (
+          <Col md={6} key={key}>
+            <BootstrapForm.Group>
+              <BootstrapForm.Label><strong>Talle</strong></BootstrapForm.Label>
+              <Field
+                as="select"
+                name="talles"
+                className="form-select"
+                onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
+                  const selected = talles.find(t => t.id === +e.target.value);
+                  if (selected) {
+                    setFieldValue("talles", [selected.id]);
+                  } else {
+                    setFieldValue("talles", []);
+                  }
+                }}
+                value={values.talles?.[0] || ""}
+              >
+                <option value="">Seleccionar talle</option>
+                {talles.map((talle) => (
+                  <option key={talle.id} value={talle.id}>
+                    {talle.sistema} - {talle.valor}
+                  </option>
+                ))}
+              </Field>
+              <ErrorMessage name="talles" component="div" className="text-danger small" />
+            </BootstrapForm.Group>
+          </Col>
+        );
+      }
     }
 
     // Manejar campos específicos

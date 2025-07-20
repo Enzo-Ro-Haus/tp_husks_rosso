@@ -124,9 +124,13 @@ const schemaMap: Record<ViewType, yup.ObjectSchema<any>> = {
     cantidad: yup.number().min(1, "❌ La cantidad debe ser mayor a 0").required("❌ La cantidad es obligatoria"),
     precio: yup.number().min(0.01, "❌ El precio debe ser mayor a 0").required("❌ El precio es obligatorio"),
     color: yup.string().required("❌ El color es obligatorio"),
-    talles: yup.array().of(yup.number()).length(1, "❌ Debe seleccionar exactamente un talle").required("❌ El talle es obligatorio"),
-    categoria: yup.object({ id: yup.number().required() }).required("❌ Debe seleccionar una categoría"),
-    tipo: yup.object({ id: yup.number().required() }).required("❌ Debe seleccionar un tipo"),
+    talles: yup.array().of(yup.number().min(1, "❌ Debe seleccionar un talle válido")).length(1, "❌ Debe seleccionar exactamente un talle").required("❌ El talle es obligatorio"),
+    categoria: yup.object({ 
+      id: yup.number().min(1, "❌ Debe seleccionar una categoría válida").required("❌ Debe seleccionar una categoría") 
+    }).nullable().required("❌ Debe seleccionar una categoría"),
+    tipo: yup.object({ 
+      id: yup.number().min(1, "❌ Debe seleccionar un tipo válido").required("❌ Debe seleccionar un tipo") 
+    }).nullable().required("❌ Debe seleccionar un tipo"),
     descripcion: yup.string().required("❌ La descripción es obligatoria"),
     imagenPublicId: yup.string().optional(),
   }),
@@ -258,9 +262,9 @@ const createHandlers: Record<ViewType, (token: string, payload: any) => Promise<
       const talles = await sizeAPI.getAllTalles(token);
       
       // Encontrar los objetos completos basados en los IDs
-      const categoriaCompleta = categorias.find(c => c.id === payload.categoria.id);
-      const tipoCompleto = tipos.find(t => t.id === payload.tipo.id);
-      const talleCompleto = talles.find(t => t.id === payload.talles[0]);
+      const categoriaCompleta = payload.categoria && payload.categoria.id ? categorias.find(c => c.id === payload.categoria.id) : null;
+      const tipoCompleto = payload.tipo && payload.tipo.id ? tipos.find(t => t.id === payload.tipo.id) : null;
+      const talleCompleto = payload.talles?.[0] ? talles.find(t => t.id === payload.talles[0]) : null;
       
       console.log('🔍 Products handler - objetos encontrados:', {
         categoria: categoriaCompleta,
@@ -270,10 +274,10 @@ const createHandlers: Record<ViewType, (token: string, payload: any) => Promise<
       
       // Validar que se encontraron todos los objetos necesarios
       if (!categoriaCompleta) {
-        throw new Error(`No se encontró la categoría con ID ${payload.categoria.id}`);
+        throw new Error(`No se encontró la categoría con ID ${payload.categoria?.id || 'no proporcionado'}`);
       }
       if (!tipoCompleto) {
-        throw new Error(`No se encontró el tipo con ID ${payload.tipo.id}`);
+        throw new Error(`No se encontró el tipo con ID ${payload.tipo?.id || 'no proporcionado'}`);
       }
       if (!talleCompleto) {
         throw new Error('No se encontró el talle seleccionado');
@@ -812,8 +816,11 @@ export const CreateButtonBootstrap: React.FC<Props> = ({ view, onClose, onCreate
                   const selected = categorias.find(c => c.id === +e.target.value);
                   if (selected) {
                     setFieldValue("categoria", selected);
+                  } else {
+                    setFieldValue("categoria", null);
                   }
                 }}
+                value={values.categoria?.id || ""}
               >
                 <option value="">Seleccionar categoría</option>
                 {categorias.map((categoria) => (
@@ -841,8 +848,11 @@ export const CreateButtonBootstrap: React.FC<Props> = ({ view, onClose, onCreate
                   const selected = tipos.find(t => t.id === +e.target.value);
                   if (selected) {
                     setFieldValue("tipo", selected);
+                  } else {
+                    setFieldValue("tipo", null);
                   }
                 }}
+                value={values.tipo?.id || ""}
               >
                 <option value="">Seleccionar tipo</option>
                 {tipos.map((tipo) => (
@@ -874,6 +884,7 @@ export const CreateButtonBootstrap: React.FC<Props> = ({ view, onClose, onCreate
                     setFieldValue("talles", []);
                   }
                 }}
+                value={values.talles?.[0] || ""}
               >
                 <option value="">Seleccionar talle</option>
                 {talles.map((talle) => (

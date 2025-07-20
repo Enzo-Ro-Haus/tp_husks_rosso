@@ -241,6 +241,7 @@ export const Admin = () => {
                 category={el.categoria}
                 sizes={el.tallesDisponibles}
                 type={el.tipo}
+                imagenPublicId={el.imagenPublicId}
                 producto={el}
                 activo={el.activo}
                 onEdited={getProductos}

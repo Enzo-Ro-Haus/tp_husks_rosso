@@ -11,6 +11,7 @@ import { EditButtonBootstrap } from "../../Buttons/EditButton/EditButtonBootstra
 import { DeleteButton } from "../../Buttons/DeleteButton/DeleteButton";
 import { RestoreButton } from "../../Buttons/RestoreButton/RestoreButton";
 import UserProfileImage from "../../Image/UserProfileImage";
+import CloudinaryImg from "../../Image/CoudinaryImg";
 import styles from "./ListCard.module.css";
 
 export type ListCardVariant =
@@ -37,6 +38,7 @@ export interface ListCardProps {
   email?: string;
   rol?: string;
   imagenPerfilPublicId?: string;
+  imagenPublicId?: string;
   address?: IUsuarioDireccion[];
   type?: ITipo;
   system?: string;
@@ -75,6 +77,7 @@ export const ListCard: React.FC<ListCardProps> = (props) => {
     email,
     rol,
     imagenPerfilPublicId,
+    imagenPublicId,
     address,
     type,
     system,
@@ -160,13 +163,23 @@ export const ListCard: React.FC<ListCardProps> = (props) => {
                     className="mb-2"
                     style={{ width: "100%", borderRadius: 8 }}
                   />
-                ) : (
-                  <Card.Img
-                    src="/src/assets/landings/image.png"
-                    alt={String(name)}
-                    style={{ width: "100%", borderRadius: 8 }}
-                  />
-                )}
+                ) : variant === "Products" ? (
+                  imagenPublicId ? (
+                    <CloudinaryImg
+                      publicId={imagenPublicId}
+                      width={200}
+                      height={150}
+                      alt={String(name)}
+                      style={{ width: "100%", borderRadius: 8 }}
+                    />
+                  ) : (
+                    <Card.Img
+                      src="/src/assets/no_cloth.jpeg"
+                      alt={String(name)}
+                      style={{ width: "100%", borderRadius: 8 }}
+                    />
+                  )
+                ) : null}
                 {activo != null && (
                   <Badge bg={activo ? "success" : "secondary"} className="mt-2">
                     {activo ? "Activo" : "Inactivo"}

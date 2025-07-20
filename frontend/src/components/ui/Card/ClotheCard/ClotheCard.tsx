@@ -26,7 +26,7 @@ export const ClotheCard = ({ name, description, price, imagenPublicId }: ClotheC
             className="card-img-top"
           />
         ) : (
-          <Card.Img variant="top" src="src/assets/landings/image.png" />
+          <Card.Img variant="top" src="src/assets/no_cloth.jpeg" />
         )}
         <Card.Body className="d-flex flex-column align-items-start text-start">
           <Card.Title className="mb-3 w-100">

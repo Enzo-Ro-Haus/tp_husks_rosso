@@ -48,6 +48,7 @@ export const Cart = () => {
                 price={d.producto.precio}
                 quantity={d.cantidad}
                 sizes={d.producto.tallesDisponibles}
+                imagenPublicId={d.producto.imagenPublicId}
                 onEdited={() => {}}
                 onDeleted={() => {}}
                 onRestored={() => {}}

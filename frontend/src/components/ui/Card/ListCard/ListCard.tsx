@@ -312,16 +312,6 @@ export const ListCard: React.FC<ListCardProps> = (props) => {
                   <p>
                     <strong>Value:</strong> {value}
                   </p>
-                  <p>
-                    <strong>Products:</strong>{" "}
-                    {sizes && sizes.length > 0
-                      ? sizes
-                          .flatMap((s) => s.productos || [])
-                          .map((p) => p.nombre)
-                          .join(", ")
-                      : "No posee"
-                    }
-                  </p>
                 </>
               )}
 

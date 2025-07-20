@@ -120,14 +120,14 @@ const schemaMap: Record<ViewType, yup.ObjectSchema<any>> = {
     nuevaDireccionCP: yup.string().optional(),
   }),
   Products: yup.object({
-    nombre: yup.string().required(),
-    cantidad: yup.number().min(1).required(),
-    precio: yup.number().min(0.01).required(),
-    color: yup.string().required(),
-    talles: yup.array().of(yup.number()).min(1).required(),
-    categoria: yup.object({ id: yup.number().required() }).required(),
-    tipo: yup.object({ id: yup.number().required() }).required(),
-    descripcion: yup.string().required(),
+    nombre: yup.string().required("❌ El nombre es obligatorio"),
+    cantidad: yup.number().min(1, "❌ La cantidad debe ser mayor a 0").required("❌ La cantidad es obligatoria"),
+    precio: yup.number().min(0.01, "❌ El precio debe ser mayor a 0").required("❌ El precio es obligatorio"),
+    color: yup.string().required("❌ El color es obligatorio"),
+    talles: yup.array().of(yup.number()).min(1, "❌ Debe seleccionar al menos un talle").required("❌ Los talles son obligatorios"),
+    categoria: yup.object({ id: yup.number().required() }).required("❌ Debe seleccionar una categoría"),
+    tipo: yup.object({ id: yup.number().required() }).required("❌ Debe seleccionar un tipo"),
+    descripcion: yup.string().required("❌ La descripción es obligatoria"),
     imagenPublicId: yup.string().optional(),
   }),
   Categories: yup.object({
@@ -250,10 +250,55 @@ const createHandlers: Record<ViewType, (token: string, payload: any) => Promise<
   },
   Products: async (token, payload) => {
     try {
-      const result = await productAPI.createProducto(token, payload);
+      console.log('🔍 Products handler - payload original:', payload);
+      
+      // Obtener los datos completos de categoría, tipo y talles
+      const categorias = await categoryAPI.getAllCategorias(token);
+      const tipos = await typeAPI.getAllTipos(token);
+      const talles = await sizeAPI.getAllTalles(token);
+      
+      // Encontrar los objetos completos basados en los IDs
+      const categoriaCompleta = categorias.find(c => c.id === payload.categoria.id);
+      const tipoCompleto = tipos.find(t => t.id === payload.tipo.id);
+      const tallesCompletos = talles.filter(t => payload.talles.includes(t.id));
+      
+      console.log('🔍 Products handler - objetos encontrados:', {
+        categoria: categoriaCompleta,
+        tipo: tipoCompleto,
+        talles: tallesCompletos
+      });
+      
+      // Validar que se encontraron todos los objetos necesarios
+      if (!categoriaCompleta) {
+        throw new Error(`No se encontró la categoría con ID ${payload.categoria.id}`);
+      }
+      if (!tipoCompleto) {
+        throw new Error(`No se encontró el tipo con ID ${payload.tipo.id}`);
+      }
+      if (tallesCompletos.length === 0) {
+        throw new Error('No se encontraron los talles seleccionados');
+      }
+      
+      // Crear el payload con la estructura correcta
+      const processedPayload = {
+        nombre: payload.nombre,
+        precio: payload.precio,
+        cantidad: payload.cantidad,
+        descripcion: payload.descripcion,
+        color: payload.color,
+        categoria: categoriaCompleta!,
+        tipo: tipoCompleto!,
+        tallesDisponibles: tallesCompletos,
+        imagenPublicId: payload.imagenPublicId || undefined
+      };
+      
+      console.log('🔍 Products handler - payload procesado:', processedPayload);
+      
+      const result = await productAPI.createProducto(token, processedPayload);
+      console.log('🔍 Products handler - resultado:', result);
       return !!result;
     } catch (error) {
-      console.error('Error creating product:', error);
+      console.error('❌ Error creating product:', error);
       return false;
     }
   },
@@ -336,8 +381,6 @@ export const CreateButtonBootstrap: React.FC<Props> = ({ view, onClose, onCreate
   // Store de direcciones de usuario-dirección
   const direccionesFromStore = direccionStore((s) => s.direcciones);
   const [crearNuevaDireccion, setCrearNuevaDireccion] = useState(false);
-  const [crearNuevaCategoria, setCrearNuevaCategoria] = useState(false);
-  const [crearNuevoTalle, setCrearNuevoTalle] = useState(false);
   const [crearNuevoUsuario, setCrearNuevoUsuario] = useState(false);
 
   useEffect(() => {
@@ -395,38 +438,18 @@ export const CreateButtonBootstrap: React.FC<Props> = ({ view, onClose, onCreate
         payload.direccion = direccionNueva;
       }
       
-      // Products: crear nueva categoría/talle si corresponde
+      // Products: manejo simplificado ya que el handler se encarga de procesar los talles
       if (view === "Products") {
-        if (crearNuevaCategoria) {
-          const nuevaCategoria = await categoryAPI.createCategoria(token, values.nuevaCategoriaNombre, []);
-          payload.categoria = nuevaCategoria;
-        }
-        if (crearNuevoTalle) {
-          const nuevoTalle = await sizeAPI.createTalle(token, {
-            sistema: values.nuevoTalleSistema,
-            valor: values.nuevoTalleValor,
-          });
-          payload.talles = [nuevoTalle];
-        }
-        
-        const processedPayload = {
-          nombre: payload.nombre,
-          precio: payload.precio,
-          cantidad: payload.cantidad,
-          descripcion: payload.descripcion,
-          color: payload.color,
-          categoria: payload.categoria,
-          tipo: payload.tipo,
-          tallesDisponibles: payload.talles ? payload.talles.map((id: number) => ({ id })) : []
-        };
+        console.log('🔍 handleSubmit - Products values:', values);
+        console.log('🔍 handleSubmit - Products payload:', payload);
         
         const handler = createHandlers[view];
-        const ok = await handler(token, processedPayload);
+        const ok = await handler(token, payload);
         if (ok) {
           onCreated?.();
           onClose();
         } else {
-          Swal.fire({ icon: 'error', title: 'Error', text: 'No se pudo crear el elemento.' });
+          Swal.fire({ icon: 'error', title: 'Error', text: 'No se pudo crear el producto.' });
         }
         return;
       }
@@ -772,6 +795,132 @@ export const CreateButtonBootstrap: React.FC<Props> = ({ view, onClose, onCreate
           </BootstrapForm.Group>
         </Col>
       );
+    }
+
+    // Manejo especial para campos de Products
+    if (view === "Products") {
+      if (key === "categoria") {
+        return (
+          <Col md={6} key={key}>
+            <BootstrapForm.Group>
+              <BootstrapForm.Label><strong>Categoría</strong></BootstrapForm.Label>
+              <Field
+                as="select"
+                name="categoria.id"
+                className="form-select"
+                onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
+                  const selected = categorias.find(c => c.id === +e.target.value);
+                  if (selected) {
+                    setFieldValue("categoria", selected);
+                  }
+                }}
+              >
+                <option value="">Seleccionar categoría</option>
+                {categorias.map((categoria) => (
+                  <option key={categoria.id} value={categoria.id}>
+                    {categoria.nombre}
+                  </option>
+                ))}
+              </Field>
+              <ErrorMessage name="categoria" component="div" className="text-danger small" />
+            </BootstrapForm.Group>
+          </Col>
+        );
+      }
+      
+      if (key === "tipo") {
+        return (
+          <Col md={6} key={key}>
+            <BootstrapForm.Group>
+              <BootstrapForm.Label><strong>Tipo</strong></BootstrapForm.Label>
+              <Field
+                as="select"
+                name="tipo.id"
+                className="form-select"
+                onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
+                  const selected = tipos.find(t => t.id === +e.target.value);
+                  if (selected) {
+                    setFieldValue("tipo", selected);
+                  }
+                }}
+              >
+                <option value="">Seleccionar tipo</option>
+                {tipos.map((tipo) => (
+                  <option key={tipo.id} value={tipo.id}>
+                    {tipo.nombre}
+                  </option>
+                ))}
+              </Field>
+              <ErrorMessage name="tipo" component="div" className="text-danger small" />
+            </BootstrapForm.Group>
+          </Col>
+        );
+      }
+      
+      if (key === "talles") {
+        // Talles seleccionados y no seleccionados
+        const selectedIds = values.talles || [];
+        const tallesSeleccionados = talles.filter((t) => selectedIds.includes(t.id));
+        const tallesNoSeleccionados = talles.filter((t) => !selectedIds.includes(t.id));
+        return (
+          <Col md={12} key={key}>
+            <BootstrapForm.Group>
+              <BootstrapForm.Label><strong>Talles disponibles</strong></BootstrapForm.Label>
+              <div className="border rounded p-3">
+                <div className="mb-2">
+                  <strong>Talles seleccionados:</strong>
+                  {tallesSeleccionados.length === 0 && (
+                    <span className="text-muted ms-2">Ninguno</span>
+                  )}
+                  <div className="d-flex flex-wrap mt-2">
+                    {tallesSeleccionados.map((talle: any) => (
+                      <label key={talle.id} className="me-3 mb-2" style={{ cursor: 'pointer' }}>
+                        <input
+                          type="checkbox"
+                          checked={true}
+                          onChange={() => {
+                            setFieldValue(
+                              "talles",
+                              tallesSeleccionados.filter((t: any) => t.id !== talle.id).map((t: any) => t.id)
+                            );
+                          }}
+                          className="me-1"
+                        />
+                        <span className="badge bg-info text-dark">{talle.sistema} - {talle.valor}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+                <div className="mb-2">
+                  <strong>Otros talles:</strong>
+                  {tallesNoSeleccionados.length === 0 && (
+                    <span className="text-muted ms-2">Ninguno</span>
+                  )}
+                  <div className="d-flex flex-wrap mt-2">
+                    {tallesNoSeleccionados.map((talle: any) => (
+                      <label key={talle.id} className="me-3 mb-2" style={{ cursor: 'pointer' }}>
+                        <input
+                          type="checkbox"
+                          checked={false}
+                          onChange={() => {
+                            setFieldValue(
+                              "talles",
+                              [...tallesSeleccionados.map((t: any) => t.id), talle.id]
+                            );
+                          }}
+                          className="me-1"
+                        />
+                        <span>{talle.sistema} - {talle.valor}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+                <ErrorMessage name="talles" component="div" className="text-danger small" />
+              </div>
+            </BootstrapForm.Group>
+          </Col>
+        );
+      }
     }
 
     // Manejo específico para campos de dirección en Addresses

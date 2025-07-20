@@ -17,6 +17,15 @@ import com.husks.backend.entities.Direccion;
 import com.husks.backend.repositories.DireccionRepository;
 import com.husks.backend.entities.UsuarioDireccion;
 import com.husks.backend.repositories.UsuarioDireccionRepository;
+import com.husks.backend.entities.Talle;
+import com.husks.backend.enums.SistemaTalle;
+import com.husks.backend.repositories.TalleRepository;
+import com.husks.backend.entities.Categoria;
+import com.husks.backend.repositories.CategoriaRepository;
+import com.husks.backend.entities.Tipo;
+import com.husks.backend.repositories.TipoRepository;
+import com.husks.backend.entities.Producto;
+import com.husks.backend.repositories.ProductoRepository;
 
 @EnableJpaAuditing
 @SpringBootApplication
@@ -30,7 +39,8 @@ public class BackendApplication {
 
 	@Bean
 	public CommandLineRunner createDefaultAdmin(UsuarioRepository usuarioRepository, PasswordEncoder passwordEncoder,
-												 DireccionRepository direccionRepository, UsuarioDireccionRepository usuarioDireccionRepository) {
+												 DireccionRepository direccionRepository, UsuarioDireccionRepository usuarioDireccionRepository,
+												 TalleRepository talleRepository, CategoriaRepository categoriaRepository, TipoRepository tipoRepository, ProductoRepository productoRepository) {
 		return args -> {
 			System.out.println("🚀 Iniciando creación de usuario administrador por defecto...");
 			try {
@@ -109,8 +119,66 @@ public class BackendApplication {
 				System.out.println("   - Usuario: " + savedUsuarioDireccion.getUsuario().getNombre());
 				System.out.println("   - Dirección: " + savedUsuarioDireccion.getDireccion().getCalle() + ", " + savedUsuarioDireccion.getDireccion().getLocalidad() + " (" + savedUsuarioDireccion.getDireccion().getCp() + ")");
 
+				// === TALLE ===
+				Talle talleAmericano = Talle.builder()
+					.sistema(SistemaTalle.americano)
+					.valor("40")
+					.build();
+				Talle talleEuropeo = Talle.builder()
+					.sistema(SistemaTalle.europeo)
+					.valor("M")
+					.build();
+				Talle savedTalleAmericano = talleRepository.save(talleAmericano);
+				Talle savedTalleEuropeo = talleRepository.save(talleEuropeo);
+				System.out.println("✅ Talles creados: Americano 40, Europeo M");
+
+				// === CATEGORÍAS ===
+				Categoria categoriaHombre = Categoria.builder().nombre("Hombre").tipos(new java.util.ArrayList<>()).build();
+				Categoria categoriaMujer = Categoria.builder().nombre("Mujer").tipos(new java.util.ArrayList<>()).build();
+				Categoria savedCategoriaHombre = categoriaRepository.save(categoriaHombre);
+				Categoria savedCategoriaMujer = categoriaRepository.save(categoriaMujer);
+				System.out.println("✅ Categorías creadas: Hombre, Mujer");
+
+				// === TIPOS ===
+				Tipo tipoPantalon = Tipo.builder().nombre("Pantalón").categorias(new java.util.ArrayList<>()).build();
+				Tipo tipoBuzo = Tipo.builder().nombre("Buzo").categorias(new java.util.ArrayList<>()).build();
+				Tipo savedTipoPantalon = tipoRepository.save(tipoPantalon);
+				Tipo savedTipoBuzo = tipoRepository.save(tipoBuzo);
+				System.out.println("✅ Tipos creados: Pantalón, Buzo");
+
+				// === VINCULAR TIPOS Y CATEGORÍAS ===
+				savedCategoriaHombre.getTipos().add(savedTipoPantalon);
+				savedCategoriaHombre.getTipos().add(savedTipoBuzo);
+				savedCategoriaMujer.getTipos().add(savedTipoPantalon);
+				savedCategoriaMujer.getTipos().add(savedTipoBuzo);
+				categoriaRepository.save(savedCategoriaHombre);
+				categoriaRepository.save(savedCategoriaMujer);
+				savedTipoPantalon.getCategorias().add(savedCategoriaHombre);
+				savedTipoPantalon.getCategorias().add(savedCategoriaMujer);
+				savedTipoBuzo.getCategorias().add(savedCategoriaHombre);
+				savedTipoBuzo.getCategorias().add(savedCategoriaMujer);
+				tipoRepository.save(savedTipoPantalon);
+				tipoRepository.save(savedTipoBuzo);
+				System.out.println("✅ Tipos y categorías vinculados");
+
+				// === PRODUCTO POR DEFECTO ===
+				Producto producto = Producto.builder()
+					.nombre("Pantalón clásico")
+					.descripcion("Pantalón de jean azul clásico, cómodo y resistente.")
+					.precio(new java.math.BigDecimal("7999.99"))
+					.cantidad(20)
+					.color("Azul")
+					.categoria(savedCategoriaHombre)
+					.tipo(savedTipoPantalon)
+					.imagenPublicId("no_cloth.jpeg")
+					.tallesDisponibles(new java.util.HashSet<>())
+					.build();
+				producto.getTallesDisponibles().add(savedTalleAmericano);
+				Producto savedProducto = productoRepository.save(producto);
+				System.out.println("✅ Producto por defecto creado: Pantalón clásico");
+
 			} catch (Exception e) {
-				System.err.println("❌ Error al crear usuario administrador o cliente por defecto:");
+				System.err.println("❌ Error al crear datos por defecto:");
 				System.err.println("   - Error: " + e.getMessage());
 				System.err.println("   - Tipo: " + e.getClass().getSimpleName());
 				e.printStackTrace();

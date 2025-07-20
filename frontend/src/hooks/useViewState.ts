@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { viewStore } from '../store/viewStore';
 
 type AdminView = "Products" | "Users" | "Categories" | "Types" | "Sizes" | "Addresses" | "Orders";
-type ClientView = "Client" | "Orders";
+type ClientView = "Client" | "Orders" | "Address";
 
 export const useAdminView = () => {
   const view = viewStore((s) => s.adminView);

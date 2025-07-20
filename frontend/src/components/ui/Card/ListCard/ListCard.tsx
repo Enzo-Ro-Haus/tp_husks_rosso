@@ -377,6 +377,39 @@ export const ListCard: React.FC<ListCardProps> = (props) => {
                   </p>
                 </>
               )}
+
+              {variant === "Client" && usuario && (
+                <div className="clientCard card w-100 h-100 d-flex flex-column align-items-center justify-content-center m-0 p-0" style={{borderRadius: 0, boxShadow: 'none'}}>
+                  <div className="mb-3">
+                    <img
+                      src={usuario.imagenPerfilPublicId ? `/src/assets/${usuario.imagenPerfilPublicId}.jpg` : "/src/assets/user_img.jpg"}
+                      alt={usuario.nombre}
+                      style={{ width: 150, height: 150, borderRadius: "50%", objectFit: "cover", border: "3px solid #0d6efd" }}
+                    />
+                  </div>
+                  <h3 className="mb-2 text-center">{usuario.nombre}</h3>
+                  <p className="mb-2 text-center" style={{ fontSize: "1.1rem" }}>{usuario.email}</p>
+                  <div className="mb-3 w-100">
+                    <h5 className="text-center">Direcciones</h5>
+                    {usuario.direcciones && usuario.direcciones.filter((d: any) => d.activo !== false).length > 0 ? (
+                      <ul className="list-group list-group-flush">
+                        {usuario.direcciones.filter((d: any) => d.activo !== false).map((d: any) => (
+                          <li key={d.id} className="list-group-item d-flex justify-content-between align-items-center">
+                            <span>{d.direccion.calle}, {d.direccion.localidad} ({d.direccion.cp})</span>
+                            {/* Aquí podrías agregar botón para eliminar dirección si lo deseas */}
+                          </li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <p className="text-muted text-center">No tienes direcciones registradas</p>
+                    )}
+                  </div>
+                  <div className="d-flex gap-3 mt-3">
+                    <button className="btn btn-primary" onClick={onEdited}>Editar mi perfil</button>
+                    <button className="btn btn-danger" onClick={onDeleted}>Eliminar mi perfil</button>
+                  </div>
+                </div>
+              )}
             </Col>
 
             {/* Botones */}

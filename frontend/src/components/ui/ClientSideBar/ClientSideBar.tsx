@@ -1,8 +1,8 @@
 import style from "./ClientSideBar.module.css";
 
 interface ClientSideBarProps {
-  view: "Client" | "Orders";
-  onChangeView: (view: "Client" | "Orders") => void;
+  view: "Client" | "Orders" | "Address";
+  onChangeView: (view: "Client" | "Orders" | "Address") => void;
   name: string;
 }
 
@@ -28,6 +28,15 @@ export const ClientSideBar = ({ view, onChangeView, name }: ClientSideBarProps) 
           onClick={() => onChangeView("Orders")}
         >
           My orders
+        </button>
+
+        <button
+          className={`${style.clothButton} ${
+            view === "Address" ? style.activeBtn : ""
+          }`}
+          onClick={() => onChangeView("Address")}
+        >
+          My address
         </button>
       </div>
     </div>

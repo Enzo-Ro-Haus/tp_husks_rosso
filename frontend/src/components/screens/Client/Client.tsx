@@ -126,6 +126,27 @@ export const Client = () => {
                 ) : (
                   <h3>No hay ordenes</h3>
                 )
+              ) : view === "Address" ? (
+                usuario && usuario.direcciones && usuario.direcciones.filter((d: any) => d.activo !== false).length > 0 ? (
+                  <div className="w-100" style={{ alignSelf: 'flex-start' }}>
+                    <h3 className="mb-3" style={{ marginTop: 0 }}>Mis direcciones</h3>
+                    <ul className="list-group mb-3">
+                      {usuario.direcciones.filter((d: any) => d.activo !== false).map((d: any) => (
+                        <li key={d.id} className="list-group-item d-flex justify-content-between align-items-center">
+                          <span>{d.direccion.calle}, {d.direccion.localidad} ({d.direccion.cp})</span>
+                          <button className="btn btn-danger btn-sm" onClick={() => {/* lógica de soft delete aquí */}}>Eliminar</button>
+                        </li>
+                      ))}
+                    </ul>
+                    <button className="btn btn-success" onClick={() => {/* lógica para agregar dirección aquí */}}>Agregar dirección</button>
+                  </div>
+                ) : (
+                  <div className="w-100" style={{ alignSelf: 'flex-start' }}>
+                    <h3 className="mb-3" style={{ marginTop: 0 }}>Mis direcciones</h3>
+                    <p className="text-muted">No tienes direcciones registradas</p>
+                    <button className="btn btn-success" onClick={() => {/* lógica para agregar dirección aquí */}}>Agregar dirección</button>
+                  </div>
+                )
               ) : null}
             </div>
           </div>

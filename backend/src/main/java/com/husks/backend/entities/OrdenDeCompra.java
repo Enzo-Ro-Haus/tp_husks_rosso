@@ -7,7 +7,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,7 +32,7 @@ public class OrdenDeCompra extends Base{
     private UsuarioDireccion usuarioDireccion;
 
     @Column(nullable = false)
-    private LocalDate fecha;
+    private LocalDateTime fecha;
 
     @Column(precision = 10, scale = 2, nullable = false)
     private BigDecimal precioTotal;
@@ -58,7 +58,7 @@ public class OrdenDeCompra extends Base{
         return usuarioDireccion;
     }
 
-    public LocalDate getFecha() {
+    public LocalDateTime getFecha() {
         return fecha;
     }
 
@@ -87,7 +87,7 @@ public class OrdenDeCompra extends Base{
         this.usuarioDireccion = usuarioDireccion;
     }
 
-    public void setFecha(LocalDate fecha) {
+    public void setFecha(LocalDateTime fecha) {
         this.fecha = fecha;
     }
 

@@ -46,16 +46,23 @@ export const createOrden = async (
   token: string | null,
   nuevaOrden: IOrden
 ): Promise<IOrden> => {
-  // Limpiar el objeto antes de enviarlo
+  console.log('🔍 createOrden - payload original:', nuevaOrden);
+  
+  // Limpiar el objeto antes de enviarlo - solo campos válidos de la entidad
   const ordenLimpia = {
-    ...nuevaOrden,
     usuario: nuevaOrden.usuario && typeof nuevaOrden.usuario === 'object' ? { id: (nuevaOrden.usuario as any).id } : nuevaOrden.usuario,
     usuarioDireccion: nuevaOrden.usuarioDireccion && typeof nuevaOrden.usuarioDireccion === 'object' ? { id: (nuevaOrden.usuarioDireccion as any).id } : nuevaOrden.usuarioDireccion,
+    fecha: nuevaOrden.fecha,
+    precioTotal: nuevaOrden.precioTotal,
+    metodoPago: nuevaOrden.metodoPago,
+    estado: nuevaOrden.estado,
     detalles: (nuevaOrden.detalles || []).map((detalle: any) => ({
       producto: detalle.producto && typeof detalle.producto === 'object' ? { id: detalle.producto.id } : detalle.producto,
       cantidad: detalle.cantidad
     }))
   };
+
+  console.log('🔍 createOrden - payload limpio:', ordenLimpia);
 
   const { data } = await axios.post<IOrden>(
     `${API_URL}/orden-compra`,
@@ -76,16 +83,28 @@ export const updateOrden = async (
   id: number,
   ordenUpdated: Partial<IOrden>
 ): Promise<IOrden> => {
-  // Limpiar el objeto antes de enviarlo
-  const ordenLimpia = {
-    ...ordenUpdated,
-    usuario: ordenUpdated.usuario && typeof ordenUpdated.usuario === 'object' ? { id: (ordenUpdated.usuario as any).id } : ordenUpdated.usuario,
-    usuarioDireccion: ordenUpdated.usuarioDireccion && typeof ordenUpdated.usuarioDireccion === 'object' ? { id: (ordenUpdated.usuarioDireccion as any).id } : ordenUpdated.usuarioDireccion,
-    detalles: (ordenUpdated.detalles || []).map((detalle: any) => ({
+  console.log('🔍 updateOrden - payload original:', ordenUpdated);
+  
+  // Limpiar el objeto antes de enviarlo - solo campos válidos de la entidad
+  const ordenLimpia: any = {};
+  
+  // Solo incluir campos que existan en el payload y sean válidos
+  if (ordenUpdated.usuario !== undefined) {
+    ordenLimpia.usuario = ordenUpdated.usuario && typeof ordenUpdated.usuario === 'object' ? { id: (ordenUpdated.usuario as any).id } : ordenUpdated.usuario;
+  }
+  if (ordenUpdated.usuarioDireccion !== undefined) {
+    ordenLimpia.usuarioDireccion = ordenUpdated.usuarioDireccion && typeof ordenUpdated.usuarioDireccion === 'object' ? { id: (ordenUpdated.usuarioDireccion as any).id } : ordenUpdated.usuarioDireccion;
+  }
+  if (ordenUpdated.fecha !== undefined) ordenLimpia.fecha = ordenUpdated.fecha;
+  if (ordenUpdated.precioTotal !== undefined) ordenLimpia.precioTotal = ordenUpdated.precioTotal;
+  if (ordenUpdated.metodoPago !== undefined) ordenLimpia.metodoPago = ordenUpdated.metodoPago;
+  if (ordenUpdated.estado !== undefined) ordenLimpia.estado = ordenUpdated.estado;
+  if (ordenUpdated.detalles !== undefined) {
+    ordenLimpia.detalles = (ordenUpdated.detalles || []).map((detalle: any) => ({
       producto: detalle.producto && typeof detalle.producto === 'object' ? { id: detalle.producto.id } : detalle.producto,
       cantidad: detalle.cantidad
-    }))
-  };
+    }));
+  }
 
   console.log('Payload original:', JSON.stringify(ordenUpdated, null, 2)); // Debug
   console.log('Payload limpio:', JSON.stringify(ordenLimpia, null, 2)); // Debug

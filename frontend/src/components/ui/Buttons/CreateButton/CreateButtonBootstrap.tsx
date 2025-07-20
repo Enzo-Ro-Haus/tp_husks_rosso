@@ -30,6 +30,25 @@ import { categoriaStore } from "../../../../store/categoriaStore";
 import { direccionStore } from "../../../../store/direccionStore";
 import { showErrorAlert } from "../../../../utils/errorHandler";
 
+// Funciones helper para convertir enums a valores amigables
+const getMetodoPagoLabel = (value: string) => {
+  switch (value) {
+    case MetodoPago.Tarjeta: return "Tarjeta";
+    case MetodoPago.Efectivo: return "Efectivo";
+    case MetodoPago.Transferencia: return "Transferencia";
+    default: return value;
+  }
+};
+
+const getEstadoOrdenLabel = (value: string) => {
+  switch (value) {
+    case EstadoOrden.En_proceso: return "En proceso";
+    case EstadoOrden.Enviado: return "Enviado";
+    case EstadoOrden.Entregado: return "Entregado";
+    default: return value;
+  }
+};
+
 type ViewType =
   | "Users"
   | "Products"
@@ -85,9 +104,9 @@ const initialValuesMap: Record<ViewType, any> = {
   Orders: {
     usuario: null,
     usuarioDireccion: null,
-    detalle: [],
-    fecha: new Date().toISOString().slice(0, 10),
-    total: 0,
+    detalles: [],
+    fecha: new Date().toISOString().slice(0, 16), // Formato YYYY-MM-DDTHH:mm para input type="datetime-local"
+    precioTotal: 0,
     metodoPago: "",
     estado: "",
     crearNuevoUsuario: false,
@@ -163,7 +182,7 @@ const schemaMap: Record<ViewType, yup.ObjectSchema<any>> = {
   Orders: yup.object({
     usuario: yup.object({ id: yup.number().required() }).nullable().required("Debe seleccionar un usuario"),
     usuarioDireccion: yup.object({ id: yup.number().required() }).nullable().required("Debe seleccionar una dirección"),
-    detalle: yup
+    detalles: yup
       .array()
       .of(
         yup.object({
@@ -173,9 +192,9 @@ const schemaMap: Record<ViewType, yup.ObjectSchema<any>> = {
       )
       .min(1, "Debe agregar al menos un producto"),
     fecha: yup.string().required(),
-    total: yup.number().min(0).required(),
-    metodoPago: yup.string().required(),
-    estado: yup.string().required(),
+    precioTotal: yup.number().min(0).required(),
+    metodoPago: yup.string().oneOf(Object.values(MetodoPago), "❌ Debe seleccionar un método de pago válido").required("❌ El método de pago es obligatorio"),
+    estado: yup.string().oneOf(Object.values(EstadoOrden), "❌ Debe seleccionar un estado válido").required("❌ El estado es obligatorio"),
     crearNuevoUsuario: yup.boolean(),
     nuevoUsuarioNombre: yup.string().when(['crearNuevoUsuario'], {
       is: true,
@@ -518,7 +537,7 @@ export const CreateButtonBootstrap: React.FC<Props> = ({ view, onClose, onCreate
     if (camposImagen.includes(key)) return null;
     
     if (camposAuxiliares.includes(key)) return null;
-    if (view === "Orders" && (key === "detalle" || key === "total")) return null;
+    if (view === "Orders" && (key === "detalles" || key === "precioTotal")) return null;
 
     // Manejo especial para direcciones en Users
     if (view === "Users" && key === "direcciones") {
@@ -646,7 +665,7 @@ export const CreateButtonBootstrap: React.FC<Props> = ({ view, onClose, onCreate
         return (
           <Col md={6} key={key}>
             <BootstrapForm.Group>
-              <BootstrapForm.Label><strong>Dirección</strong></BootstrapForm.Label>
+              <BootstrapForm.Label><strong>Dirección (primero elija un usuario válido)</strong></BootstrapForm.Label>
               <Field
                 as="select"
                 name="usuarioDireccion.id"
@@ -929,7 +948,8 @@ export const CreateButtonBootstrap: React.FC<Props> = ({ view, onClose, onCreate
     // Campos básicos
     const inputType = key === "password" ? "password" : 
                      key === "email" ? "email" : 
-                     key === "precio" || key === "cantidad" ? "number" : "text";
+                     key === "precio" || key === "cantidad" ? "number" : 
+                     key === "fecha" ? "datetime-local" : "text";
 
     // Campos específicos para Sizes
     if (view === "Sizes" && key === "sistema") {
@@ -970,6 +990,73 @@ export const CreateButtonBootstrap: React.FC<Props> = ({ view, onClose, onCreate
           </Field>
           <ErrorMessage name={key} component="div" className="error-message visible" />
         </BootstrapForm.Group>
+      );
+    }
+
+    // Manejo específico para el campo fecha en Orders
+    if (view === "Orders" && key === "fecha") {
+      return (
+        <Col md={6} key={key}>
+          <BootstrapForm.Group>
+            <BootstrapForm.Label><strong>Fecha de la orden</strong></BootstrapForm.Label>
+            <Field
+              name={key}
+              type="datetime-local"
+              className="form-control"
+              placeholder="Seleccionar fecha y hora"
+            />
+            <small className="text-muted">Seleccione la fecha y hora de la orden</small>
+            <ErrorMessage name={key} component="div" className="text-danger small" />
+          </BootstrapForm.Group>
+        </Col>
+      );
+    }
+
+    // Manejo específico para el campo metodoPago en Orders
+    if (view === "Orders" && key === "metodoPago") {
+      return (
+        <Col md={6} key={key}>
+          <BootstrapForm.Group>
+            <BootstrapForm.Label><strong>Método de pago</strong></BootstrapForm.Label>
+            <Field
+              as="select"
+              name={key}
+              className="form-select"
+            >
+              <option value="">Seleccionar método de pago</option>
+              {Object.values(MetodoPago).map((metodo) => (
+                <option key={metodo} value={metodo}>
+                  {getMetodoPagoLabel(metodo)}
+                </option>
+              ))}
+            </Field>
+            <ErrorMessage name={key} component="div" className="text-danger small" />
+          </BootstrapForm.Group>
+        </Col>
+      );
+    }
+
+    // Manejo específico para el campo estado en Orders
+    if (view === "Orders" && key === "estado") {
+      return (
+        <Col md={6} key={key}>
+          <BootstrapForm.Group>
+            <BootstrapForm.Label><strong>Estado de la orden</strong></BootstrapForm.Label>
+            <Field
+              as="select"
+              name={key}
+              className="form-select"
+            >
+              <option value="">Seleccionar estado</option>
+              {Object.values(EstadoOrden).map((estado) => (
+                <option key={estado} value={estado}>
+                  {getEstadoOrdenLabel(estado)}
+                </option>
+              ))}
+            </Field>
+            <ErrorMessage name={key} component="div" className="text-danger small" />
+          </BootstrapForm.Group>
+        </Col>
       );
     }
 
@@ -1051,8 +1138,8 @@ export const CreateButtonBootstrap: React.FC<Props> = ({ view, onClose, onCreate
                     <BootstrapForm.Group>
                       <BootstrapForm.Label><strong>Productos de la orden</strong></BootstrapForm.Label>
                       <div className="border rounded p-3">
-                        {values.detalle && values.detalle.length > 0 ? (
-                          values.detalle.map((item: any, index: number) => {
+                        {values.detalles && values.detalles.length > 0 ? (
+                          values.detalles.map((item: any, index: number) => {
                             const producto = productos.find(p => p.id === item.producto.id);
                             const stockDisponible = producto?.cantidad || 0;
                             const cantidadEnOrden = item.cantidad;
@@ -1072,13 +1159,13 @@ export const CreateButtonBootstrap: React.FC<Props> = ({ view, onClose, onCreate
                                   variant="danger"
                                   size="sm"
                                   onClick={() => {
-                                    const newDetalle = values.detalle.filter((_: any, i: number) => i !== index);
-                                    setFieldValue("detalle", newDetalle);
-                                    const nuevoTotal = newDetalle.reduce((sum: number, item: any) => {
+                                    const newDetalles = values.detalles.filter((_: any, i: number) => i !== index);
+                                    setFieldValue("detalles", newDetalles);
+                                    const nuevoTotal = newDetalles.reduce((sum: number, item: any) => {
                                       const producto = productos.find(p => p.id === item.producto.id);
                                       return sum + (producto?.precio || 0) * item.cantidad;
                                     }, 0);
-                                    setFieldValue("total", nuevoTotal);
+                                    setFieldValue("precioTotal", nuevoTotal);
                                   }}
                                 >
                                   Eliminar
@@ -1147,25 +1234,25 @@ export const CreateButtonBootstrap: React.FC<Props> = ({ view, onClose, onCreate
                                   
                                   if (productoId && cantidad && cantidad > 0 && cantidad <= stockDisponible) {
                                     const productoYaAgregado = values.detalle?.some((item: any) => item.producto.id === productoId);
-                                    if (productoYaAgregado) {
-                                      Swal.fire({
-                                        icon: 'warning',
-                                        title: 'Producto ya agregado',
-                                        text: 'Este producto ya está en la orden.',
-                                      });
-                                      return;
-                                    }
-                                    
-                                    const newDetalle = [...(values.detalle || []), { producto: { id: productoId }, cantidad }];
-                                    setFieldValue("detalle", newDetalle);
-                                    setFieldValue("productoSeleccionado", "");
-                                    setFieldValue("cantidadProducto", 1);
-                                    
-                                    const nuevoTotal = newDetalle.reduce((sum: number, item: any) => {
-                                      const producto = productos.find(p => p.id === item.producto.id);
-                                      return sum + (producto?.precio || 0) * item.cantidad;
-                                    }, 0);
-                                    setFieldValue("total", nuevoTotal);
+                                                                      if (productoYaAgregado) {
+                                    Swal.fire({
+                                      icon: 'warning',
+                                      title: 'Producto ya agregado',
+                                      text: 'Este producto ya está en la orden.',
+                                    });
+                                    return;
+                                  }
+                                  
+                                  const newDetalles = [...(values.detalles || []), { producto: { id: productoId }, cantidad }];
+                                  setFieldValue("detalles", newDetalles);
+                                  setFieldValue("productoSeleccionado", "");
+                                  setFieldValue("cantidadProducto", 1);
+                                  
+                                  const nuevoTotal = newDetalles.reduce((sum: number, item: any) => {
+                                    const producto = productos.find(p => p.id === item.producto.id);
+                                    return sum + (producto?.precio || 0) * item.cantidad;
+                                  }, 0);
+                                  setFieldValue("precioTotal", nuevoTotal);
                                   } else if (cantidad > stockDisponible) {
                                     Swal.fire({
                                       icon: 'error',
@@ -1186,7 +1273,7 @@ export const CreateButtonBootstrap: React.FC<Props> = ({ view, onClose, onCreate
                           )}
                         </div>
                       </div>
-                      <ErrorMessage name="detalle" component="div" className="text-danger small" />
+                      <ErrorMessage name="detalles" component="div" className="text-danger small" />
                     </BootstrapForm.Group>
                   </Col>
                 )}

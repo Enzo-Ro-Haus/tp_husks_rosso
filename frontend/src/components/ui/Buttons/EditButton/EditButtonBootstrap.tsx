@@ -31,6 +31,25 @@ import { categoriaStore } from "../../../../store/categoriaStore";
 import { direccionStore } from "../../../../store/direccionStore";
 import { productoStore } from "../../../../store/prodcutoStore";
 
+// Funciones helper para convertir enums a valores amigables
+const getMetodoPagoLabel = (value: string) => {
+  switch (value) {
+    case MetodoPago.Tarjeta: return "Tarjeta";
+    case MetodoPago.Efectivo: return "Efectivo";
+    case MetodoPago.Transferencia: return "Transferencia";
+    default: return value;
+  }
+};
+
+const getEstadoOrdenLabel = (value: string) => {
+  switch (value) {
+    case EstadoOrden.En_proceso: return "En proceso";
+    case EstadoOrden.Enviado: return "Enviado";
+    case EstadoOrden.Entregado: return "Entregado";
+    default: return value;
+  }
+};
+
 type ViewType =
   | "Users"
   | "Products"
@@ -102,7 +121,7 @@ const schemaMap: Record<ViewType, yup.ObjectSchema<any>> = {
   Orders: yup.object({
     usuario: yup.object({ id: yup.number().required() }).required(),
     usuarioDireccion: yup.object({ id: yup.number().required() }).required(),
-    detalle: yup
+    detalles: yup
       .array()
       .of(
         yup.object({
@@ -112,9 +131,9 @@ const schemaMap: Record<ViewType, yup.ObjectSchema<any>> = {
       )
       .min(1, "Debe agregar al menos un producto"),
     fecha: yup.string().required(),
-    total: yup.number().min(0).required(),
-    metodoPago: yup.string().required(),
-    estado: yup.string().required(),
+    precioTotal: yup.number().min(0).required(),
+    metodoPago: yup.string().oneOf(Object.values(MetodoPago), "❌ Debe seleccionar un método de pago válido").required("❌ El método de pago es obligatorio"),
+    estado: yup.string().oneOf(Object.values(EstadoOrden), "❌ Debe seleccionar un estado válido").required("❌ El estado es obligatorio"),
   }),
   Client: yup.object({
     nombre: yup.string().required("❌ Obligatorio"),
@@ -271,6 +290,7 @@ const updateHandlers: Record<ViewType, (token: string, id: number, payload: any)
   },
   Orders: async (token, id, payload) => {
     try {
+      console.log('🔍 EditButtonBootstrap - Orders update payload:', payload);
       const result = await orderAPI.updateOrden(token, id, payload);
       return !!result;
     } catch (error) {
@@ -350,6 +370,10 @@ export const EditButtonBootstrap: React.FC<Props> = ({ view, item, onClose, onUp
   }, [direccionesFromStore]);
 
   const handleSubmit = async (values: any) => {
+    console.log('🔍 EditButtonBootstrap - handleSubmit iniciado para view:', view);
+    console.log('🔍 EditButtonBootstrap - values recibidos:', values);
+    console.log('🔍 EditButtonBootstrap - item.id:', item.id);
+    
     let payload = { ...values };
     try {
       // --- CORRECCIÓN PARA CATEGORIES ---
@@ -445,8 +469,13 @@ export const EditButtonBootstrap: React.FC<Props> = ({ view, item, onClose, onUp
         return;
       }
       
+      console.log('🔍 EditButtonBootstrap - payload final:', payload);
+      console.log('🔍 EditButtonBootstrap - handler encontrado:', !!updateHandlers[view]);
+      
       const handler = updateHandlers[view];
       const result = await handler(token, item.id, payload);
+      console.log('🔍 EditButtonBootstrap - resultado del handler:', result);
+      
       if (result) {
         // Actualizar stores según la vista
         if (view === "Users") {
@@ -519,7 +548,10 @@ export const EditButtonBootstrap: React.FC<Props> = ({ view, item, onClose, onUp
         Swal.fire({ icon: 'error', title: 'Error', text: 'No se pudo actualizar el elemento.' });
       }
     } catch (err: any) {
-      console.error('Error en handleSubmit:', err);
+      console.error('🔍 EditButtonBootstrap - Error en handleSubmit:', err);
+      console.error('🔍 EditButtonBootstrap - Error response:', err.response?.data);
+      console.error('🔍 EditButtonBootstrap - Error status:', err.response?.status);
+      console.error('🔍 EditButtonBootstrap - Error message:', err.message);
       Swal.fire({ 
         icon: 'error', 
         title: 'Error', 
@@ -614,12 +646,42 @@ export const EditButtonBootstrap: React.FC<Props> = ({ view, item, onClose, onUp
         console.log('🔍 EditButtonBootstrap - addressValues calculados:', addressValues);
         return addressValues;
       case "Orders":
+        console.log('🔍 EditButtonBootstrap - item para Orders:', item);
+        console.log('🔍 EditButtonBootstrap - item.detalles:', item.detalles);
+        console.log('🔍 EditButtonBootstrap - item.detalle:', item.detalle);
+        console.log('🔍 EditButtonBootstrap - item keys:', Object.keys(item));
+        
+        // Mapear la estructura antigua del backend a la nueva estructura del frontend
+        const detalles = item.detalle || item.detalles || [];
+        const precioTotal = item.total || item.precioTotal || 0;
+        
+        // 🔧 LIMPIAR DETALLES DUPLICADOS
+        const detallesUnicos = detalles.reduce((acc: any[], detalle: any) => {
+          const productoId = detalle.producto?.id;
+          const detalleExistente = acc.find(d => d.producto?.id === productoId);
+          
+          if (detalleExistente) {
+            // Si ya existe, sumar las cantidades
+            const cantidadDetalle = detalle.cantidad || 0;
+            detalleExistente.cantidad += cantidadDetalle;
+            console.log(`🔧 Consolidando producto ${productoId}: ${cantidadDetalle} + ${detalleExistente.cantidad - cantidadDetalle} = ${detalleExistente.cantidad}`);
+          } else {
+            // Si no existe, agregarlo
+            acc.push({ ...detalle });
+          }
+          return acc;
+        }, []);
+        
+        console.log('🔍 EditButtonBootstrap - detalles originales:', detalles);
+        console.log('🔍 EditButtonBootstrap - detalles únicos:', detallesUnicos);
+        console.log('🔍 EditButtonBootstrap - precioTotal mapeado:', precioTotal);
+        
         return {
           usuario: item.usuario || null,
           usuarioDireccion: item.usuarioDireccion || null,
-          detalle: item.detalle || [],
-          fecha: item.fecha || new Date().toISOString().slice(0, 10),
-          total: item.total || 0,
+          detalles: detallesUnicos,
+          fecha: item.fecha || new Date().toISOString().slice(0, 16),
+          precioTotal: precioTotal,
           metodoPago: item.metodoPago || "",
           estado: item.estado || "",
           productoSeleccionado: "",
@@ -635,6 +697,11 @@ export const EditButtonBootstrap: React.FC<Props> = ({ view, item, onClose, onUp
       default:
         return {};
     }
+  };
+
+  // Helper function para verificar si es una orden y tiene detalles
+  const isOrderWithDetails = (values: any) => {
+    return view === "Orders" && values && typeof values === 'object' && 'detalles' in values;
   };
 
   const renderField = (key: string, values: any, setFieldValue: any) => {
@@ -655,7 +722,7 @@ export const EditButtonBootstrap: React.FC<Props> = ({ view, item, onClose, onUp
     if (camposImagen.includes(key)) return null;
     
     if (camposAuxiliares.includes(key)) return null;
-    if (view === "Orders" && (key === "detalle" || key === "total")) return null;
+    if (view === "Orders" && (key === "detalles" || key === "precioTotal")) return null;
     if (view === "Addresses" && key === "usuarioDireccion") return null;
 
     // Manejo especial para direcciones en Users
@@ -1280,7 +1347,75 @@ export const EditButtonBootstrap: React.FC<Props> = ({ view, item, onClose, onUp
     // Campos básicos
     const inputType = key === "password" ? "password" : 
                      key === "email" ? "email" : 
-                     key === "precio" || key === "cantidad" ? "number" : "text";
+                     key === "precio" || key === "cantidad" ? "number" : 
+                     key === "fecha" ? "datetime-local" : "text";
+
+    // Manejo específico para el campo fecha en Orders
+    if (view === "Orders" && key === "fecha") {
+      return (
+        <Col md={6} key={key}>
+          <BootstrapForm.Group>
+            <BootstrapForm.Label><strong>Fecha de la orden</strong></BootstrapForm.Label>
+            <Field
+              name={key}
+              type="datetime-local"
+              className="form-control"
+              placeholder="Seleccionar fecha y hora"
+            />
+            <small className="text-muted">Seleccione la fecha y hora de la orden</small>
+            <ErrorMessage name={key} component="div" className="text-danger small" />
+          </BootstrapForm.Group>
+        </Col>
+      );
+    }
+
+    // Manejo específico para el campo metodoPago en Orders
+    if (view === "Orders" && key === "metodoPago") {
+      return (
+        <Col md={6} key={key}>
+          <BootstrapForm.Group>
+            <BootstrapForm.Label><strong>Método de pago</strong></BootstrapForm.Label>
+            <Field
+              as="select"
+              name={key}
+              className="form-select"
+            >
+              <option value="">Seleccionar método de pago</option>
+              {Object.values(MetodoPago).map((metodo) => (
+                <option key={metodo} value={metodo} selected={values.metodoPago === metodo}>
+                  {getMetodoPagoLabel(metodo)}
+                </option>
+              ))}
+            </Field>
+            <ErrorMessage name={key} component="div" className="text-danger small" />
+          </BootstrapForm.Group>
+        </Col>
+      );
+    }
+
+    // Manejo específico para el campo estado en Orders
+    if (view === "Orders" && key === "estado") {
+      return (
+        <Col md={6} key={key}>
+          <BootstrapForm.Group>
+            <BootstrapForm.Label><strong>Estado de la orden</strong></BootstrapForm.Label>
+            <Field
+              as="select"
+              name={key}
+              className="form-select"
+            >
+              <option value="">Seleccionar estado</option>
+              {Object.values(EstadoOrden).map((estado) => (
+                <option key={estado} value={estado} selected={values.estado === estado}>
+                  {getEstadoOrdenLabel(estado)}
+                </option>
+              ))}
+            </Field>
+            <ErrorMessage name={key} component="div" className="text-danger small" />
+          </BootstrapForm.Group>
+        </Col>
+      );
+    }
 
     return (
       <Col md={6} key={key}>
@@ -1366,13 +1501,13 @@ export const EditButtonBootstrap: React.FC<Props> = ({ view, item, onClose, onUp
                   </Col>
                 )}
 
-                {view === "Orders" && "detalle" in values && Array.isArray(values.detalle) && (
+                {view === "Orders" && (
                   <Col md={12}>
                     <BootstrapForm.Group>
                       <BootstrapForm.Label><strong>Productos de la orden</strong></BootstrapForm.Label>
                       <div className="border rounded p-3">
-                        {values.detalle.length > 0 ? (
-                          values.detalle.map((item: any, index: number) => {
+                        {(values as any).detalles && Array.isArray((values as any).detalles) && (values as any).detalles.length > 0 ? (
+                          (values as any).detalles.map((item: any, index: number) => {
                             const producto = productos.find(p => p.id === item.producto.id);
                             const stockDisponible = producto?.cantidad || 0;
                             const cantidadEnOrden = item.cantidad;
@@ -1391,13 +1526,13 @@ export const EditButtonBootstrap: React.FC<Props> = ({ view, item, onClose, onUp
                                   variant="danger"
                                   size="sm"
                                   onClick={() => {
-                                    const newDetalle = values.detalle.filter((_: any, i: number) => i !== index);
-                                    setFieldValue("detalle", newDetalle);
-                                    const nuevoTotal = newDetalle.reduce((sum: number, item: any) => {
+                                    const newDetalles = (values as any).detalles.filter((_: any, i: number) => i !== index);
+                                    setFieldValue("detalles", newDetalles);
+                                    const nuevoTotal = newDetalles.reduce((sum: number, item: any) => {
                                       const producto = productos.find(p => p.id === item.producto.id);
                                       return sum + (producto?.precio || 0) * (item.cantidad || 0);
                                     }, 0);
-                                    setFieldValue("total", nuevoTotal);
+                                    setFieldValue("precioTotal", nuevoTotal);
                                   }}
                                 >
                                   Eliminar
@@ -1462,9 +1597,18 @@ export const EditButtonBootstrap: React.FC<Props> = ({ view, item, onClose, onUp
                                   const cantidad = "cantidadProducto" in values ? values.cantidadProducto : 1;
                                   const producto = productos.find(p => p.id === productoId);
                                   const stockDisponible = producto?.cantidad || 0;
+                                  
+                                  console.log('🔧 Agregar producto - productoId:', productoId);
+                                  console.log('🔧 Agregar producto - cantidad:', cantidad);
+                                  console.log('🔧 Agregar producto - stockDisponible:', stockDisponible);
+                                  console.log('🔧 Agregar producto - detalles actuales:', (values as any).detalles);
+                                  
                                   if (productoId && cantidad && cantidad > 0 && cantidad <= stockDisponible) {
-                                    const productoYaAgregado = values.detalle?.some((item: any) => item.producto.id === productoId);
+                                    const productoYaAgregado = (values as any).detalles?.some((item: any) => item.producto.id === productoId);
+                                    console.log('🔧 Agregar producto - productoYaAgregado:', productoYaAgregado);
+                                    
                                     if (productoYaAgregado) {
+                                      console.log('🔧 Agregar producto - PRODUCTO YA AGREGADO, mostrando alerta');
                                       Swal.fire({
                                         icon: 'warning',
                                         title: 'Producto ya agregado',
@@ -1472,21 +1616,33 @@ export const EditButtonBootstrap: React.FC<Props> = ({ view, item, onClose, onUp
                                       });
                                       return;
                                     }
-                                    const newDetalle = [...(values.detalle || []), { producto: { id: productoId }, cantidad }];
-                                    setFieldValue("detalle", newDetalle);
+                                    
+                                    console.log('🔧 Agregar producto - agregando nuevo detalle');
+                                    const newDetalles = [...((values as any).detalles || []), { producto: { id: productoId }, cantidad }];
+                                    setFieldValue("detalles", newDetalles);
                                     setFieldValue("productoSeleccionado", "");
                                     setFieldValue("cantidadProducto", 1);
-                                    const nuevoTotal = newDetalle.reduce((sum: number, item: any) => {
+                                    
+                                    const nuevoTotal = newDetalles.reduce((sum: number, item: any) => {
                                       const producto = productos.find(p => p.id === item.producto.id);
                                       return sum + (producto?.precio || 0) * (item.cantidad || 0);
                                     }, 0);
-                                    setFieldValue("total", nuevoTotal);
+                                    setFieldValue("precioTotal", nuevoTotal);
+                                    
+                                    console.log('🔧 Agregar producto - detalle agregado exitosamente');
                                   } else if (cantidad && Number(cantidad) > stockDisponible) {
+                                    console.log('🔧 Agregar producto - STOCK INSUFICIENTE, mostrando alerta');
                                     Swal.fire({
                                       icon: 'error',
                                       title: 'Stock insuficiente',
                                       text: `La cantidad solicitada (${cantidad}) excede el stock disponible (${stockDisponible})`,
                                     });
+                                  } else {
+                                    console.log('🔧 Agregar producto - VALIDACIÓN FALLIDA');
+                                    console.log('🔧 Agregar producto - productoId válido:', !!productoId);
+                                    const cantidadNum = cantidad || 0;
+                                    console.log('🔧 Agregar producto - cantidad válida:', cantidadNum > 0);
+                                    console.log('🔧 Agregar producto - stock suficiente:', cantidadNum <= stockDisponible);
                                   }
                                 }}
                               >
@@ -1501,7 +1657,7 @@ export const EditButtonBootstrap: React.FC<Props> = ({ view, item, onClose, onUp
                           )}
                         </div>
                       </div>
-                      <ErrorMessage name="detalle" component="div" className="text-danger small" />
+                      <ErrorMessage name="detalles" component="div" className="text-danger small" />
                     </BootstrapForm.Group>
                   </Col>
                 )}

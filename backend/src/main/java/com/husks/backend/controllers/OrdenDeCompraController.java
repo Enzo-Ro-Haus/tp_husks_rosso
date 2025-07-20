@@ -43,4 +43,16 @@ public class OrdenDeCompraController extends  BaseControllerImpl<OrdenDeCompra, 
     public ResponseEntity<?> getAllOrdenes() {
         return super.getAll();
     }
+
+    @PostMapping("")
+    @ResponseBody
+    @PreAuthorize("hasAnyRole('ADMIN', 'CLIENTE')")
+    public ResponseEntity<?> save(@RequestBody OrdenDeCompra orden) {
+        try {
+            return ResponseEntity.status(HttpStatus.OK).body(servicio.save(orden));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("{\"error\":\"Error. SAVE Intente mas tarde.\" }");
+        }
+    }
 }

@@ -13,6 +13,7 @@ interface ICartStore {
   agregarDetalle: (detalle: IDetalle) => void;
   editarDetalle : (detalle: IDetalle) => void;
   setTotal: (detalles: IDetalle[]) => void;
+  eliminarDetalle: (productoId: number) => void;
 }
 
 export const cartStore = create<ICartStore>()(
@@ -49,6 +50,10 @@ export const cartStore = create<ICartStore>()(
         );
         set({ total: sumTotal });
       },
+
+      // Eliminar un detalle del carrito por id de producto
+      eliminarDetalle: (productoId) =>
+        set((state) => ({ detalles: state.detalles.filter((d) => d.producto.id !== productoId) })),
     }),
     {
       name: "cart-storage",

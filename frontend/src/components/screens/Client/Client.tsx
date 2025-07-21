@@ -13,6 +13,12 @@ import { getAllUsuarios, getUsuarioActual } from "../../../http/usuarioHTTP";
 import { getAllOrdenes } from "../../../http/ordenHTTPS";
 import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
+import Modal from 'react-bootstrap/Modal';
+import Button from 'react-bootstrap/Button';
+import { direccionStore } from '../../../store/direccionStore';
+import * as addressAPI from '../../../http/direccionHTTP';
+import { Formik, Form, Field, ErrorMessage } from 'formik';
+import * as yup from 'yup';
 
 export const Client = () => {
   const navigate = useNavigate();
@@ -56,6 +62,20 @@ export const Client = () => {
     console.log("Direcciones: " + JSON.stringify(data, null, 2));
   };
 
+  const [showAddressModal, setShowAddressModal] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const usuarioActivo = usuarioStore((s) => s.usuarioActivo);
+  const setArrayDirecciones = direccionStore((s) => s.setArrayDirecciones);
+
+  const addressSchema = yup.object().shape({
+    calle: yup.string().required('La calle es obligatoria'),
+    localidad: yup.string().required('La localidad es obligatoria'),
+    cp: yup
+      .string()
+      .required('El código postal es obligatorio')
+      .matches(/^\d{4,10}$/, 'El código postal debe ser numérico y tener entre 4 y 10 dígitos'),
+  });
+
 
   useEffect(() => {
     /*if (!token) {
@@ -79,7 +99,7 @@ export const Client = () => {
           <div className={styles.containerClientUi} style={{height: '100%'}}>
             <ClientSideBar
               view={view}
-              onChangeView={setView}
+              onChangeView={setView as (view: "Orders" | "Client" | "Address") => void}
               name={usuario?.nombre ?? "NN"}
             />
             <div className={styles.containerElelements} style={{height: '100%'}}>
@@ -132,13 +152,13 @@ export const Client = () => {
                         </li>
                       ))}
                     </ul>
-                    <button className="btn btn-success" onClick={() => {/* lógica para agregar dirección aquí */}}>Agregar dirección</button>
+                    <button className="btn btn-success" onClick={() => setShowAddressModal(true)}>Agregar dirección</button>
                   </div>
                 ) : (
                   <div className="w-100" style={{ alignSelf: 'flex-start' }}>
                     <h3 className="mb-3" style={{ marginTop: 0 }}>Mis direcciones</h3>
                     <p className="text-muted">No tienes direcciones registradas</p>
-                    <button className="btn btn-success" onClick={() => {/* lógica para agregar dirección aquí */}}>Agregar dirección</button>
+                    <button className="btn btn-success" onClick={() => setShowAddressModal(true)}>Agregar dirección</button>
                   </div>
                 )
               ) : null}
@@ -149,6 +169,60 @@ export const Client = () => {
           <Footer />
         </Row>
       </Container>
+      <Modal show={showAddressModal} onHide={() => setShowAddressModal(false)} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>Agregar dirección</Modal.Title>
+        </Modal.Header>
+        <Formik
+          initialValues={{ calle: '', localidad: '', cp: '' }}
+          validationSchema={addressSchema}
+          onSubmit={async (values, { setSubmitting, resetForm }) => {
+            if (!usuarioActivo) return;
+            setSaving(true);
+            try {
+              await addressAPI.createUsuarioDireccion(usuarioActivo.token ?? null, {
+                usuario: { id: usuarioActivo.id, nombre: usuarioActivo.nombre, email: usuarioActivo.email },
+                direccion: values // values: { calle, localidad, cp }
+              });
+              // Refresca el usuario activo para que se actualicen las direcciones en la UI
+              await getUsuario();
+              setShowAddressModal(false);
+              resetForm();
+            } catch (err) {
+              alert('Error al crear dirección');
+            } finally {
+              setSaving(false);
+              setSubmitting(false);
+            }
+          }}
+        >
+          {({ isSubmitting }) => (
+            <Form>
+              <Modal.Body>
+                <div className="mb-3">
+                  <label className="form-label">Calle</label>
+                  <Field type="text" name="calle" className="form-control" />
+                  <ErrorMessage name="calle" component="div" className="text-danger small" />
+                </div>
+                <div className="mb-3">
+                  <label className="form-label">Localidad</label>
+                  <Field type="text" name="localidad" className="form-control" />
+                  <ErrorMessage name="localidad" component="div" className="text-danger small" />
+                </div>
+                <div className="mb-3">
+                  <label className="form-label">CP</label>
+                  <Field type="text" name="cp" className="form-control" />
+                  <ErrorMessage name="cp" component="div" className="text-danger small" />
+                </div>
+              </Modal.Body>
+              <Modal.Footer>
+                <Button variant="secondary" onClick={() => setShowAddressModal(false)} disabled={isSubmitting || saving}>Cancelar</Button>
+                <Button variant="success" type="submit" disabled={isSubmitting || saving}>{(isSubmitting || saving) ? 'Guardando...' : 'Guardar'}</Button>
+              </Modal.Footer>
+            </Form>
+          )}
+        </Formik>
+      </Modal>
     </div>
   )
 };

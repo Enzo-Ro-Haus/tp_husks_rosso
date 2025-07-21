@@ -41,7 +41,7 @@ export const createUsuarioDireccion = async (
 ): Promise<IUsuarioDireccion> => {
   try {
     const { data } = await axios.post<IUsuarioDireccion>(
-      `${API_URL}/usuario-direccion`,
+      `${API_URL}/usuario-direccion/relacion`,
       nueva,
       { headers: { Authorization: `Bearer ${token}` } }
     );

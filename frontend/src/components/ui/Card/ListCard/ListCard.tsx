@@ -17,6 +17,7 @@ import UserProfileCard from '../../UserProfileCard/UserProfileCard';
 
 export type ListCardVariant =
   | "Products"
+  | "CartProduct"
   | "Users"
   | "Categories"
   | "Types"
@@ -56,7 +57,7 @@ export interface ListCardProps {
   Dstatus?: string;
   activo?: boolean;
   producto?: IProducto;
-  onEdited?: () => void;
+  onEdited?: (newCantidad?: number) => void;
   onDeleted?: () => void;
   onRestored?: () => void;
 }
@@ -156,7 +157,45 @@ export const ListCard: React.FC<ListCardProps> = (props) => {
           {variant === "Client" && usuario ? (
             <UserProfileCard usuario={usuario} onEdited={onEdited} onDeleted={onDeleted} />
           ) : (
-            // ... existing code ...
+            variant === "CartProduct" ? (
+              <Row className="align-items-center">
+                <Col xs={3} className="text-center">
+                  {imagenPublicId ? (
+                    <CloudinaryImg
+                      publicId={imagenPublicId}
+                      width={200}
+                      height={150}
+                      alt={String(name)}
+                      style={{ width: "100%", borderRadius: 8 }}
+                    />
+                  ) : (
+                    <Card.Img
+                      src="/src/assets/no_cloth.jpeg"
+                      alt={String(name)}
+                      style={{ width: "100%", borderRadius: 8 }}
+                    />
+                  )}
+                </Col>
+                <Col xs={6}>
+                  <h5 className="fw-bold mb-2">{name}</h5>
+                  <div className="mb-2 text-secondary">{description}</div>
+                  <div className="d-flex flex-wrap gap-2 mb-2">
+                    {category && <span className="badge bg-dark text-white">Categoría: {category.nombre}</span>}
+                    {type && <span className="badge bg-dark text-white">Tipo: {type.nombre}</span>}
+                    {Array.isArray(sizes) && sizes.length > 0 && (
+                      <span className="badge bg-dark text-white">
+                        Talles: {sizes.map((s) => `${s.sistema} ${s.valor}`).join(", ")}
+                      </span>
+                    )}
+                  </div>
+                  <div className="mb-2"><b>Precio:</b> ${price}</div>
+                  <div className="mb-2"><b>Cantidad:</b> {quantity}</div>
+                </Col>
+                <Col xs={3} className="d-flex flex-column align-items-center justify-content-center">
+                  <button className="btn btn-danger w-100" onClick={onDeleted}>Quitar</button>
+                </Col>
+              </Row>
+            ) : (
             <Row className="align-items-center">
               {/* Imagen y estado - solo para Users, Client y Products */}
               {(variant === "Users" || variant === "Client" || variant === "Products") && (
@@ -252,9 +291,20 @@ export const ListCard: React.FC<ListCardProps> = (props) => {
                         <p>
                           <strong>Price:</strong> ${price}
                         </p>
-                        <p>
-                          <strong>Stock:</strong> {quantity}
-                        </p>
+                        <div style={{display:'flex',alignItems:'center',gap:8}}>
+                          <strong>Cantidad:</strong>
+                          <input
+                            type="number"
+                            min={1}
+                            value={quantity}
+                            style={{width:50}}
+                            onChange={e => {
+                              const val = parseInt(e.target.value, 10);
+                              if (onEdited) onEdited(val);
+                            }}
+                          />
+                          <Button variant="danger" size="sm" onClick={onDeleted} style={{marginLeft:8}}>Eliminar</Button>
+                        </div>
                       </>
                     )}
 
@@ -376,43 +426,31 @@ export const ListCard: React.FC<ListCardProps> = (props) => {
                     )}
 
                     {variant === "Orders" && (
-                      <>
-                        <p>
-                          <strong>ID:</strong> {id}
-                        </p>
-                        <p>
-                          <strong>User:</strong>{" "}
-                          {usuario?.nombre || usuarioDireccion?.usuario.nombre}
-                        </p>
-                        <p>
-                          <strong>Address:</strong> {usuarioDireccion?.direccion.calle},{" "}
-                          {usuarioDireccion?.direccion.localidad}
-                        </p>
-                        <p>
-                          <strong>Items:</strong>{" "}
-                          {detail
-                            ?.map((d) => {
-                              if (d && d.producto && typeof d.producto.nombre === 'string') {
-                                return `${d.cantidad}× ${d.producto.nombre}`;
-                              } else {
-                                return `${d.cantidad}× Producto desconocido`;
-                              }
-                            })
-                            .join(", ")}
-                        </p>
-                        <p>
-                          <strong>Date:</strong> {formattedDate}
-                        </p>
-                        <p>
-                          <strong>Total:</strong> ${total}
-                        </p>
-                        <p>
-                          <strong>Payment:</strong> {payMethod}
-                        </p>
-                        <p>
-                          <strong>Status:</strong> {Dstatus}
-                        </p>
-                      </>
+                      <div style={{padding: '0.5rem 0'}}>
+                        <div className="mb-2">
+                          <span className="fw-bold">Dirección:</span> <span className="text-dark">{usuarioDireccion?.direccion.calle}, {usuarioDireccion?.direccion.localidad}</span>
+                        </div>
+                        <div className="mb-2 d-flex flex-wrap gap-2 align-items-center">
+                          <span className="fw-bold">Productos:</span>
+                          {detail?.map((d, idx) => (
+                            <span key={idx} className="badge bg-dark text-white">{d.cantidad}× {d.producto?.nombre || 'Producto desconocido'}</span>
+                          ))}
+                        </div>
+                        <div className="mb-2">
+                          <span className="fw-bold">Fecha:</span> <span className="text-secondary">{formattedDate}</span>
+                        </div>
+                        <div className="mb-2">
+                          <span className="fw-bold">Total:</span> <span className="text-success">${total}</span>
+                        </div>
+                        <div className="mb-2 d-flex flex-wrap gap-2 align-items-center">
+                          <span className="fw-bold">Método de pago:</span>
+                          <span className="badge bg-info text-dark">{payMethod}</span>
+                        </div>
+                        <div className="mb-2 d-flex flex-wrap gap-2 align-items-center">
+                          <span className="fw-bold">Estado:</span>
+                          <span className={`badge ${Dstatus === 'En_proceso' ? 'bg-warning text-dark' : Dstatus === 'Enviado' ? 'bg-primary' : Dstatus === 'Entregado' ? 'bg-success' : 'bg-secondary'}`}>{Dstatus === 'En_proceso' ? 'En proceso' : Dstatus === 'Enviado' ? 'Enviado' : Dstatus === 'Entregado' ? 'Entregado' : Dstatus}</span>
+                        </div>
+                      </div>
                     )}
                   </Col>
 
@@ -421,16 +459,20 @@ export const ListCard: React.FC<ListCardProps> = (props) => {
                   <div className="d-flex flex-column gap-2 align-items-center w-100">
                     {activo !== false ? (
                       <>
-                        <Button
-                          variant="primary"
-                          className="w-75"
-                          onClick={handleEditClick}
-                        >
-                          Editar
-                        </Button>
-                        <div className="w-75">
-                          <DeleteButton view={variant} id={id} onDeleted={onDeleted} />
-                        </div>
+                        {variant !== "Orders" && (
+                          <>
+                            <Button
+                              variant="primary"
+                              className="w-75"
+                              onClick={handleEditClick}
+                            >
+                              Editar
+                            </Button>
+                            <div className="w-75">
+                              <DeleteButton view={variant} id={id} onDeleted={onDeleted} />
+                            </div>
+                          </>
+                        )}
                       </>
                     ) : (
                       <div className="w-75">
@@ -444,19 +486,20 @@ export const ListCard: React.FC<ListCardProps> = (props) => {
                   </div>
                 </Col>
                 </Row>
-              )}
-            </Card.Body>
-          </Card>
+              )
+            )}
+          </Card.Body>
+        </Card>
 
-          {/* Modal de edición */}
-          {showEditModal && (
-            <EditButtonBootstrap
-              view={variant}
-              item={getItemForEdit()}
-              onClose={handleEditClose}
-              onUpdated={handleEditUpdated}
-            />
-          )}
-        </>
-      );
-    };
+        {/* Modal de edición */}
+        {showEditModal && (
+          <EditButtonBootstrap
+            view={variant}
+            item={getItemForEdit()}
+            onClose={handleEditClose}
+            onUpdated={handleEditUpdated}
+          />
+        )}
+      </>
+    );
+  };

@@ -1,13 +1,11 @@
 .buttonMercadoLibre{
-    width: 10vw;
-    height: 8vh;
     display: flex;
     justify-content: center;
     align-items: center;
     padding: 5px;
     background-color: #007AFF;
     color: #f2f2f2;
-    border: #0051a8  4px solid;
+    border: #007AFF 4px solid;
     font-size: 1rem;
     border-radius: 50px;
     font-weight: 500;
@@ -17,6 +15,8 @@
 }
 
 .buttonMercadoLibre:hover {
-    border: #007AFF 4px solid;
-    background-color: #3798ff ;  
+    border: #3798ff 4px solid;
+    background-color: #3798ff;
+    box-shadow: 0 2px 8px #3798ff44;
+    transform: scale(1.04);
 }

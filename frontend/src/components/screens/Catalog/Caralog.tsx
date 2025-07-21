@@ -19,6 +19,7 @@ import { Modal, Button } from "react-bootstrap";
 import CloudinaryImg from "../../ui/Image/CoudinaryImg";
 import { cartStore } from '../../../store/cartStore';
 import { Toast, ToastContainer, ButtonGroup, Button as BsButton } from 'react-bootstrap';
+import { usuarioStore } from '../../../store/usuarioStore';
 
 export const Catalog = () => {
 
@@ -50,6 +51,7 @@ export const Catalog = () => {
   const [cantidad, setCantidad] = useState(1);
   const [showToast, setShowToast] = useState(false);
   const agregarDetalle = cartStore((state) => state.agregarDetalle);
+  const usuarioActivo = usuarioStore((state) => state.usuarioActivo);
   const [showImgModal, setShowImgModal] = useState(false);
 
   const handleShowDetalle = (producto: any) => {
@@ -112,17 +114,23 @@ export const Catalog = () => {
     ? talles.filter((t) => t.sistema === sistemaTalle)
     : talles;
 
-  // Obtener productos filtrados
+  // Obtener productos filtrados o todos los públicos si no hay filtros
   const getProductos = async (filtrosAplicados = filtros) => {
-    const data = await getProductosFiltrados({
-      tipoId: filtrosAplicados.tipoId ? Number(filtrosAplicados.tipoId) : undefined,
-      categoriaId: filtrosAplicados.categoriaId ? Number(filtrosAplicados.categoriaId) : undefined,
-      nombre: filtrosAplicados.nombre || undefined,
-      precioMin: filtrosAplicados.precioMin ? Number(filtrosAplicados.precioMin) : undefined,
-      precioMax: filtrosAplicados.precioMax ? Number(filtrosAplicados.precioMax) : undefined,
-      talleId: filtrosAplicados.talleId ? Number(filtrosAplicados.talleId) : undefined,
-      sistemaTalle: sistemaTalle || undefined,
-    });
+    const hayFiltros = Object.values(filtrosAplicados).some(v => v && v !== '');
+    let data;
+    if (hayFiltros) {
+      data = await getProductosFiltrados({
+        tipoId: filtrosAplicados.tipoId ? Number(filtrosAplicados.tipoId) : undefined,
+        categoriaId: filtrosAplicados.categoriaId ? Number(filtrosAplicados.categoriaId) : undefined,
+        nombre: filtrosAplicados.nombre || undefined,
+        precioMin: filtrosAplicados.precioMin ? Number(filtrosAplicados.precioMin) : undefined,
+        precioMax: filtrosAplicados.precioMax ? Number(filtrosAplicados.precioMax) : undefined,
+        talleId: filtrosAplicados.talleId ? Number(filtrosAplicados.talleId) : undefined,
+        sistemaTalle: sistemaTalle || undefined,
+      });
+    } else {
+      data = await getPublicProductos();
+    }
     setArrayProductos(data);
   };
 
@@ -304,38 +312,42 @@ export const Catalog = () => {
         </Modal.Body>
         <Modal.Footer>
           <div className="d-flex justify-content-between align-items-center gap-2 gap-md-4 w-100">
-            <ButtonGroup>
-              <BsButton
-                variant={cantidad <= 1 || !productoDetalle ? "outline-dark" : "dark"}
-                size="sm"
-                onClick={() => setCantidad(c => Math.max(1, c - 1))}
-                disabled={cantidad <= 1 || !productoDetalle}
-                style={{ minWidth: 36, fontWeight: 700, color: (cantidad <= 1 || !productoDetalle) ? '#888' : 'white', background: (cantidad <= 1 || !productoDetalle) ? '#bdbdbd' : undefined, borderColor: (cantidad <= 1 || !productoDetalle) ? '#111' : undefined }}
-              >
-                -
-              </BsButton>
-              <BsButton variant="dark" size="sm" disabled style={{ width: 40, fontWeight: 700, color: 'white', background: '#111', borderColor: '#111' }}>{cantidad}</BsButton>
-              <BsButton
-                variant={(!productoDetalle || cantidad >= (productoDetalle?.cantidad ?? 1)) ? "outline-dark" : "dark"}
-                size="sm"
-                onClick={() => setCantidad(c => productoDetalle ? Math.min(productoDetalle.cantidad, c + 1) : c)}
-                disabled={!productoDetalle || cantidad >= (productoDetalle?.cantidad ?? 1)}
-                style={{ minWidth: 36, fontWeight: 700, color: (!productoDetalle || cantidad >= (productoDetalle?.cantidad ?? 1)) ? '#888' : 'white', background: (!productoDetalle || cantidad >= (productoDetalle?.cantidad ?? 1)) ? '#bdbdbd' : undefined, borderColor: (!productoDetalle || cantidad >= (productoDetalle?.cantidad ?? 1)) ? '#111' : undefined }}
-              >
-                +
-              </BsButton>
-            </ButtonGroup>
-            <style>{`
-              .btn-dark, .btn-outline-dark {
-                color: #fff !important;
-              }
-              .btn-outline-dark:active, .btn-outline-dark:focus, .btn-outline-dark:hover {
-                background: #222 !important;
-                border-color: #222 !important;
-                color: #fff !important;
-              }
-            `}</style>
-            <Button variant="primary" className="flex-grow-1 mx-2" style={{minWidth:120}} onClick={handleAgregarAlCarrito} disabled={!productoDetalle || productoDetalle?.cantidad === 0}>Agregar al carrito</Button>
+            {usuarioActivo && (
+              <>
+                <ButtonGroup>
+                  <BsButton
+                    variant={cantidad <= 1 || !productoDetalle ? "outline-dark" : "dark"}
+                    size="sm"
+                    onClick={() => setCantidad(c => Math.max(1, c - 1))}
+                    disabled={cantidad <= 1 || !productoDetalle}
+                    style={{ minWidth: 36, fontWeight: 700, color: (cantidad <= 1 || !productoDetalle) ? '#888' : 'white', background: (cantidad <= 1 || !productoDetalle) ? '#bdbdbd' : undefined, borderColor: (cantidad <= 1 || !productoDetalle) ? '#111' : undefined }}
+                  >
+                    -
+                  </BsButton>
+                  <BsButton variant="dark" size="sm" disabled style={{ width: 40, fontWeight: 700, color: 'white', background: '#111', borderColor: '#111' }}>{cantidad}</BsButton>
+                  <BsButton
+                    variant={(!productoDetalle || cantidad >= (productoDetalle?.cantidad ?? 1)) ? "outline-dark" : "dark"}
+                    size="sm"
+                    onClick={() => setCantidad(c => productoDetalle ? Math.min(productoDetalle.cantidad, c + 1) : c)}
+                    disabled={!productoDetalle || cantidad >= (productoDetalle?.cantidad ?? 1)}
+                    style={{ minWidth: 36, fontWeight: 700, color: (!productoDetalle || cantidad >= (productoDetalle?.cantidad ?? 1)) ? '#888' : 'white', background: (!productoDetalle || cantidad >= (productoDetalle?.cantidad ?? 1)) ? '#bdbdbd' : undefined, borderColor: (!productoDetalle || cantidad >= (productoDetalle?.cantidad ?? 1)) ? '#111' : undefined }}
+                  >
+                    +
+                  </BsButton>
+                </ButtonGroup>
+                <style>{`
+                  .btn-dark, .btn-outline-dark {
+                    color: #fff !important;
+                  }
+                  .btn-outline-dark:active, .btn-outline-dark:focus, .btn-outline-dark:hover {
+                    background: #222 !important;
+                    border-color: #222 !important;
+                    color: #fff !important;
+                  }
+                `}</style>
+                <Button variant="primary" className="flex-grow-1 mx-2" style={{minWidth:120}} onClick={handleAgregarAlCarrito} disabled={!productoDetalle || productoDetalle?.cantidad === 0}>Agregar al carrito</Button>
+              </>
+            )}
             <Button variant="danger" onClick={handleCloseDetalle}>Cerrar</Button>
           </div>
         </Modal.Footer>

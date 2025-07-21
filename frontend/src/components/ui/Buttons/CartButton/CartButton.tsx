@@ -1,7 +1,18 @@
 import style from './CartButton.module.css'
 
-export const CartButton = () => {
+interface CartButtonProps {
+  onClick?: () => void;
+  disabled?: boolean;
+}
+
+export const CartButton: React.FC<CartButtonProps> = ({ onClick, disabled }) => {
   return (
-    <button className={style.buttonNewProduct}>Buy</button>
-  )
+    <button
+      className={`btn btn-success w-100 mt-2 ${style.buttonNewProduct}`}
+      onClick={onClick}
+      disabled={disabled}
+    >
+      Buy
+    </button>
+  );
 }

@@ -160,3 +160,11 @@ export const corregirRolAdmin = async (
   });
   return data;
 };
+
+export const softDeleteMeUsuario = async (
+  token: string | null
+): Promise<void> => {
+  await axios.patch(`${API_URL}/usuario/me/soft-delete`, {}, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+};

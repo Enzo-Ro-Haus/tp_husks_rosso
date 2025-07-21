@@ -31,20 +31,9 @@ public class UsuarioServiceImpl extends BaseServiceImpl<Usuario, Long> implement
     @Transactional(readOnly = true)
     public List<Usuario> findAll() throws Exception {
         try {
-            System.out.println("=== DEBUG: UsuarioServiceImpl.findAll() called ===");
             List<Usuario> usuarios = usuarioRepository.findAllWithRelations();
-            System.out.println("=== DEBUG: Found " + usuarios.size() + " usuarios ===");
-            for (Usuario u : usuarios) {
-                System.out.println("Usuario: id=" + u.getId() + ", email=" + u.getEmail() + ", nombre=" + u.getNombre() + ", activo=" + u.isActivo() + ", rol=" + u.getRol());
-            }
-            if (!usuarios.isEmpty()) {
-                System.out.println("=== DEBUG: First usuario: " + usuarios.get(0).getNombre() + " ===");
-                System.out.println("=== DEBUG: First usuario ordenes: " + (usuarios.get(0).getOrdenes() != null ? usuarios.get(0).getOrdenes().size() : "null") + " ===");
-            }
             return usuarios;
         } catch (Exception e) {
-            System.out.println("=== DEBUG: Exception in UsuarioServiceImpl.findAll(): " + e.getMessage() + " ===");
-            e.printStackTrace();
             throw new Exception(e.getMessage());
         }
     }

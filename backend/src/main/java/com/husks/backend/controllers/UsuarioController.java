@@ -104,6 +104,21 @@ public class UsuarioController extends BaseControllerImpl<Usuario, UsuarioServic
         }
     }
 
+    @PatchMapping("/me/soft-delete")
+    @PreAuthorize("hasAnyRole('ADMIN', 'CLIENTE')")
+    public ResponseEntity<?> softDeleteMe(@org.springframework.security.core.annotation.AuthenticationPrincipal Usuario usuarioAuth) {
+        try {
+            System.out.println("[INFO] Soft delete solicitado para usuario: " + usuarioAuth.getEmail());
+            usuarioAuth.setActivo(false);
+            servicio.save(usuarioAuth);
+            System.out.println("[INFO] Soft delete exitoso para usuario: " + usuarioAuth.getEmail());
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).body("{\"message\":\"Usuario dado de baja correctamente\"}");
+        } catch (Exception e) {
+            System.out.println("[ERROR] Error al hacer soft delete para usuario: " + usuarioAuth.getEmail() + ". Detalle: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("{\"error\":\"Error en borrado lógico\"}");
+        }
+    }
+
     // Clase interna para el request
     public static class ImageUpdateRequest {
         private String imagenPerfilPublicId;

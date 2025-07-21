@@ -26,16 +26,9 @@ public class BaseServiceImpl<E extends Base, ID extends Serializable> implements
     @Transactional
     public List<E> findAll() throws Exception {
         try {
-            System.out.println("=== DEBUG: BaseServiceImpl.findAll() called ===");
             List<E> entities = baseRepository.findAll();
-            System.out.println("=== DEBUG: Found " + entities.size() + " entities ===");
-            if (!entities.isEmpty()) {
-                System.out.println("=== DEBUG: First entity: " + entities.get(0) + " ===");
-            }
             return entities;
         } catch (Exception e) {
-            System.out.println("=== DEBUG: Exception in BaseServiceImpl.findAll(): " + e.getMessage() + " ===");
-            e.printStackTrace();
             throw new Exception(e.getMessage());
         }
     }

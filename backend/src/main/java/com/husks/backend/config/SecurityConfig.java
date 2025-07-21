@@ -97,6 +97,10 @@ public class SecurityConfig {
                                                                 "/orden-compra/**")
                                                 .hasRole("ADMIN")
 
+                                                // PATCH para soft delete propio (usuario autenticado)
+                                                .requestMatchers(HttpMethod.PATCH, "/usuario/me/soft-delete")
+                                                .hasAnyRole("ADMIN", "CLIENTE")
+
                                                 // ADMIN PATCH
                                                 .requestMatchers(HttpMethod.PATCH,
                                                                 "/usuario/soft-delete/**",

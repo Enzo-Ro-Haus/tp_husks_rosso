@@ -5,7 +5,7 @@ import { EditButtonBootstrap } from '../Buttons/EditButton/EditButtonBootstrap';
 import Swal from 'sweetalert2';
 import { usuarioStore } from '../../../store/usuarioStore';
 import * as userAPI from '../../../http/usuarioHTTP';
-import { softDeleteUsuario } from '../../../http/usuarioHTTP';
+import { softDeleteMeUsuario } from '../../../http/usuarioHTTP';
 
 interface UserProfileCardProps {
   usuario: IUsuario;
@@ -37,7 +37,7 @@ const UserProfileCard: React.FC<UserProfileCardProps> = ({ usuario, onEdited, on
     });
     if (result.isConfirmed) {
       try {
-        await softDeleteUsuario(token, usuario.id ?? 0);
+        await softDeleteMeUsuario(token);
         await Swal.fire({
           icon: "success",
           title: "Borrado lógico",

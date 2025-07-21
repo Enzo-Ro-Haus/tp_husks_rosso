@@ -25,23 +25,15 @@ public abstract class BaseControllerImpl<E extends Base, S extends BaseServiceIm
     @ResponseBody
     @CrossOrigin(origins = "*")
     public ResponseEntity<?> test() {
-        System.out.println("=== DEBUG: Test endpoint called ===");
         return ResponseEntity.status(HttpStatus.OK).body("{\"message\":\"Backend is working\"}");
     }
 
     @Override
     public ResponseEntity<?> getAll() {
         try {
-            System.out.println("=== DEBUG: getAll() called ===");
             var result = servicio.findAll();
-            System.out.println("=== DEBUG: Result size: " + (result != null ? result.size() : "null") + " ===");
-            if (result != null && !result.isEmpty()) {
-                System.out.println("=== DEBUG: First item: " + result.get(0) + " ===");
-            }
             return ResponseEntity.status(HttpStatus.OK).body(result);
         } catch (Exception e) {
-            System.out.println("=== DEBUG: Exception in getAll(): " + e.getMessage() + " ===");
-            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("{\"error\":\"Error GETALL Intente mas tarde.\" }");
         }
     }
@@ -64,7 +56,6 @@ public abstract class BaseControllerImpl<E extends Base, S extends BaseServiceIm
         try {
             return ResponseEntity.status(HttpStatus.OK).body(servicio.findById(id));
         } catch (Exception e) {
-            System.out.println(e);
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body("{\"error\":\"Error. GETONE Intente mas tarde.\" }");
         }

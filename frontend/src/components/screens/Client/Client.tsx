@@ -74,14 +74,14 @@ export const Client = () => {
         <Row>
           <Header />
         </Row>
-        <Row>
-          <div className={styles.containerClientUi}>
+        <Row className="h-100" style={{height: '100%'}}>
+          <div className={styles.containerClientUi} style={{height: '100%'}}>
             <ClientSideBar
               view={view}
               onChangeView={setView}
               name={usuario?.nombre ?? "NN"}
             />
-            <div className={styles.containerElelements}>
+            <div className={styles.containerElelements} style={{height: '100%'}}>
               {errorMsg ? (
                 <h3 style={{ color: 'red' }}>{errorMsg}</h3>
               ) : view === "Client" ? (

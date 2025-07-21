@@ -191,212 +191,22 @@ export const ListCard: React.FC<ListCardProps> = (props) => {
 
             {/* Detalles según variante - ajustar el tamaño de la columna según si hay imagen o no */}
             <Col xs={variant === "Users" || variant === "Client" || variant === "Products" ? 6 : 9}>
-              {variant === "Products" && (
-                <>
-                  <p>
-                    <strong>ID:</strong> {id}
-                  </p>
-                  <p>
-                    <strong>Name:</strong> <span className={activo === false ? styles.softDeletedName : ''}>{name}</span>
-                  </p>
-                  <p>
-                    <strong>Description:</strong> {description}
-                  </p>
-                  <p>
-                    <strong>Color:</strong> {color}
-                  </p>
-                  <p>
-                    <strong>Category:</strong> {category && typeof category === 'object' && typeof category.nombre === 'string' ? category.nombre : 'Sin categoría'}
-                  </p>
-                  <p>
-                    <strong>Type:</strong> {type && typeof type === 'object' && typeof type.nombre === 'string' ? type.nombre : 'Sin tipo'}
-                  </p>
-                  <p>
-                    <strong>Sizes:</strong>{" "}
-                    {Array.isArray(sizes) && sizes.length > 0
-                      ? sizes.map((s) => (s && typeof s === 'object' && s.sistema && s.valor ? `${s.sistema} ${s.valor}` : null)).filter(Boolean).join(", ")
-                      : "Sin talles"}
-                  </p>
-                  <p>
-                    <strong>Price:</strong> ${price}
-                  </p>
-                  <p>
-                    <strong>Stock:</strong> {quantity}
-                  </p>
-                </>
-              )}
-
-              {(variant === "Users" || variant === "Client") && (
-                <>
-                  <p>
-                    <strong>ID:</strong> {id}
-                  </p>
-                  <p>
-                    <strong>Name:</strong> <span className={activo === false ? styles.softDeletedName : ''}>{name}</span>
-                  </p>
-                  <p>
-                    <strong>Email:</strong> {email}
-                  </p>
-                  <p>
-                    <strong>Role:</strong> {rol}
-                  </p>
-                  <p>
-                    <strong>Orders:</strong>{" "}
-                    {usuario?.ordenes && usuario.ordenes.length > 0 
-                      ? usuario.ordenes.length 
-                      : "No posee"
-                    }
-                  </p>
-                  <p>
-                    <strong>Addresses:</strong>{" "}
-                    {address && address.length > 0 
-                      ? address.map((d, index) => (
-                          <span key={d.id}>
-                            {index > 0 && "; "}
-                            {d.direccion.calle}, {d.direccion.localidad} ({d.direccion.cp})
-                          </span>
-                        ))
-                      : "No posee"
-                    }
-                  </p>
-                </>
-              )}
-
-              {variant === "Categories" && (
-                <>
-                  <p>
-                    <strong>ID:</strong> {id}
-                  </p>
-                  <p>
-                    <strong>Name:</strong> <span className={activo === false ? styles.softDeletedName : ''}>{name}</span>
-                  </p>
-                  <p>
-                    <strong>Types:</strong>{" "}
-                    {category?.tipos && category.tipos.length > 0
-                      ? category.tipos.map((t) => t.nombre).join(", ")
-                      : "No posee"
-                    }
-                  </p>
-                  {/* Eliminada la sección de productos */}
-                </>
-              )}
-
-              {variant === "Types" && (
-                <>
-                  <p>
-                    <strong>ID:</strong> {id}
-                  </p>
-                  <p>
-                    <strong>Name:</strong> <span className={activo === false ? styles.softDeletedName : ''}>{name}</span>
-                  </p>
-                  <p>
-                    <strong>Categories:</strong>{" "}
-                    {categories && categories.length > 0
-                      ? categories.map((c) => c.nombre).join(", ")
-                      : "No posee"
-                    }
-                  </p>
-                  {/* Eliminada la sección de productos para Types */}
-                </>
-              )}
-
-              {variant === "Sizes" && (
-                <>
-                  <p>
-                    <strong>ID:</strong> {id}
-                  </p>
-                  <p>
-                    <strong>System:</strong> {system}
-                  </p>
-                  <p>
-                    <strong>Value:</strong> {value}
-                  </p>
-                </>
-              )}
-
-              {variant === "Addresses" && (
-                <>
-                  <p>
-                    <strong>ID:</strong> {id}
-                  </p>
-                  <p>
-                    <strong>User:</strong>{" "}
-                    {usuario?.nombre || usuarioDireccion?.usuario.nombre || "Sin usuario asignado"}
-                  </p>
-                  <p>
-                    <strong>Street:</strong>{" "}
-                    {street || usuarioDireccion?.direccion.calle}
-                  </p>
-                  <p>
-                    <strong>Locality:</strong>{" "}
-                    {locality || usuarioDireccion?.direccion.localidad}
-                  </p>
-                  <p>
-                    <strong>Postal Code:</strong>{" "}
-                    {pc || usuarioDireccion?.direccion.cp}
-                  </p>
-                </>
-              )}
-
-              {variant === "Orders" && (
-                <>
-                  <p>
-                    <strong>ID:</strong> {id}
-                  </p>
-                  <p>
-                    <strong>User:</strong>{" "}
-                    {usuario?.nombre || usuarioDireccion?.usuario.nombre}
-                  </p>
-                  <p>
-                    <strong>Address:</strong> {usuarioDireccion?.direccion.calle},{" "}
-                    {usuarioDireccion?.direccion.localidad}
-                  </p>
-                  <p>
-                    <strong>Items:</strong>{" "}
-                    {detail
-                      ?.map((d) => {
-                        if (d && d.producto && typeof d.producto.nombre === 'string') {
-                          return `${d.cantidad}× ${d.producto.nombre}`;
-                        } else {
-                          return `${d.cantidad}× Producto desconocido`;
-                        }
-                      })
-                      .join(", ")}
-                  </p>
-                  <p>
-                    <strong>Date:</strong> {formattedDate}
-                  </p>
-                  <p>
-                    <strong>Total:</strong> ${total}
-                  </p>
-                  <p>
-                    <strong>Payment:</strong> {payMethod}
-                  </p>
-                  <p>
-                    <strong>Status:</strong> {Dstatus}
-                  </p>
-                </>
-              )}
-
               {variant === "Client" && usuario && (
-                <div className="clientCard card w-100 h-100 d-flex flex-column align-items-center justify-content-center m-0 p-0" style={{borderRadius: 0, boxShadow: 'none'}}>
-                  <div className="mb-3">
-                    <img
-                      src={usuario.imagenPerfilPublicId ? `/src/assets/${usuario.imagenPerfilPublicId}.jpg` : "/src/assets/user_img.jpg"}
-                      alt={usuario.nombre}
-                      style={{ width: 150, height: 150, borderRadius: "50%", objectFit: "cover", border: "3px solid #0d6efd" }}
-                    />
-                  </div>
-                  <h3 className="mb-2 text-center">{usuario.nombre}</h3>
-                  <p className="mb-2 text-center" style={{ fontSize: "1.1rem" }}>{usuario.email}</p>
-                  <div className="mb-3 w-100">
-                    <h5 className="text-center">Direcciones</h5>
+                <div className="clientCard d-flex flex-column align-items-center justify-content-start w-100 h-100" style={{borderRadius: 0, boxShadow: 'none', minHeight: '100vh', minWidth: '100vw', padding: 0, margin: 0}}>
+                  <img
+                    src={usuario.imagenPerfilPublicId ? `/src/assets/${usuario.imagenPerfilPublicId}.jpg` : "/src/assets/user_img.jpg"}
+                    alt={usuario.nombre}
+                    style={{ width: 150, height: 150, borderRadius: "50%", objectFit: "cover", border: "3px solid #0d6efd", marginTop: '2rem' }}
+                  />
+                  <h3 className="mt-4 mb-2 text-center">{usuario.nombre}</h3>
+                  <p className="mb-4 text-center" style={{ fontSize: "1.1rem" }}>{usuario.email}</p>
+                  <div className="w-100 d-flex flex-column align-items-center">
+                    <h5 className="text-center mb-3">Direcciones</h5>
                     {usuario.direcciones && usuario.direcciones.filter((d: any) => d.activo !== false).length > 0 ? (
-                      <ul className="list-group list-group-flush">
+                      <ul className="list-group mb-3" style={{maxWidth: 400, width: '100%'}}>
                         {usuario.direcciones.filter((d: any) => d.activo !== false).map((d: any) => (
-                          <li key={d.id} className="list-group-item d-flex justify-content-between align-items-center">
-                            <span>{d.direccion.calle}, {d.direccion.localidad} ({d.direccion.cp})</span>
-                            {/* Aquí podrías agregar botón para eliminar dirección si lo deseas */}
+                          <li key={d.id} className="list-group-item text-center">
+                            {d.direccion.calle}, {d.direccion.localidad} ({d.direccion.cp})
                           </li>
                         ))}
                       </ul>
@@ -404,56 +214,242 @@ export const ListCard: React.FC<ListCardProps> = (props) => {
                       <p className="text-muted text-center">No tienes direcciones registradas</p>
                     )}
                   </div>
-                  <div className="d-flex gap-3 mt-3">
-                    <button className="btn btn-primary" onClick={onEdited}>Editar mi perfil</button>
-                    <button className="btn btn-danger" onClick={onDeleted}>Eliminar mi perfil</button>
+                  <div className="d-flex flex-column gap-3 mt-4 w-100 align-items-center">
+                    <button className="btn btn-primary w-50" onClick={onEdited}>Editar mi perfil</button>
+                    <button className="btn btn-danger w-50" onClick={onDeleted}>Eliminar mi perfil</button>
                   </div>
                 </div>
               )}
-            </Col>
+                  {variant === "Products" && (
+                    <>
+                      <p>
+                        <strong>ID:</strong> {id}
+                      </p>
+                      <p>
+                        <strong>Name:</strong> <span className={activo === false ? styles.softDeletedName : ''}>{name}</span>
+                      </p>
+                      <p>
+                        <strong>Description:</strong> {description}
+                      </p>
+                      <p>
+                        <strong>Color:</strong> {color}
+                      </p>
+                      <p>
+                        <strong>Category:</strong> {category && typeof category === 'object' && typeof category.nombre === 'string' ? category.nombre : 'Sin categoría'}
+                      </p>
+                      <p>
+                        <strong>Type:</strong> {type && typeof type === 'object' && typeof type.nombre === 'string' ? type.nombre : 'Sin tipo'}
+                      </p>
+                      <p>
+                        <strong>Sizes:</strong>{" "}
+                        {Array.isArray(sizes) && sizes.length > 0
+                          ? sizes.map((s) => (s && typeof s === 'object' && s.sistema && s.valor ? `${s.sistema} ${s.valor}` : null)).filter(Boolean).join(", ")
+                          : "Sin talles"}
+                      </p>
+                      <p>
+                        <strong>Price:</strong> ${price}
+                      </p>
+                      <p>
+                        <strong>Stock:</strong> {quantity}
+                      </p>
+                    </>
+                  )}
 
-            {/* Botones */}
-            <Col xs={3} className="text-center">
-              <Row className="g-2 justify-content-center">
-                {activo !== false ? (
-                  <>
-                    <Col xs="auto">
-                      <Button
-                        variant="outline-primary"
-                        size="sm"
-                        onClick={handleEditClick}
-                      >
-                        Editar
-                      </Button>
-                    </Col>
-                    <Col xs="auto">
-                      <DeleteButton view={variant} id={id} onDeleted={onDeleted} />
-                    </Col>
-                  </>
-                ) : (
-                  <Col xs="auto">
-                    <RestoreButton
-                      view={variant}
-                      id={typeof id === 'string' ? parseInt(id) : id}
-                      onRestored={onRestored}
-                    />
-                  </Col>
-                )}
+                  {(variant === "Users" || variant === "Client") && (
+                    <>
+                      <p>
+                        <strong>ID:</strong> {id}
+                      </p>
+                      <p>
+                        <strong>Name:</strong> <span className={activo === false ? styles.softDeletedName : ''}>{name}</span>
+                      </p>
+                      <p>
+                        <strong>Email:</strong> {email}
+                      </p>
+                      <p>
+                        <strong>Role:</strong> {rol}
+                      </p>
+                      <p>
+                        <strong>Orders:</strong>{" "}
+                        {usuario?.ordenes && usuario.ordenes.length > 0 
+                          ? usuario.ordenes.length 
+                          : "No posee"
+                        }
+                      </p>
+                      <p>
+                        <strong>Addresses:</strong>{" "}
+                        {address && address.length > 0 
+                          ? address.map((d, index) => (
+                              <span key={d.id}>
+                                {index > 0 && "; "}
+                                {d.direccion.calle}, {d.direccion.localidad} ({d.direccion.cp})
+                              </span>
+                            ))
+                          : "No posee"
+                        }
+                      </p>
+                    </>
+                  )}
+
+                  {variant === "Categories" && (
+                    <>
+                      <p>
+                        <strong>ID:</strong> {id}
+                      </p>
+                      <p>
+                        <strong>Name:</strong> <span className={activo === false ? styles.softDeletedName : ''}>{name}</span>
+                      </p>
+                      <p>
+                        <strong>Types:</strong>{" "}
+                        {category?.tipos && category.tipos.length > 0
+                          ? category.tipos.map((t) => t.nombre).join(", ")
+                          : "No posee"
+                        }
+                      </p>
+                      {/* Eliminada la sección de productos */}
+                    </>
+                  )}
+
+                  {variant === "Types" && (
+                    <>
+                      <p>
+                        <strong>ID:</strong> {id}
+                      </p>
+                      <p>
+                        <strong>Name:</strong> <span className={activo === false ? styles.softDeletedName : ''}>{name}</span>
+                      </p>
+                      <p>
+                        <strong>Categories:</strong>{" "}
+                        {categories && categories.length > 0
+                          ? categories.map((c) => c.nombre).join(", ")
+                          : "No posee"
+                        }
+                      </p>
+                      {/* Eliminada la sección de productos para Types */}
+                    </>
+                  )}
+
+                  {variant === "Sizes" && (
+                    <>
+                      <p>
+                        <strong>ID:</strong> {id}
+                      </p>
+                      <p>
+                        <strong>System:</strong> {system}
+                      </p>
+                      <p>
+                        <strong>Value:</strong> {value}
+                      </p>
+                    </>
+                  )}
+
+                  {variant === "Addresses" && (
+                    <>
+                      <p>
+                        <strong>ID:</strong> {id}
+                      </p>
+                      <p>
+                        <strong>User:</strong>{" "}
+                        {usuario?.nombre || usuarioDireccion?.usuario.nombre || "Sin usuario asignado"}
+                      </p>
+                      <p>
+                        <strong>Street:</strong>{" "}
+                        {street || usuarioDireccion?.direccion.calle}
+                      </p>
+                      <p>
+                        <strong>Locality:</strong>{" "}
+                        {locality || usuarioDireccion?.direccion.localidad}
+                      </p>
+                      <p>
+                        <strong>Postal Code:</strong>{" "}
+                        {pc || usuarioDireccion?.direccion.cp}
+                      </p>
+                    </>
+                  )}
+
+                  {variant === "Orders" && (
+                    <>
+                      <p>
+                        <strong>ID:</strong> {id}
+                      </p>
+                      <p>
+                        <strong>User:</strong>{" "}
+                        {usuario?.nombre || usuarioDireccion?.usuario.nombre}
+                      </p>
+                      <p>
+                        <strong>Address:</strong> {usuarioDireccion?.direccion.calle},{" "}
+                        {usuarioDireccion?.direccion.localidad}
+                      </p>
+                      <p>
+                        <strong>Items:</strong>{" "}
+                        {detail
+                          ?.map((d) => {
+                            if (d && d.producto && typeof d.producto.nombre === 'string') {
+                              return `${d.cantidad}× ${d.producto.nombre}`;
+                            } else {
+                              return `${d.cantidad}× Producto desconocido`;
+                            }
+                          })
+                          .join(", ")}
+                      </p>
+                      <p>
+                        <strong>Date:</strong> {formattedDate}
+                      </p>
+                      <p>
+                        <strong>Total:</strong> ${total}
+                      </p>
+                      <p>
+                        <strong>Payment:</strong> {payMethod}
+                      </p>
+                      <p>
+                        <strong>Status:</strong> {Dstatus}
+                      </p>
+                    </>
+                  )}
+                </Col>
+
+                {/* Botones */}
+                <Col xs={3} className="text-center">
+                  <Row className="g-2 justify-content-center">
+                    {activo !== false ? (
+                      <>
+                        <Col xs="auto">
+                          <Button
+                            variant="outline-primary"
+                            size="sm"
+                            onClick={handleEditClick}
+                          >
+                            Editar
+                          </Button>
+                        </Col>
+                        <Col xs="auto">
+                          <DeleteButton view={variant} id={id} onDeleted={onDeleted} />
+                        </Col>
+                      </>
+                    ) : (
+                      <Col xs="auto">
+                        <RestoreButton
+                          view={variant}
+                          id={typeof id === 'string' ? parseInt(id) : id}
+                          onRestored={onRestored}
+                        />
+                      </Col>
+                    )}
+                  </Row>
+                </Col>
               </Row>
-            </Col>
-          </Row>
-        </Card.Body>
-      </Card>
+            </Card.Body>
+          </Card>
 
-      {/* Modal de edición */}
-      {showEditModal && (
-        <EditButtonBootstrap
-          view={variant}
-          item={getItemForEdit()}
-          onClose={handleEditClose}
-          onUpdated={handleEditUpdated}
-        />
-      )}
-    </>
-  );
-};
+          {/* Modal de edición */}
+          {showEditModal && (
+            <EditButtonBootstrap
+              view={variant}
+              item={getItemForEdit()}
+              onClose={handleEditClose}
+              onUpdated={handleEditUpdated}
+            />
+          )}
+        </>
+      );
+    };

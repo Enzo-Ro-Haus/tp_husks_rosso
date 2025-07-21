@@ -25,7 +25,7 @@ public interface ProductoRepository extends BaseRepository<Producto, Long> {
         LEFT JOIN FETCH p.tipo ti
         WHERE (:tipoId IS NULL OR ti.id = :tipoId)
         AND (:categoriaId IS NULL OR c.id = :categoriaId)
-        AND (:nombre IS NULL OR LOWER(p.nombre) LIKE LOWER(CONCAT('%', :nombre, '%')))
+        AND (:nombre IS NULL OR LOWER(FUNCTION('unaccent', p.nombre)) LIKE LOWER(FUNCTION('unaccent', CONCAT('%', :nombre, '%'))))
         AND (:precioMin IS NULL OR p.precio >= :precioMin)
         AND (:precioMax IS NULL OR p.precio <= :precioMax)
         AND (:talleId IS NULL OR t.id = :talleId)

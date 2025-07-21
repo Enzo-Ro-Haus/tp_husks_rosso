@@ -22,17 +22,18 @@ export const Catalog = () => {
   const setArrayProductos = productoStore((state) => state.setArrayProductos);
 
   // Estado para filtros
-  const [categorias, setCategorias] = useState<ICategoria[]>([]);
-  const [tipos, setTipos] = useState<ITipo[]>([]);
-  const [talles, setTalles] = useState<ITalle[]>([]);
-  const [filtros, setFiltros] = useState({
+  const filtrosIniciales = {
     tipoId: '',
     categoriaId: '',
     nombre: '',
     precioMin: '',
     precioMax: '',
     talleId: ''
-  });
+  };
+  const [categorias, setCategorias] = useState<ICategoria[]>([]);
+  const [tipos, setTipos] = useState<ITipo[]>([]);
+  const [talles, setTalles] = useState<ITalle[]>([]);
+  const [filtros, setFiltros] = useState(filtrosIniciales);
   const [showFilters, setShowFilters] = useState(false);
   const location = useLocation();
   const [sistemaTalle, setSistemaTalle] = useState<string>("");
@@ -58,8 +59,14 @@ export const Catalog = () => {
   // Cargar opciones de filtros al montar
   useEffect(() => {
     const token = localStorage.getItem('token');
-    getAllCategorias(token).then(setCategorias);
-    getAllTipos(token).then(setTipos);
+    getAllCategorias(token).then(data => {
+      console.log('categorias:', data);
+      setCategorias(data);
+    });
+    getAllTipos(token).then(data => {
+      console.log('tipos:', data);
+      setTipos(data);
+    });
     getAllTalles(token).then(setTalles);
     getProductos();
   }, []);
@@ -99,6 +106,13 @@ export const Catalog = () => {
   const handleFiltrar = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     getProductos();
+  };
+
+  const handleReset = () => {
+    setFiltros(filtrosIniciales);
+    setSistemaTalle("");
+    // Llama a getProductos después de limpiar filtros
+    setTimeout(() => getProductos(filtrosIniciales), 0);
   };
 
   return (
@@ -174,8 +188,12 @@ export const Catalog = () => {
                 </div>
               </div>
             </div>
-            <div className="col-12 col-md-6 col-lg-1 d-grid">
-              <button type="submit" className="btn btn-primary w-100">Filtrar</button>
+            <div className="col-12 col-md-6 col-lg-1">
+              <div className="d-flex gap-2">
+                <button type="submit" className="btn btn-primary w-100">Filtrar</button>
+                <button type="button" className="btn btn-success w-100" onClick={handleReset}>Reset</button>
+                <button type="button" className="btn btn-danger w-100" onClick={() => setShowFilters(false)}>Cerrar</button>
+              </div>
             </div>
           </div>
         </form>
@@ -193,8 +211,8 @@ export const Catalog = () => {
             />
           ))
         ) : (
-          <div>
-            <h3>No hay productos</h3>
+          <div className="w-100 d-flex justify-content-center align-items-center" style={{ minHeight: '60vh' }}>
+            <h3 className="text-center">No hay productos</h3>
           </div>
         )}
       </div>

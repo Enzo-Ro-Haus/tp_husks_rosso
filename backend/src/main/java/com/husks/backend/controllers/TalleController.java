@@ -19,7 +19,6 @@ public class TalleController extends BaseControllerImpl<Talle, TalleServiceImpl>
     }
 
     @GetMapping("")
-    @PreAuthorize("hasAnyRole('ADMIN', 'CLIENTE')")
     public ResponseEntity<?> getAllTalles() {
         return super.getAll();
     }

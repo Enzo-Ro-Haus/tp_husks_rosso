@@ -21,7 +21,6 @@ public class CategoriaController extends BaseControllerImpl<Categoria, Categoria
     }
 
     @GetMapping("")
-    @PreAuthorize("hasAnyRole('ADMIN', 'CLIENTE')")
     public ResponseEntity<?> getAllCategorias() {
         return super.getAll();
     }

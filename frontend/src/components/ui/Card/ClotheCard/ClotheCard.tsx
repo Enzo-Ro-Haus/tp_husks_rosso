@@ -1,98 +1,56 @@
 import { useState } from "react";
-import { Button, Card, Modal } from "react-bootstrap";
+import { Button, Card, Badge } from "react-bootstrap";
 import CloudinaryImg from "../../Image/CoudinaryImg";
+import styles from "./ClotheCard.module.css";
 
 type ClotheCardProps = {
   name: string;
   description?: string;
   price: number;
   imagenPublicId?: string;
+  cantidad?: number;
+  onDetailsClick?: () => void;
 };
 
-export const ClotheCard = ({ name, description, price, imagenPublicId }: ClotheCardProps) => {
-  const [show, setShow] = useState(false);
-  const handleClose = () => setShow(false);
-  const handleShow = () => setShow(true);
-
+export const ClotheCard = ({ name, description, price, imagenPublicId, cantidad, onDetailsClick }: ClotheCardProps) => {
   return (
-    <>
-      <Card style={{ width: "18rem" }}>
+    <Card
+      className={`shadow-sm border-0 ${styles.cardCustom}`}
+      style={{ maxWidth: 320, width: '100%', cursor: 'pointer', borderRadius: 18, transition: 'box-shadow 0.2s, transform 0.2s' }}
+      onClick={onDetailsClick}
+    >
+      <div className="position-relative">
         {imagenPublicId ? (
-          <CloudinaryImg 
-            publicId={imagenPublicId} 
-            width={288} 
-            height={200} 
+          <CloudinaryImg
+            publicId={imagenPublicId}
+            width={320}
+            height={200}
             alt={name}
-            className="card-img-top"
+            className={`card-img-top ${styles.cardImgCustom}`}
+            style={{ borderRadius: '18px 18px 0 0', objectFit: 'cover', height: 180, transition: 'transform 0.2s' }}
           />
         ) : (
-          <Card.Img variant="top" src="src/assets/no_cloth.jpeg" />
+          <Card.Img variant="top" src="src/assets/no_cloth.jpeg" style={{ borderRadius: '18px 18px 0 0', height: 180, objectFit: 'cover' }} />
         )}
-        <Card.Body className="d-flex flex-column align-items-start text-start">
-          <Card.Title className="mb-3 w-100">
-            <b>Name:</b> {name}
-          </Card.Title>
-
-          <Card.Text className="mb-2 w-100 ps-0">
-            <div className="d-flex align-items-baseline w-100">
-              <strong className="me-1">Description:</strong>
-              <span>{description}</span>
-            </div>
-          </Card.Text>
-
-          <Card.Text className="mb-3 w-100 ps-0">
-            <div className="d-flex justify-content-end align-items-baseline w-100">
-              <strong className="me-1">$</strong>
-              <span>{price}</span>
-            </div>
-          </Card.Text>
-
-          <Button
-            variant="primary"
-            className="align-self-start"
-            onClick={handleShow}
-          >
-            Details
-          </Button>
-        </Card.Body>
-      </Card>
-
-      <Modal show={show} onHide={handleClose} centered>
-        <Modal.Header closeButton>
-          <Modal.Title>Detalles de {name}</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          {imagenPublicId && (
-            <div className="text-center mb-3">
-              <CloudinaryImg 
-                publicId={imagenPublicId} 
-                width={300} 
-                height={250} 
-                alt={name}
-              />
-            </div>
-          )}
-          <p>
-            <strong>Descripción:</strong> {description}
-          </p>
-          <p>
-            <strong>Precio:</strong> ${price}
-          </p>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={handleClose}>
-            Cerrar
-          </Button>
-          <Button
-            variant="primary"
-            onClick={() => {
-              handleClose();
-            }}
-          >
-            Comprar
-          </Button>
-        </Modal.Footer>
-      </Modal>
-    </>
+        {cantidad === 0 && (
+          <Badge bg="danger" className="position-absolute top-0 end-0 m-2">Sin stock</Badge>
+        )}
+      </div>
+      <Card.Body className="d-flex flex-column align-items-center text-center p-3">
+        <Card.Title className="mb-2 w-100" style={{ fontWeight: 700, fontSize: 22, color: '#231f20', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>{name}</Card.Title>
+        <Card.Text className="mb-2 w-100" style={{ color: '#5e5f5a', fontSize: 15, minHeight: 36, textOverflow: 'ellipsis', overflow: 'hidden' }}>{description}</Card.Text>
+        <div className="mb-3 w-100 d-flex justify-content-center align-items-center">
+          <span style={{ fontSize: 22, fontWeight: 700, color: '#231f20' }}>${price}</span>
+        </div>
+        <Button
+          variant="primary"
+          className="w-100 d-flex align-items-center justify-content-center mt-auto py-2 px-3 rounded-pill"
+          style={{ fontWeight: 600, fontSize: 16 }}
+          onClick={e => { e.stopPropagation(); onDetailsClick && onDetailsClick(); }}
+        >
+          Details
+        </Button>
+      </Card.Body>
+    </Card>
   );
 };

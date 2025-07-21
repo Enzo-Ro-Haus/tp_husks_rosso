@@ -1,40 +1,18 @@
-.containerPrincipalCard{
-    width: 23vw;
-    height: 60vh;
-    background-color: white;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    gap: 0.5rem;
-    border: 1px solid gray;
-    border-radius: 15px;
-    transition: all 0.5s ease-in-out;
+.cardCustom {
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  border-radius: 18px;
+  padding: 0;
+  transition: box-shadow 0.2s, transform 0.2s;
+  max-width: 320px;
+  width: 100%;
 }
-
-.cardImg {
-    width: 80%;
-    height: 50%;
+.cardCustom:hover {
+  box-shadow: 0 8px 24px rgba(0,0,0,0.16);
+  transform: translateY(-4px) scale(1.02);
 }
-
-.cardInfo {
-    width: 90%;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: flex-start;
-    gap: 0.5rem
+.cardImgCustom {
+  transition: transform 0.2s;
 }
-
-.cardInfo > h3 {
-    color: #231f20;
-}
-
-.cardInfo > p {
-    color: #5e5f5a;
-}
-
-.containerPrincipalCard:hover{
-    z-index: 1;
-    background-color: rgb(136, 127, 127);
+.cardCustom:hover .cardImgCustom {
+  transform: scale(1.04);
 }

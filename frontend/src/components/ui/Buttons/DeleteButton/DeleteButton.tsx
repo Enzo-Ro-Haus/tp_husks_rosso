@@ -1,4 +1,5 @@
 import React from "react";
+import { Button } from "react-bootstrap";
 import style from "./DeleteButton.module.css";
 import { usuarioStore } from "../../../../store/usuarioStore";
 import { direccionStore } from "../../../../store/direccionStore";
@@ -169,8 +170,8 @@ export const DeleteButton: React.FC<DeleteButtonProps> = ({
   };
 
   return (
-    <button className={style.deleteButton} onClick={handleDelete}>
-      Delete
-    </button>
+    <Button variant="danger" className="w-100" onClick={handleDelete}>
+      Eliminar
+    </Button>
   );
 };

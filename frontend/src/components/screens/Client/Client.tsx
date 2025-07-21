@@ -8,6 +8,7 @@ import { usuarioStore } from "../../../store/usuarioStore";
 import { ordenStore } from "../../../store/ordenStore";
 import { useClientView } from "../../../hooks/useViewState";
 import { ListCard } from "../../ui/Card/ListCard/ListCard";
+import UserProfileCard from "../../ui/UserProfileCard/UserProfileCard";
 import { getAllUsuarios, getUsuarioActual } from "../../../http/usuarioHTTP";
 import { getAllOrdenes } from "../../../http/ordenHTTPS";
 import Container from "react-bootstrap/Container";
@@ -86,17 +87,10 @@ export const Client = () => {
                 <h3 style={{ color: 'red' }}>{errorMsg}</h3>
               ) : view === "Client" ? (
                 usuario ? (
-                  <ListCard
-                    key={usuario.id}
-                    variant="Client"
-                    id={usuario.id || "NN"}
-                    name={usuario.nombre}
-                    email={usuario.email}
-                    rol={usuario.rol}
-                    imagenPerfilPublicId={usuario.imagenPerfilPublicId}
+                  <UserProfileCard
+                    usuario={usuario}
                     onEdited={getUsuario}
                     onDeleted={getUsuario}
-                    onRestored={getUsuario}
                   />
                 ) : (
                   <h3>No se encontró el usuario</h3>

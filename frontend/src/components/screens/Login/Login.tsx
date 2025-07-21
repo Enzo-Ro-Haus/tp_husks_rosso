@@ -71,22 +71,6 @@ export const Login = () => {
     setLocalStore(values);
   };
 
-  useEffect(() => {
-    console.log("✅ Login montado");
-    console.log("🔍 Token actual:", token);
-    // Solo redirigir si ya hay un usuario activo con token
-    if (token) {
-      console.log("🔄 Token encontrado, redirigiendo según rol...");
-      const usuario = usuarioStore.getState().usuarioActivo;
-      if (usuario?.rol === "ADMIN") {
-        navigate("/admin");
-      } else if (usuario?.rol === "CLIENTE") {
-        navigate("/client");
-      } else {
-        navigate("/");
-      }
-    }
-  }, [token, navigate]);
   return (
     <div className={style.containerPrincipalLogin}>
         <Header />

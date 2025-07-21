@@ -9,6 +9,7 @@ import { Cart } from "./components/screens/Cart/Cart";
 import { AboutUs } from "./components/screens/AboutUs/AboutUs";
 import { Client } from "./components/screens/Client/Client";
 import { ProtectedRoute } from "./routes/rutasProtegidas";
+import { GuestRoute } from "./routes/GuestRoute";
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 
@@ -16,8 +17,8 @@ const router = createBrowserRouter([
   // Públicas
   { path: "/", element: <Landingpage /> },
   { path: "/catalog", element: <Catalog /> },
-  { path: "/login", element: <Login /> },
-  { path: "/register", element: <Register /> },
+  { path: "/login", element: <GuestRoute><Login /></GuestRoute> },
+  { path: "/register", element: <GuestRoute><Register /></GuestRoute> },
   {
     path: "/cart",
     element: (

@@ -2,7 +2,7 @@ import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 
 type AdminView = "Products" | "Users" | "Categories" | "Types" | "Sizes" | "Addresses" | "Orders";
-type ClientView = "Client" | "Orders";
+type ClientView = "Client" | "Orders" | "Address";
 
 interface IViewStore {
   // Admin views

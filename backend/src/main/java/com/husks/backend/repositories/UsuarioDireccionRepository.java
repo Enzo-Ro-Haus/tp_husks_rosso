@@ -14,4 +14,7 @@ public interface UsuarioDireccionRepository extends BaseRepository<UsuarioDirecc
     
     @Query("SELECT ud FROM UsuarioDireccion ud LEFT JOIN FETCH ud.usuario LEFT JOIN FETCH ud.direccion")
     List<UsuarioDireccion> findAllWithRelations();
+
+    @Query("SELECT ud FROM UsuarioDireccion ud WHERE ud.id = :id AND ud.usuario.id = :usuarioId")
+    UsuarioDireccion findByIdAndUsuarioId(Long id, Long usuarioId);
 }

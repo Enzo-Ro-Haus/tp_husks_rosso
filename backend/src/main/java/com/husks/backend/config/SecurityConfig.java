@@ -108,7 +108,10 @@ public class SecurityConfig {
                                                                 "/categoria/soft-delete/**",
                                                                 "/tipo/soft-delete/**",
                                                                 "/talle/soft-delete/**",
-                                                                "/usuario-direccion/soft-delete/**",
+                                                                "/usuario-direccion/soft-delete/**")
+                                                .hasAnyRole("ADMIN", "CLIENTE")
+
+                                                .requestMatchers(HttpMethod.PATCH,
                                                                 "/orden-compra/soft-delete/**",
                                                                 "/usuario/restore/**",
                                                                 "/producto/restore/**",

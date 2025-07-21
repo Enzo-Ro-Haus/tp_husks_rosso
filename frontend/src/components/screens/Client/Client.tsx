@@ -17,6 +17,7 @@ import Modal from 'react-bootstrap/Modal';
 import Button from 'react-bootstrap/Button';
 import { direccionStore } from '../../../store/direccionStore';
 import * as addressAPI from '../../../http/direccionHTTP';
+import Swal from 'sweetalert2';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as yup from 'yup';
 
@@ -66,6 +67,7 @@ export const Client = () => {
   const [saving, setSaving] = useState(false);
   const usuarioActivo = usuarioStore((s) => s.usuarioActivo);
   const setArrayDirecciones = direccionStore((s) => s.setArrayDirecciones);
+  const direcciones = direccionStore((s) => s.direcciones);
 
   const addressSchema = yup.object().shape({
     calle: yup.string().required('La calle es obligatoria'),
@@ -75,6 +77,31 @@ export const Client = () => {
       .required('El código postal es obligatorio')
       .matches(/^\d{4,10}$/, 'El código postal debe ser numérico y tener entre 4 y 10 dígitos'),
   });
+
+  // Lógica para eliminar (soft delete) una dirección
+  const handleDeleteDireccion = async (id: number) => {
+    if (!token) return;
+    try {
+      await addressAPI.softDeleteUsuarioDireccion(token, id);
+      Swal.fire({
+        icon: 'success',
+        title: 'Dirección eliminada',
+        timer: 1500,
+        showConfirmButton: false,
+      });
+      // Refresca el store de direcciones
+      const direccionesActualizadas = await addressAPI.getAllUsuarioDirecciones(token);
+      setArrayDirecciones(direccionesActualizadas);
+    } catch (err) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error al eliminar',
+        text: 'No se pudo eliminar la dirección',
+        timer: 2000,
+        showConfirmButton: false,
+      });
+    }
+  };
 
 
   useEffect(() => {
@@ -88,6 +115,13 @@ export const Client = () => {
    useEffect(() => {
     getOrdenes();
   }, []);
+
+  // Sincronizar direcciones al entrar a la vista Address
+  useEffect(() => {
+    if (view === 'Address' && token) {
+      addressAPI.getAllUsuarioDirecciones(token).then(setArrayDirecciones);
+    }
+  }, [view, token, setArrayDirecciones]);
 
   return (
     <div className={styles.containerPrincipalClient}>
@@ -141,14 +175,14 @@ export const Client = () => {
                   <h3>No hay ordenes</h3>
                 )
               ) : view === "Address" ? (
-                usuario && usuario.direcciones && usuario.direcciones.filter((d: any) => d.activo !== false).length > 0 ? (
+                direcciones && direcciones.filter((d: any) => d.activo !== false).length > 0 ? (
                   <div className="w-100" style={{ alignSelf: 'flex-start' }}>
                     <h3 className="mb-3" style={{ marginTop: 0 }}>Mis direcciones</h3>
                     <ul className="list-group mb-3">
-                      {usuario.direcciones.filter((d: any) => d.activo !== false).map((d: any) => (
+                      {direcciones.filter((d: any) => d.activo !== false).map((d: any) => (
                         <li key={d.id} className="list-group-item d-flex justify-content-between align-items-center">
                           <span>{d.direccion.calle}, {d.direccion.localidad} ({d.direccion.cp})</span>
-                          <button className="btn btn-danger btn-sm" onClick={() => {/* lógica de soft delete aquí */}}>Eliminar</button>
+                          <button className="btn btn-danger btn-sm" onClick={() => handleDeleteDireccion(d.id)}>Eliminar</button>
                         </li>
                       ))}
                     </ul>
@@ -184,8 +218,9 @@ export const Client = () => {
                 usuario: { id: usuarioActivo.id, nombre: usuarioActivo.nombre, email: usuarioActivo.email },
                 direccion: values // values: { calle, localidad, cp }
               });
-              // Refresca el usuario activo para que se actualicen las direcciones en la UI
-              await getUsuario();
+              // Refresca el store de direcciones para que la UI se actualice instantáneamente
+              const direccionesActualizadas = await addressAPI.getAllUsuarioDirecciones(usuarioActivo.token ?? null);
+              setArrayDirecciones(direccionesActualizadas);
               setShowAddressModal(false);
               resetForm();
             } catch (err) {

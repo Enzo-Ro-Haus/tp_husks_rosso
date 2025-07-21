@@ -5,6 +5,7 @@ import com.husks.backend.entities.UsuarioDireccion;
 import com.husks.backend.services.UsuarioDireccionServiceImpl;
 import com.husks.backend.repositories.UsuarioRepository;
 import com.husks.backend.repositories.DireccionRepository;
+import com.husks.backend.repositories.UsuarioDireccionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 
 @RestController
 @RequestMapping(path = "/usuario-direccion")
@@ -30,6 +32,9 @@ public class UsuarioDireccionController extends BaseControllerImpl<UsuarioDirecc
 
     @Autowired
     private DireccionRepository direccionRepository;
+
+    @Autowired
+    private UsuarioDireccionRepository usuarioDireccionRepository;
 
     @GetMapping("")
     @PreAuthorize("hasAnyRole('ADMIN', 'CLIENTE')")
@@ -96,6 +101,34 @@ public class UsuarioDireccionController extends BaseControllerImpl<UsuarioDirecc
             return ResponseEntity.status(HttpStatus.CREATED).body(saved);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error creando usuario-dirección: " + e.getMessage());
+        }
+    }
+
+    @PatchMapping("/soft-delete/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'CLIENTE')")
+    public ResponseEntity<?> softDelete(@PathVariable Long id, @AuthenticationPrincipal com.husks.backend.entities.Usuario usuarioAuth) {
+        try {
+            System.out.println("=== SOFT DELETE DEBUG ===");
+            System.out.println("Usuario autenticado: " + usuarioAuth.getId() + " - " + usuarioAuth.getEmail() + " - Rol: " + usuarioAuth.getRol());
+            // Si es ADMIN, puede borrar cualquier dirección
+            if (usuarioAuth.getRol().name().equals("ADMIN")) {
+                servicio.softDelete(id);
+                System.out.println("Soft delete exitoso para ADMIN en usuarioDireccion id=" + id);
+                return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+            }
+            // Si es CLIENTE, solo puede borrar sus propias direcciones
+            var usuarioDireccion = usuarioDireccionRepository.findByIdAndUsuarioId(id, usuarioAuth.getId());
+            System.out.println("Buscando usuarioDireccion con id=" + id + " y usuarioId=" + usuarioAuth.getId());
+            if (usuarioDireccion == null) {
+                System.out.println("No tienes permiso para eliminar esta dirección");
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("No tienes permiso para eliminar esta dirección");
+            }
+            servicio.softDelete(id);
+            System.out.println("Soft delete exitoso para usuarioDireccion id=" + id);
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        } catch (Exception e) {
+            System.out.println("Error en soft delete: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("{\"error\":\"Error en borrado lógico\"}");
         }
     }
 }

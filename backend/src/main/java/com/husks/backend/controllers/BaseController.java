@@ -22,7 +22,9 @@ public interface BaseController<E extends Base, ID extends Serializable> {
 
     ResponseEntity<?> delete(@PathVariable ID id);
 
-    ResponseEntity<?> softDelete(@PathVariable ID id);
+    default ResponseEntity<?> softDelete(@PathVariable ID id) {
+        throw new UnsupportedOperationException("Soft delete no implementado para este recurso");
+    }
 
     ResponseEntity<E> getCurrent(@AuthenticationPrincipal E usuarioAuth);
 }

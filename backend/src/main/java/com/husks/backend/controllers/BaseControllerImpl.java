@@ -96,16 +96,6 @@ public abstract class BaseControllerImpl<E extends Base, S extends BaseServiceIm
         }
     }
 
-    @PatchMapping("/soft-delete/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN')")
-    public ResponseEntity<?> softDelete(@PathVariable Long id) {
-        try {
-            return ResponseEntity.status(HttpStatus.NO_CONTENT).body(servicio.softDelete(id));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("{\"error\":\"Error en borrado lógico\"}");
-        }
-    }
-
     @PatchMapping("/restore/{id}")
     @PreAuthorize("hasAnyRole('ADMIN')")
     public ResponseEntity<?> restore(@PathVariable Long id) {

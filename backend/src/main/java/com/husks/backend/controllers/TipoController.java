@@ -22,7 +22,11 @@ public class TipoController extends BaseControllerImpl<Tipo, TipoServiceImpl>{
     @GetMapping("")
     @PreAuthorize("hasAnyRole('ADMIN', 'CLIENTE')")
     public ResponseEntity<?> getAllTipos() {
-        return super.getAll();
+        try {
+            return ResponseEntity.ok(servicio.findAll());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("{\"error\":\"Error obteniendo tipos\"}");
+        }
     }
 
     @PutMapping("/{id}")

@@ -168,3 +168,29 @@ export const getPublicProductos = async (): Promise<IProducto[]> => {
     return [];
   }
 };
+
+export const getProductosFiltrados = async ({ tipoId, categoriaId, nombre, precioMin, precioMax, talleId, sistemaTalle }: {
+  tipoId?: number;
+  categoriaId?: number;
+  nombre?: string;
+  precioMin?: number;
+  precioMax?: number;
+  talleId?: number;
+  sistemaTalle?: string;
+}): Promise<IProducto[]> => {
+  try {
+    const params: any = {};
+    if (tipoId) params.tipoId = tipoId;
+    if (categoriaId) params.categoriaId = categoriaId;
+    if (nombre) params.nombre = nombre;
+    if (precioMin !== undefined) params.precioMin = precioMin;
+    if (precioMax !== undefined) params.precioMax = precioMax;
+    if (talleId) params.talleId = talleId;
+    if (sistemaTalle) params.sistemaTalle = sistemaTalle;
+    const response = await axios.get<IProducto[]>(`${API_URL}/producto/filtrar`, { params });
+    return response.data;
+  } catch (error: any) {
+    console.error('Error al filtrar productos:', error);
+    return [];
+  }
+};

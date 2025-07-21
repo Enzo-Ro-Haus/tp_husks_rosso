@@ -52,4 +52,9 @@ public class ProductoServiceImpl extends BaseServiceImpl<Producto, Long> impleme
             throw new Exception("Error actualizando imagen del producto: " + e.getMessage());
         }
     }
+
+    @Override
+    public List<Producto> filtrarProductos(Long tipoId, Long categoriaId, String nombre, Double precioMin, Double precioMax, Long talleId, String sistemaTalle) throws Exception {
+        return productoRepository.filtrarProductos(tipoId, categoriaId, nombre, precioMin, precioMax, talleId, sistemaTalle);
+    }
 }

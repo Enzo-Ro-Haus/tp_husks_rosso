@@ -58,6 +58,28 @@ public class ProductoController extends BaseControllerImpl<Producto, ProductoSer
         }
     }
 
+    // --- NUEVO ENDPOINT DE FILTRADO ---
+    @GetMapping("/filtrar")
+    @ResponseBody
+    @CrossOrigin(origins = "*")
+    public ResponseEntity<?> filtrarProductos(
+            @RequestParam(required = false) Long tipoId,
+            @RequestParam(required = false) Long categoriaId,
+            @RequestParam(required = false) String nombre,
+            @RequestParam(required = false) Double precioMin,
+            @RequestParam(required = false) Double precioMax,
+            @RequestParam(required = false) Long talleId,
+            @RequestParam(required = false) String sistemaTalle
+    ) {
+        try {
+            List<Producto> productos = servicio.filtrarProductos(tipoId, categoriaId, nombre, precioMin, precioMax, talleId, sistemaTalle);
+            return ResponseEntity.status(HttpStatus.OK).body(productos);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("{\"error\":\"Error filtrando productos: " + e.getMessage() + "\"}");
+        }
+    }
+
     @PatchMapping("/{id}/imagen")
     public ResponseEntity<?> updateProductImage(@PathVariable Long id, @RequestBody ImageUpdateRequest request) {
         try {

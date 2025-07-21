@@ -1,0 +1,12 @@
+/* Animación slide vertical para la barra de filtros */
+.filterbar-slide {
+  transition: transform 0.3s cubic-bezier(0.4,0,0.2,1), opacity 0.3s cubic-bezier(0.4,0,0.2,1);
+  transform: translateY(-40px);
+  opacity: 0;
+  pointer-events: none;
+}
+.filterbar-slide.filterbar-slide--open {
+  transform: translateY(0);
+  opacity: 1;
+  pointer-events: auto;
+} 

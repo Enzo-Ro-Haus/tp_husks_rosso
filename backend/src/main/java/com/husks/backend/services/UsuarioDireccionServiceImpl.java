@@ -48,4 +48,18 @@ public class UsuarioDireccionServiceImpl extends BaseServiceImpl<UsuarioDireccio
             throw new Exception(e.getMessage());
         }
     }
+
+    @Transactional(readOnly = true)
+    public List<UsuarioDireccion> findActiveByUsuarioId(Long usuarioId) throws Exception {
+        try {
+            System.out.println("=== DEBUG: UsuarioDireccionServiceImpl.findActiveByUsuarioId(" + usuarioId + ") called ===");
+            List<UsuarioDireccion> usuarioDirecciones = usuarioDireccionRepository.findActiveByUsuarioId(usuarioId);
+            System.out.println("=== DEBUG: Found " + usuarioDirecciones.size() + " active usuario direcciones for usuarioId=" + usuarioId + " ===");
+            return usuarioDirecciones;
+        } catch (Exception e) {
+            System.out.println("=== DEBUG: Exception in UsuarioDireccionServiceImpl.findActiveByUsuarioId(): " + e.getMessage() + " ===");
+            e.printStackTrace();
+            throw new Exception(e.getMessage());
+        }
+    }
 }

@@ -44,6 +44,19 @@ public class OrdenDeCompraController extends  BaseControllerImpl<OrdenDeCompra, 
         return super.getAll();
     }
 
+    @GetMapping("/mias")
+    @PreAuthorize("hasRole('CLIENTE')")
+    public ResponseEntity<?> getMisOrdenes(@org.springframework.security.core.annotation.AuthenticationPrincipal com.husks.backend.entities.Usuario usuarioAuth) {
+        try {
+            Long usuarioId = usuarioAuth.getId();
+            java.util.List<OrdenDeCompra> ordenes = servicio.findActiveByUsuarioId(usuarioId);
+            return ResponseEntity.status(HttpStatus.OK).body(ordenes);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("{\"error\":\"Error obteniendo tus órdenes activas.\"}");
+        }
+    }
+
     @PostMapping("")
     @ResponseBody
     @PreAuthorize("hasAnyRole('ADMIN', 'CLIENTE')")

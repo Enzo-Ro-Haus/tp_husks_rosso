@@ -45,6 +45,21 @@ public class OrdenDeCompraServiceImpl
   }
 
   @Override
+  @Transactional(readOnly = true)
+  public List<OrdenDeCompra> findActiveByUsuarioId(Long usuarioId) throws Exception {
+    try {
+      System.out.println("=== DEBUG: OrdenDeCompraServiceImpl.findActiveByUsuarioId(" + usuarioId + ") called ===");
+      List<OrdenDeCompra> ordenes = ordenRepo.findActiveByUsuarioId(usuarioId);
+      System.out.println("=== DEBUG: Found " + ordenes.size() + " active ordenes for usuarioId=" + usuarioId + " ===");
+      return ordenes;
+    } catch (Exception e) {
+      System.out.println("=== DEBUG: Exception in OrdenDeCompraServiceImpl.findActiveByUsuarioId(): " + e.getMessage() + " ===");
+      e.printStackTrace();
+      throw new Exception(e.getMessage());
+    }
+  }
+
+  @Override
   public OrdenDeCompra save(OrdenDeCompra orden) throws Exception {
     if (orden.getDetalles() != null) {
         for (Detalle detalle : orden.getDetalles()) {

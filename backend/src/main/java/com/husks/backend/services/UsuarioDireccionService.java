@@ -7,4 +7,5 @@ import java.util.List;
 
 public interface UsuarioDireccionService extends BaseService<UsuarioDireccion, Long> {
     List<UsuarioDireccion> findActiveUsuarioDirecciones() throws Exception;
+    List<UsuarioDireccion> findActiveByUsuarioId(Long usuarioId) throws Exception;
 }

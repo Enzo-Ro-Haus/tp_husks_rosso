@@ -157,3 +157,13 @@ export const restoreOrden = async (
     showConfirmButton: false,
   });
 };
+
+export const getMisOrdenes = async (
+  token: string | null
+): Promise<IOrden[]> => {
+  const { data } = await axios.get<IOrden[]>(
+    `${API_URL}/orden-compra/mias`,
+    { headers: { Authorization: `Bearer ${token}` } }
+  );
+  return data;
+};

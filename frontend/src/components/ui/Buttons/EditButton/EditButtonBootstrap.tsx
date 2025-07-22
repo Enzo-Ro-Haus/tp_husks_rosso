@@ -50,7 +50,7 @@ const getEstadoOrdenLabel = (value: string) => {
   }
 };
 
-type ViewType =
+export type ViewType =
   | "Users"
   | "Products"
   | "Categories"

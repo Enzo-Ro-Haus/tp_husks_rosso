@@ -15,6 +15,7 @@ import UserProfileImage from "../../Image/UserProfileImage";
 import CloudinaryImg from "../../Image/CoudinaryImg";
 import styles from "./ListCard.module.css";
 import UserProfileCard from '../../UserProfileCard/UserProfileCard';
+import type { ViewType } from "../../Buttons/EditButton/EditButtonBootstrap";
 
 export type ListCardVariant =
   | "Products"
@@ -150,6 +151,14 @@ export const ListCard: React.FC<ListCardProps> = (props) => {
 
   const formattedDate = date ? new Date(date).toLocaleString() : "";
 
+  // Helper to map ListCardVariant to ViewType, or return undefined for invalid ones
+  const getViewType = (variant: ListCardVariant): ViewType | undefined => {
+    const valid: ViewType[] = [
+      "Products", "Users", "Categories", "Types", "Sizes", "Addresses", "Orders", "Client"
+    ];
+    return valid.includes(variant as ViewType) ? (variant as ViewType) : undefined;
+  };
+
   return (
     <>
       <Card ref={cardRef} className={`mb-3 ${activo === false ? styles.softDeleted : ''} ${restored ? styles.restored : ''} ${variant === 'CartProduct' ? styles.cartProductFullWidth : ''} ${variant === 'Orders' ? styles.orderCardWidth : ''} ${(variant === 'Categories' || variant === 'Types' || variant === 'Sizes' || variant === 'Addresses') ? styles.adminNarrowCard : ''}`}>
@@ -258,7 +267,7 @@ export const ListCard: React.FC<ListCardProps> = (props) => {
                       ) : null}
                     </div>
                     <div className="d-flex flex-column gap-3 mt-4 w-100 align-items-center">
-                      <button className="btn btn-primary w-50" onClick={onEdited}>Editar mi perfil</button>
+                      <button className="btn btn-primary w-50" onClick={() => onEdited && onEdited()}>Editar mi perfil</button>
                       <button className="btn btn-danger w-50" onClick={onDeleted}>Eliminar mi perfil</button>
                     </div>
                   </div>
@@ -515,9 +524,9 @@ export const ListCard: React.FC<ListCardProps> = (props) => {
         </Card>
 
         {/* Modal de edición */}
-        {showEditModal && (
+        {showEditModal && getViewType(variant) && (
           <EditButtonBootstrap
-            view={variant}
+            view={getViewType(variant)!}
             item={getItemForEdit()}
             onClose={handleEditClose}
             onUpdated={handleEditUpdated}

@@ -192,3 +192,13 @@ export const updateDireccion = async (
   });
   return data;
 };
+
+export const getMisUsuarioDirecciones = async (
+  token: string | null
+): Promise<IUsuarioDireccion[]> => {
+  const { data } = await axios.get<IUsuarioDireccion[]>(
+    `${API_URL}/usuario-direccion/mias`,
+    { headers: { Authorization: `Bearer ${token}` } }
+  );
+  return data;
+};

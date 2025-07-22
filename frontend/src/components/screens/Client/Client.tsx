@@ -20,6 +20,8 @@ import * as addressAPI from '../../../http/direccionHTTP';
 import Swal from 'sweetalert2';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as yup from 'yup';
+import { getMisUsuarioDirecciones } from '../../../http/direccionHTTP';
+import { getMisOrdenes } from '../../../http/ordenHTTPS';
 
 export const Client = () => {
   const navigate = useNavigate();
@@ -58,7 +60,7 @@ export const Client = () => {
   };
 
   const getOrdenes = async () => {
-    const data = await getAllOrdenes(token ?? null);
+    const data = await getMisOrdenes(token ?? null);
     if (data) setArrayOrdenes(data);
     console.log("Direcciones: " + JSON.stringify(data, null, 2));
   };
@@ -90,7 +92,7 @@ export const Client = () => {
         showConfirmButton: false,
       });
       // Refresca el store de direcciones
-      const direccionesActualizadas = await addressAPI.getAllUsuarioDirecciones(token);
+      const direccionesActualizadas = await getMisUsuarioDirecciones(token);
       setArrayDirecciones(direccionesActualizadas);
     } catch (err) {
       Swal.fire({
@@ -117,7 +119,7 @@ export const Client = () => {
   // Sincronizar direcciones al entrar a la vista Address
   useEffect(() => {
     if (view === 'Address' && token) {
-      addressAPI.getAllUsuarioDirecciones(token).then(setArrayDirecciones);
+      getMisUsuarioDirecciones(token).then(setArrayDirecciones);
     }
   }, [view, token, setArrayDirecciones]);
 
@@ -217,7 +219,7 @@ export const Client = () => {
                 direccion: values // values: { calle, localidad, cp }
               });
               // Refresca el store de direcciones para que la UI se actualice instantáneamente
-              const direccionesActualizadas = await addressAPI.getAllUsuarioDirecciones(usuarioActivo.token ?? null);
+              const direccionesActualizadas = await getMisUsuarioDirecciones(usuarioActivo.token ?? null);
               setArrayDirecciones(direccionesActualizadas);
               setShowAddressModal(false);
               resetForm();

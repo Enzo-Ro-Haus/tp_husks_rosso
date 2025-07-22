@@ -58,6 +58,19 @@ public class UsuarioDireccionController extends BaseControllerImpl<UsuarioDirecc
         }
     }
 
+    @GetMapping("/mias")
+    @PreAuthorize("hasRole('CLIENTE')")
+    public ResponseEntity<?> getMisDirecciones(@AuthenticationPrincipal com.husks.backend.entities.Usuario usuarioAuth) {
+        try {
+            Long usuarioId = usuarioAuth.getId();
+            List<UsuarioDireccion> usuarioDirecciones = servicio.findActiveByUsuarioId(usuarioId);
+            return ResponseEntity.status(HttpStatus.OK).body(usuarioDirecciones);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("{\"error\":\"Error obteniendo tus direcciones activas.\"}");
+        }
+    }
+
     @PostMapping("/relacion")
     @PreAuthorize("hasAnyRole('ADMIN', 'CLIENTE')")
     public ResponseEntity<?> save(@RequestBody Map<String, Object> body) {

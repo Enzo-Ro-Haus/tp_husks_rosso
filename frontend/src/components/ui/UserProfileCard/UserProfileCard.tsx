@@ -6,6 +6,7 @@ import Swal from 'sweetalert2';
 import { usuarioStore } from '../../../store/usuarioStore';
 import * as userAPI from '../../../http/usuarioHTTP';
 import { softDeleteMeUsuario } from '../../../http/usuarioHTTP';
+import { useNavigate } from 'react-router-dom';
 
 interface UserProfileCardProps {
   usuario: IUsuario;
@@ -18,6 +19,10 @@ const headerGray = '#e9ecef';
 const UserProfileCard: React.FC<UserProfileCardProps> = ({ usuario, onEdited, onDeleted }) => {
   const [showEditModal, setShowEditModal] = useState(false);
   const token = usuarioStore((s) => s.usuarioActivo?.token) || "";
+  const logout = usuarioStore((s) => s.logOut);
+  const navigate = useNavigate();
+  const setUsuario = usuarioStore((s) => s.setUsuarioActivo); // Alias para claridad
+  const setUsuarioActivo = usuarioStore((s) => s.setUsuarioActivo);
 
   const handleEditClick = () => setShowEditModal(true);
   const handleEditClose = () => setShowEditModal(false);
@@ -46,6 +51,18 @@ const UserProfileCard: React.FC<UserProfileCardProps> = ({ usuario, onEdited, on
           showConfirmButton: false,
         });
         if (onDeleted) onDeleted();
+        await Swal.fire({
+          icon: "success",
+          title: "Sesión cerrada",
+          text: `¡Hasta luego, ${usuario.nombre}!`,
+          timer: 2000,
+          showConfirmButton: false,
+        });
+        setUsuarioActivo(null);
+        logout();
+        navigate("/");
+        // Como último recurso, forzar reload total
+        setTimeout(() => { window.location.href = "/"; }, 100);
       } catch (error: any) {
         let errorMessage = "Error inesperado al eliminar el usuario.";
         if (error.code === 'ERR_NETWORK') {

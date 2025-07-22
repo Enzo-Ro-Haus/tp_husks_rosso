@@ -59,7 +59,11 @@ export const usuarioStore = create<IUsuariostore>()(
             state.usuarioActivo?.id === idUsuario ? null : state.usuarioActivo,
         })),
 
-        logOut: () => set({ usuarioActivo: null, usuarios: [] }),
+        logOut: () => {
+          set({ usuarioActivo: null, usuarios: [] });
+          // Limpia el storage persistente también
+          localStorage.removeItem("usuario-storage");
+        },
 
         setUsuarioSeleccionado: (usuarioSeleccinadoIn) =>
         set({ usuarioSeleccionado: usuarioSeleccinadoIn }),

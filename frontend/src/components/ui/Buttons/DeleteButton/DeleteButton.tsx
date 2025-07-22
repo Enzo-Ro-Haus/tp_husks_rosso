@@ -112,6 +112,7 @@ export const DeleteButton: React.FC<DeleteButtonProps> = ({
   onDeleted,
 }) => {
   const token = usuarioStore((s) => s.usuarioActivo?.token) || "";
+  const logout = usuarioStore((s) => s.logOut);
 
   const handleDelete = async () => {
     const result = await Swal.fire({
@@ -139,7 +140,10 @@ export const DeleteButton: React.FC<DeleteButtonProps> = ({
         if (onDeleted) {
           onDeleted();
         }
-        
+        // Si es el propio usuario en Client y fue soft delete, desloguear
+        if (view === "Client" && result.isDenied) {
+          logout();
+        }
         // Actualizar stores específicos según el tipo de entidad
         if (view === "Addresses") {
           // Actualizar el store de direcciones con todas las direcciones (incluyendo soft delete)

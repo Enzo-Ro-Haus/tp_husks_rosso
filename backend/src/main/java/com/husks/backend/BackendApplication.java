@@ -173,6 +173,7 @@ public class BackendApplication {
 					.imagenPublicId("no_cloth.jpeg")
 					.tallesDisponibles(new java.util.HashSet<>())
 					.build();
+				producto.setActivo(true); // <-- Asegura que el producto esté activo
 				producto.getTallesDisponibles().add(savedTalleAmericano);
 				Producto savedProducto = productoRepository.save(producto);
 				System.out.println("✅ Producto por defecto creado: Pantalón clásico");

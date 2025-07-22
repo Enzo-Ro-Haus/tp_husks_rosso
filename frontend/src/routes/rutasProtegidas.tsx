@@ -14,8 +14,12 @@ export const ProtectedRoute = ({ children, rolesPermitidos }: Props) => {
 
   useEffect(() => {
     console.log("🔒 ProtectedRoute - Usuario:", usuario);
+    console.log("🔒 ProtectedRoute - Usuario.rol:", usuario?.rol, typeof usuario?.rol);
     console.log("🔒 ProtectedRoute - Roles permitidos:", rolesPermitidos);
     console.log("🔒 ProtectedRoute - Ruta actual:", location.pathname);
+    if (usuario && usuario.rol) {
+      console.log("🔒 ProtectedRoute - rolesPermitidos.includes(usuario.rol):", rolesPermitidos.includes(usuario.rol));
+    }
   }, [usuario, rolesPermitidos, location.pathname]);
 
   //No logueado, lo mandamos al login

@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Card, Row, Col, Badge, Button } from "react-bootstrap";
+import Stack from "react-bootstrap/Stack";
 import { ICategoria } from "../../../../types/ICategoria";
 import { IDetalle } from "../../../../types/IDetalle";
 import { ITalle } from "../../../../types/ITalle";
@@ -151,7 +152,7 @@ export const ListCard: React.FC<ListCardProps> = (props) => {
 
   return (
     <>
-      <Card ref={cardRef} className={`mb-3 ${activo === false ? styles.softDeleted : ''} ${restored ? styles.restored : ''}`}>
+      <Card ref={cardRef} className={`mb-3 ${activo === false ? styles.softDeleted : ''} ${restored ? styles.restored : ''} ${variant === 'CartProduct' ? styles.cartProductFullWidth : ''} ${variant === 'Orders' ? styles.orderCardWidth : ''} ${(variant === 'Categories' || variant === 'Types' || variant === 'Sizes' || variant === 'Addresses') ? styles.adminNarrowCard : ''}`}>
         <Card.Body>
           {/* Vista especial para Client: disposición vertical */}
           {variant === "Client" && usuario ? (
@@ -262,167 +263,189 @@ export const ListCard: React.FC<ListCardProps> = (props) => {
                     </div>
                   </div>
                 )}
-                    {variant === "Products" && (
-                      <>
-                        <p>
-                          <strong>ID:</strong> {id}
-                        </p>
-                        <p>
-                          <strong>Name:</strong> <span className={activo === false ? styles.softDeletedName : ''}>{name}</span>
-                        </p>
-                        <p>
-                          <strong>Description:</strong> {description}
-                        </p>
-                        <p>
-                          <strong>Color:</strong> {color}
-                        </p>
-                        <p>
-                          <strong>Category:</strong> {category && typeof category === 'object' && typeof category.nombre === 'string' ? category.nombre : 'Sin categoría'}
-                        </p>
-                        <p>
-                          <strong>Type:</strong> {type && typeof type === 'object' && typeof type.nombre === 'string' ? type.nombre : 'Sin tipo'}
-                        </p>
-                        <p>
-                          <strong>Sizes:</strong>{" "}
-                          {Array.isArray(sizes) && sizes.length > 0
-                            ? sizes.map((s) => (s && typeof s === 'object' && s.sistema && s.valor ? `${s.sistema} ${s.valor}` : null)).filter(Boolean).join(", ")
-                            : "Sin talles"}
-                        </p>
-                        <p>
-                          <strong>Price:</strong> ${price}
-                        </p>
-                        <div style={{display:'flex',alignItems:'center',gap:8}}>
-                          <strong>Cantidad:</strong>
-                          <input
-                            type="number"
-                            min={1}
-                            value={quantity}
-                            style={{width:50}}
-                            onChange={e => {
-                              const val = parseInt(e.target.value, 10);
-                              if (onEdited) onEdited(val);
-                            }}
-                          />
-                          <Button variant="danger" size="sm" onClick={onDeleted} style={{marginLeft:8}}>Eliminar</Button>
+                    {variant === "Products" && producto && (
+                      <Card.Body>
+                        <div style={{ display: 'flex', flexDirection: 'row', gap: '2rem', alignItems: 'flex-start', flexWrap: 'wrap' }}>
+                          {/* Imagen de miniatura eliminada */}
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap', marginBottom: 8 }}>
+                              <span style={{ fontWeight: 600, minWidth: 90 }}>ID:</span>
+                              <div style={{ flex: 1, minWidth: 0 }}>{id}</div>
+                            </div>
+                            <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap', marginBottom: 8 }}>
+                              <span style={{ fontWeight: 600, minWidth: 90 }}>Name:</span>
+                              <div style={{ flex: 1, minWidth: 0 }}>{name}</div>
+                            </div>
+                            <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap', marginBottom: 8 }}>
+                              <span style={{ fontWeight: 600, minWidth: 90 }}>Description:</span>
+                              <div style={{ flex: 1, minWidth: 0 }}>{description}</div>
+                            </div>
+                            <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap', marginBottom: 8 }}>
+                              <span style={{ fontWeight: 600, minWidth: 90 }}>Color:</span>
+                              <div style={{ flex: 1, minWidth: 0 }}>{color}</div>
+                            </div>
+                            <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap', marginBottom: 8 }}>
+                              <span style={{ fontWeight: 600, minWidth: 90 }}>Category:</span>
+                              <div style={{ flex: 1, minWidth: 0 }}>{category && typeof category === 'object' && typeof category.nombre === 'string' ? category.nombre : 'Sin categoría'}</div>
+                            </div>
+                            <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap', marginBottom: 8 }}>
+                              <span style={{ fontWeight: 600, minWidth: 90 }}>Type:</span>
+                              <div style={{ flex: 1, minWidth: 0 }}>{type && typeof type === 'object' && typeof type.nombre === 'string' ? type.nombre : 'Sin tipo'}</div>
+                            </div>
+                            <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap', marginBottom: 8 }}>
+                              <span style={{ fontWeight: 600, minWidth: 90 }}>Sizes:</span>
+                              <div style={{ flex: 1, minWidth: 0 }}>{Array.isArray(sizes) && sizes.length > 0 ? sizes.map((s) => (s && typeof s === 'object' && s.sistema && s.valor ? `${s.sistema} ${s.valor}` : null)).filter(Boolean).join(", ") : "Sin talles"}</div>
+                            </div>
+                            <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap', marginBottom: 8 }}>
+                              <span style={{ fontWeight: 600, minWidth: 90 }}>Price:</span>
+                              <div style={{ flex: 1, minWidth: 0 }}>${price}</div>
+                            </div>
+                            <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap', marginBottom: 8 }}>
+                              <span style={{ fontWeight: 600, minWidth: 90 }}>Cantidad:</span>
+                              <div style={{ flex: 1, minWidth: 0 }}>{quantity}</div>
+                            </div>
+                            {/* Los botones originales debajo, no se agregan nuevos */}
+                          </div>
                         </div>
-                      </>
+                      </Card.Body>
                     )}
 
-                    {(variant === "Users" || variant === "Client") && (
-                      <>
-                        <p>
-                          <strong>ID:</strong> {id}
-                        </p>
-                        <p>
-                          <strong>Name:</strong> <span className={activo === false ? styles.softDeletedName : ''}>{name}</span>
-                        </p>
-                        <p>
-                          <strong>Email:</strong> {email}
-                        </p>
-                        {/* Eliminar Role, Orders y Addresses para Client */}
-                        {variant === "Users" && (
-                          <>
-                            <p>
-                              <strong>Role:</strong> {rol}
-                            </p>
-                            <p>
-                              <strong>Orders:</strong>{" "}
-                              {usuario?.ordenes && usuario.ordenes.length > 0 
-                                ? usuario.ordenes.length 
-                                : "No posee"
-                              }
-                            </p>
-                            <p>
-                              <strong>Addresses:</strong>{" "}
-                              {address && address.length > 0 
-                                ? address.map((d, index) => (
-                                    <span key={d.id}>
-                                      {index > 0 && "; "}
-                                      {d.direccion.calle}, {d.direccion.localidad} ({d.direccion.cp})
-                                    </span>
-                                  ))
-                                : "No posee"
-                              }
-                            </p>
-                          </>
-                        )}
-                      </>
+                    {variant === "Users" && usuario && (
+                      <Card.Body>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                          <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap', marginBottom: 8 }}>
+                            <span style={{ fontWeight: 600, minWidth: 90 }}>ID:</span>
+                            <div style={{ flex: 1, minWidth: 0 }}>{usuario.id}</div>
+                          </div>
+                          <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap', marginBottom: 8 }}>
+                            <span style={{ fontWeight: 600, minWidth: 90 }}>Name:</span>
+                            <div style={{ flex: 1, minWidth: 0 }}>{usuario.nombre}</div>
+                          </div>
+                          <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap', marginBottom: 8 }}>
+                            <span style={{ fontWeight: 600, minWidth: 90 }}>Email:</span>
+                            <div style={{ flex: 1, minWidth: 0 }}>{usuario.email}</div>
+                          </div>
+                          <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap', marginBottom: 8 }}>
+                            <span style={{ fontWeight: 600, minWidth: 90 }}>Role:</span>
+                            <div style={{ flex: 1, minWidth: 0 }}>{usuario.rol}</div>
+                          </div>
+                          <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap', marginBottom: 8 }}>
+                            <span style={{ fontWeight: 600, minWidth: 90 }}>Orders:</span>
+                            <div style={{ flex: 1, minWidth: 0 }}>{usuario.ordenes && usuario.ordenes.length > 0 ? usuario.ordenes.length : "No posee"}</div>
+                          </div>
+                          <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap', marginBottom: 8 }}>
+                            <span style={{ fontWeight: 600, minWidth: 90 }}>Addresses:</span>
+                            <div style={{ flex: 1, minWidth: 0 }}>{usuario.direcciones && usuario.direcciones.length > 0 ? usuario.direcciones.map((d, index) => (
+                              <span key={d.id}>{index > 0 && "; "}{d.direccion.calle}, {d.direccion.localidad} ({d.direccion.cp})</span>
+                            )) : "No posee"}</div>
+                          </div>
+                        </div>
+                      </Card.Body>
                     )}
 
                     {variant === "Categories" && (
-                      <>
-                        <p>
-                          <strong>ID:</strong> {id}
-                        </p>
-                        <p>
-                          <strong>Name:</strong> <span className={activo === false ? styles.softDeletedName : ''}>{name}</span>
-                        </p>
-                        <p>
-                          <strong>Types:</strong>{" "}
-                          {category?.tipos && category.tipos.length > 0
-                            ? category.tipos.map((t) => t.nombre).join(", ")
-                            : "No posee"
-                          }
-                        </p>
-                        {/* Eliminada la sección de productos */}
-                      </>
+                      <Card.Body>
+                        <div style={{ display: 'flex', flexDirection: 'row', gap: '2rem', alignItems: 'flex-start', flexWrap: 'wrap' }}>
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap', marginBottom: 8 }}>
+                              <span style={{ fontWeight: 600, minWidth: 90 }}>ID:</span>
+                              <div style={{ flex: 1, minWidth: 0 }}>{id}</div>
+                            </div>
+                            <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap', marginBottom: 8 }}>
+                              <span style={{ fontWeight: 600, minWidth: 90 }}>Name:</span>
+                              <div style={{ flex: 1, minWidth: 0 }}>{name}</div>
+                            </div>
+                            <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap', marginBottom: 8 }}>
+                              <span style={{ fontWeight: 600, minWidth: 90 }}>Types:</span>
+                              <div style={{ flex: 1, minWidth: 0 }}>{category?.tipos && category.tipos.length > 0 ? category.tipos.map((t) => t.nombre).join(", ") : "No posee"}</div>
+                            </div>
+                          </div>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', minWidth: 110, alignItems: 'flex-end' }}>
+                            <Button variant="primary" onClick={handleEditClick}>Editar</Button>
+                            <DeleteButton view={variant} id={id} onDeleted={onDeleted} />
+                          </div>
+                        </div>
+                      </Card.Body>
                     )}
-
                     {variant === "Types" && (
-                      <>
-                        <p>
-                          <strong>ID:</strong> {id}
-                        </p>
-                        <p>
-                          <strong>Name:</strong> <span className={activo === false ? styles.softDeletedName : ''}>{name}</span>
-                        </p>
-                        <p>
-                          <strong>Categories:</strong>{" "}
-                          {categories && categories.length > 0
-                            ? categories.map((c) => c.nombre).join(", ")
-                            : "No posee"
-                          }
-                        </p>
-                        {/* Eliminada la sección de productos para Types */}
-                      </>
+                      <Card.Body>
+                        <div style={{ display: 'flex', flexDirection: 'row', gap: '2rem', alignItems: 'flex-start', flexWrap: 'wrap' }}>
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap', marginBottom: 8 }}>
+                              <span style={{ fontWeight: 600, minWidth: 90 }}>ID:</span>
+                              <div style={{ flex: 1, minWidth: 0 }}>{id}</div>
+                            </div>
+                            <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap', marginBottom: 8 }}>
+                              <span style={{ fontWeight: 600, minWidth: 90 }}>Name:</span>
+                              <div style={{ flex: 1, minWidth: 0 }}>{name}</div>
+                            </div>
+                            <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap', marginBottom: 8 }}>
+                              <span style={{ fontWeight: 600, minWidth: 90 }}>Categories:</span>
+                              <div style={{ flex: 1, minWidth: 0 }}>{categories && categories.length > 0 ? categories.map((c) => c.nombre).join(", ") : "No posee"}</div>
+                            </div>
+                          </div>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', minWidth: 110, alignItems: 'flex-end' }}>
+                            <Button variant="primary" onClick={handleEditClick}>Editar</Button>
+                            <DeleteButton view={variant} id={id} onDeleted={onDeleted} />
+                          </div>
+                        </div>
+                      </Card.Body>
                     )}
-
                     {variant === "Sizes" && (
-                      <>
-                        <p>
-                          <strong>ID:</strong> {id}
-                        </p>
-                        <p>
-                          <strong>System:</strong> {system}
-                        </p>
-                        <p>
-                          <strong>Value:</strong> {value}
-                        </p>
-                      </>
+                      <Card.Body>
+                        <div style={{ display: 'flex', flexDirection: 'row', gap: '2rem', alignItems: 'flex-start', flexWrap: 'wrap' }}>
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap', marginBottom: 8 }}>
+                              <span style={{ fontWeight: 600, minWidth: 90 }}>ID:</span>
+                              <div style={{ flex: 1, minWidth: 0 }}>{id}</div>
+                            </div>
+                            <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap', marginBottom: 8 }}>
+                              <span style={{ fontWeight: 600, minWidth: 90 }}>System:</span>
+                              <div style={{ flex: 1, minWidth: 0 }}>{system}</div>
+                            </div>
+                            <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap', marginBottom: 8 }}>
+                              <span style={{ fontWeight: 600, minWidth: 90 }}>Value:</span>
+                              <div style={{ flex: 1, minWidth: 0 }}>{value}</div>
+                            </div>
+                          </div>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', minWidth: 110, alignItems: 'flex-end' }}>
+                            <Button variant="primary" onClick={handleEditClick}>Editar</Button>
+                            <DeleteButton view={variant} id={id} onDeleted={onDeleted} />
+                          </div>
+                        </div>
+                      </Card.Body>
                     )}
-
                     {variant === "Addresses" && (
-                      <>
-                        <p>
-                          <strong>ID:</strong> {id}
-                        </p>
-                        <p>
-                          <strong>User:</strong>{" "}
-                          {usuario?.nombre || usuarioDireccion?.usuario.nombre || "Sin usuario asignado"}
-                        </p>
-                        <p>
-                          <strong>Street:</strong>{" "}
-                          {street || usuarioDireccion?.direccion.calle}
-                        </p>
-                        <p>
-                          <strong>Locality:</strong>{" "}
-                          {locality || usuarioDireccion?.direccion.localidad}
-                        </p>
-                        <p>
-                          <strong>Postal Code:</strong>{" "}
-                          {pc || usuarioDireccion?.direccion.cp}
-                        </p>
-                      </>
+                      <Card.Body>
+                        <div style={{ display: 'flex', flexDirection: 'row', gap: '2rem', alignItems: 'flex-start', flexWrap: 'wrap' }}>
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap', marginBottom: 8 }}>
+                              <span style={{ fontWeight: 600, minWidth: 90 }}>ID:</span>
+                              <div style={{ flex: 1, minWidth: 0 }}>{id}</div>
+                            </div>
+                            <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap', marginBottom: 8 }}>
+                              <span style={{ fontWeight: 600, minWidth: 90 }}>User:</span>
+                              <div style={{ flex: 1, minWidth: 0 }}>{usuario?.nombre || usuarioDireccion?.usuario.nombre || "Sin usuario asignado"}</div>
+                            </div>
+                            <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap', marginBottom: 8 }}>
+                              <span style={{ fontWeight: 600, minWidth: 90 }}>Street:</span>
+                              <div style={{ flex: 1, minWidth: 0 }}>{street || usuarioDireccion?.direccion.calle}</div>
+                            </div>
+                            <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap', marginBottom: 8 }}>
+                              <span style={{ fontWeight: 600, minWidth: 90 }}>Locality:</span>
+                              <div style={{ flex: 1, minWidth: 0 }}>{locality || usuarioDireccion?.direccion.localidad}</div>
+                            </div>
+                            <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap', marginBottom: 8 }}>
+                              <span style={{ fontWeight: 600, minWidth: 90 }}>Postal Code:</span>
+                              <div style={{ flex: 1, minWidth: 0 }}>{pc || usuarioDireccion?.direccion.cp}</div>
+                            </div>
+                          </div>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', minWidth: 110, alignItems: 'flex-end' }}>
+                            <Button variant="primary" onClick={handleEditClick}>Editar</Button>
+                            <DeleteButton view={variant} id={id} onDeleted={onDeleted} />
+                          </div>
+                        </div>
+                      </Card.Body>
                     )}
 
                     {variant === "Orders" && (
@@ -459,7 +482,7 @@ export const ListCard: React.FC<ListCardProps> = (props) => {
                   <div className="d-flex flex-column gap-2 align-items-center w-100">
                     {activo !== false ? (
                       <>
-                        {variant !== "Orders" && (
+                        {variant !== "Orders" && variant !== "Categories" && variant !== "Types" && variant !== "Sizes" && variant !== "Addresses" && (
                           <>
                             <Button
                               variant="primary"

@@ -97,10 +97,10 @@ export const Cart = () => {
     <div className={styles.containerPrincipalCart}>
       <Header />
       <div className={styles.containerBody}>
-        <Row className={styles.containerOrders}>
+        <div className={styles.containerOrders} style={{ flexDirection: 'column', width: '100%' }}>
           {detalles && detalles.length > 0 ? (
             detalles.map((d) => (
-              <Col key={d.producto.id} md={4} sm={6} xs={12} className="mb-3 d-flex">
+              <div key={d.producto.id} style={{ width: '100%', marginBottom: '1rem', display: 'flex', justifyContent: 'center' }}>
                 <ListCard
                   variant="CartProduct"
                   id={d.producto.id || "NN"}
@@ -114,14 +114,14 @@ export const Cart = () => {
                   imagenPublicId={d.producto.imagenPublicId}
                   onDeleted={() => { eliminarDetalle(d.producto.id as number); }}
                 />
-              </Col>
+              </div>
             ))
           ) : (
-            <Col xs={12}>
+            <div style={{ width: '100%' }}>
               <h3>Este carrito está vacío, cambiemos eso</h3>
-            </Col>
+            </div>
           )}
-        </Row>
+        </div>
         <div style={{height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-start', minWidth: '220px', maxWidth: '260px', padding: '1rem 0.5rem', marginLeft: '1rem'}}>
           <CartSideBar total={total} onBuy={() => setShowModal(true)} buyDisabled={detalles.length === 0} />
         </div>

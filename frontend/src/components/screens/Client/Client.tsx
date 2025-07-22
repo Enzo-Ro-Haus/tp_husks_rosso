@@ -32,7 +32,7 @@ export const Client = () => {
   const ordenes = ordenStore((s) => s.ordenes);
 
   // Use persistent view store instead of local state
-  const { view, setView } = useClientView();
+  const { view, setView, resetView } = useClientView();
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   const getUsuario = async () => {
@@ -105,10 +105,8 @@ export const Client = () => {
 
 
   useEffect(() => {
-    /*if (!token) {
-      console.warn("No hay token");
-      navigate("/login");
-    }*/
+    // Al entrar a /client, forzar la vista inicial a 'Client' (My user)
+    setView("Client");
     getUsuario();
   }, [token]);
 

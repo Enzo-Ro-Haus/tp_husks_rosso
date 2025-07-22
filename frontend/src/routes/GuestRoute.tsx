@@ -9,7 +9,13 @@ interface Props {
 export const GuestRoute = ({ children }: Props) => {
   const usuario = usuarioStore((s) => s.usuarioActivo);
   if (usuario) {
-    return <Navigate to="/client" replace />;
+    if (usuario.rol === "ADMIN") {
+      return <Navigate to="/admin" replace />;
+    } else if (usuario.rol === "CLIENTE") {
+      return <Navigate to="/client" replace />;
+    } else {
+      return <Navigate to="/" replace />;
+    }
   }
   return <>{children}</>;
 }; 

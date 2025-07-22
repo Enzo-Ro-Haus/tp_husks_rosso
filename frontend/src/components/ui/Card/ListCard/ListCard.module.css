@@ -141,3 +141,60 @@
   align-items: center;
   padding: 0;
 }
+
+.cartProductFullWidth {
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
+.orderCardWidth {
+  width: auto;
+  min-width: 320px;
+  max-width: 600px;
+  margin: 0 auto;
+  display: inline-block;
+}
+
+.adminNarrowCard {
+  max-width: 700px;
+  width: 100%;
+  margin: 0 auto;
+  display: block;
+  text-align: left;
+  padding-left: 2.5rem;
+  padding-right: 2.5rem;
+}
+
+.adminNarrowCard .row {
+  margin-left: 0;
+  margin-right: 0;
+}
+
+.adminNarrowCard .col-9, .adminNarrowCard .col {
+  max-width: 100%;
+  flex: 1 1 0;
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+  word-break: break-word;
+}
+
+.adminNarrowCard button,
+.adminNarrowCard .btn {
+  width: auto !important;
+  min-width: 90px;
+  margin-top: 1rem;
+  white-space: normal;
+}
+
+.adminNarrowCard p, .adminNarrowCard span, .adminNarrowCard div {
+  text-align: left !important;
+}
+
+.adminNarrowCard .col-3 {
+  width: auto !important;
+  min-width: 90px;
+  max-width: none;
+  white-space: nowrap;
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+}

@@ -7,6 +7,7 @@ import { getAllTipos } from "../../../http/tipoHTTP";
 import { getAllTalles } from "../../../http/talleHTTP";
 import { getAllDirecciones, getAllUsuarioDirecciones } from "../../../http/direccionHTTP";
 import { getAllOrdenes } from "../../../http/ordenHTTPS";
+import { getPublicProductos } from "../../../http/productoHTTP";
 
 import { productoStore } from "../../../store/prodcutoStore";                                 
 import { usuarioStore } from "../../../store/usuarioStore";                                                                     
@@ -74,18 +75,14 @@ export const Admin = () => {
   const { view, setView } = useAdminView();
 
   const getProductos = useCallback(async () => {
-    console.log("=== getProductos llamado ===");
-    console.log("token en getProductos:", token);
-    if (!token) {
-      console.log("getProductos - no hay token, saliendo");
-      return;
-    }
-    const data = await getAllProductos(token ?? null);
+    console.log("=== getProductos llamado (endpoint público)===" );
+    // const data = await getAllProductos(token ?? null);
+    const data = await getPublicProductos();
     console.log("getProductos - data recibida:", data);
     if (data) {
       setArrayProductos(data);
     }
-  }, [token, setArrayProductos]);
+  }, [setArrayProductos]);
 
   const getUsuarios = useCallback(async () => {
     if (!token) return;

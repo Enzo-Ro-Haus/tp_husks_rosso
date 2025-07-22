@@ -47,16 +47,28 @@ export const Login = () => {
       if (info?.token && info?.usuario) {
         console.log("✅ Login exitoso, guardando datos...");
         showSuccessAlert(`Welcome back ${info.usuario.nombre}`);
-        setUsuarioActivo({ ...info.usuario, token: info.token });
+        // Normalizar el campo rol a string y convertir a Rol si es válido
+        let rolNormalizado: any = undefined;
+        if (typeof info.usuario.rol === "string") {
+          rolNormalizado = info.usuario.rol;
+        } else if (info.usuario.rol && typeof info.usuario.rol === "object" && "name" in info.usuario.rol) {
+          rolNormalizado = (info.usuario.rol as any).name;
+        }
+        // Convertir a Rol si es válido
+        const rolesValidos = ["ADMIN", "CLIENTE"];
+        const rolFinal = rolesValidos.includes(rolNormalizado) ? rolNormalizado : undefined;
+        setUsuarioActivo({ 
+          ...info.usuario, 
+          token: info.token, 
+          rol: rolFinal
+        });
         console.log("🚀 Redirigiendo según rol...");
-        
         // Redirigir según el rol del usuario
-        if (info.usuario.rol === "ADMIN") {
+        if (rolFinal === "ADMIN") {
           navigate("/admin");
-        } else if (info.usuario.rol === "CLIENTE") {
+        } else if (rolFinal === "CLIENTE") {
           navigate("/client");
         } else {
-          // Si no tiene rol definido, ir al landing
           navigate("/");
         }
       } else {

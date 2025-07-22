@@ -120,9 +120,12 @@ export const Header = forwardRef<HTMLDivElement, Props>(
                 {log}
               </span>
 
-              <Link to={cart} className={styles.elementLink}>
-                Cart
-              </Link>
+              {/* Mostrar Cart solo si el usuario no es admin */}
+              {usuario?.rol !== "ADMIN" && (
+                <Link to={cart} className={styles.elementLink}>
+                  Cart
+                </Link>
+              )}
 
               <Link
                 to={

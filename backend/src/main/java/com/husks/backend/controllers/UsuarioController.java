@@ -104,6 +104,24 @@ public class UsuarioController extends BaseControllerImpl<Usuario, UsuarioServic
         }
     }
 
+    // --- PATCH /me eliminado, ahora está en UsuarioMeController ---
+
+    @PatchMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> update(@PathVariable Long id, @RequestBody Usuario usuario) {
+        try {
+            Usuario usuarioExistente = servicio.findById(id);
+            usuarioExistente.setNombre(usuario.getNombre());
+            usuarioExistente.setEmail(usuario.getEmail());
+            usuarioExistente.setImagenPerfilPublicId(usuario.getImagenPerfilPublicId());
+            // ...otros campos que quieras permitir...
+            servicio.save(usuarioExistente);
+            return ResponseEntity.ok(usuarioExistente);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("{\"error\":\"Error actualizando usuario\"}");
+        }
+    }
+
     @PatchMapping("/me/soft-delete")
     @PreAuthorize("hasAnyRole('ADMIN', 'CLIENTE')")
     public ResponseEntity<?> softDeleteMe(@org.springframework.security.core.annotation.AuthenticationPrincipal Usuario usuarioAuth) {

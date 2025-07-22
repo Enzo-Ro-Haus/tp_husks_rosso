@@ -79,11 +79,16 @@ export const getAllUsuarios = async (
 
 export const getUsuarioActual = async (
   token: string | null
-): Promise<IUsuario> => {
-  const { data } = await axios.get<IUsuario>(`${API_URL}/usuario/me`, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
-  return data;
+): Promise<IUsuario | null> => {
+  try {
+    const { data } = await axios.get<IUsuario>(`${API_URL}/usuario/me`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return data;
+  } catch (error: any) {
+    console.error("[getUsuarioActual] Error al obtener /usuario/me:", error);
+    return null;
+  }
 };
 
 export const updateUsuario = async (
@@ -101,6 +106,26 @@ export const updateUsuario = async (
   Swal.fire({
     icon: "success",
     title: "Usuario actualizado",
+    timer: 2000,
+    showConfirmButton: false,
+  });
+  return data;
+};
+
+export const updateUsuarioMe = async (
+  token: string | null,
+  usuarioUpdated: Partial<IUsuario>
+): Promise<IUsuario> => {
+  const { data } = await axios.patch<IUsuario>(
+    `${API_URL}/usuario/me`,
+    usuarioUpdated,
+    {
+      headers: { Authorization: `Bearer ${token}` },
+    }
+  );
+  Swal.fire({
+    icon: "success",
+    title: "Perfil actualizado",
     timer: 2000,
     showConfirmButton: false,
   });

@@ -300,8 +300,16 @@ const updateHandlers: Record<ViewType, (token: string, id: number, payload: any)
   },
   Client: async (token, id, payload) => {
     try {
-      const result = await userAPI.updateUsuario(token, id, payload);
-      return !!result;
+      const usuarioActivo = usuarioStore.getState().usuarioActivo;
+      if (usuarioActivo && usuarioActivo.rol === "CLIENTE" && usuarioActivo.id === id) {
+        // El cliente edita su propio perfil
+        const result = await userAPI.updateUsuarioMe(token, payload);
+        return !!result;
+      } else {
+        // Admin editando un cliente
+        const result = await userAPI.updateUsuario(token, id, payload);
+        return !!result;
+      }
     } catch (error) {
       console.error('Error updating client:', error);
       return false;
@@ -404,7 +412,19 @@ export const EditButtonBootstrap: React.FC<Props> = ({ view, item, onClose, onUp
         if (password && password.trim() !== "") {
           payload.password = password;
         }
-        
+        // --- CORRECCIÓN SOLO PARA CLIENTE ---
+        if (view === "Client") {
+          // Solo enviar los campos permitidos
+          payload = {
+            nombre: values.nombre,
+            email: values.email,
+            imagenPerfilPublicId: values.imagenPerfilPublicId
+          };
+          if (password && password.trim() !== "") {
+            payload.password = password;
+          }
+          console.log("[FRONT] PATCH /usuario/me - payload enviado:", payload, JSON.stringify(payload));
+        }
         // Manejar direcciones para Users
         if (view === "Users") {
           try {
@@ -486,7 +506,7 @@ export const EditButtonBootstrap: React.FC<Props> = ({ view, item, onClose, onUp
       
       const handler = updateHandlers[view];
       const result = await handler(token, item.id, payload);
-      console.log('🔍 EditButtonBootstrap - resultado del handler:', result);
+      console.log('[FRONT] PATCH /usuario/me - resultado del handler:', result);
       
       if (result) {
         // Actualizar stores según la vista
@@ -553,6 +573,14 @@ export const EditButtonBootstrap: React.FC<Props> = ({ view, item, onClose, onUp
           // Actualizar el store de usuarios para que aparezcan las direcciones en las ListCard
           const usuariosActualizados = await userAPI.getAllUsuarios(token);
           usuarioStore.getState().setArrayUsuarios(usuariosActualizados);
+        }
+        if (view === "Client") {
+          // Actualizar el usuario activo en el store, manteniendo el token
+          const usuarioStoreState = usuarioStore.getState();
+          usuarioStoreState.setUsuarioActivo({
+            ...result,
+            token: usuarioStoreState.usuarioActivo?.token || null
+          });
         }
         onUpdated?.();
         onClose();

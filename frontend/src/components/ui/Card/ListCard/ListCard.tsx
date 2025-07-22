@@ -267,7 +267,7 @@ export const ListCard: React.FC<ListCardProps> = (props) => {
                       ) : null}
                     </div>
                     <div className="d-flex flex-column gap-3 mt-4 w-100 align-items-center">
-                      <button className="btn btn-primary w-50" onClick={() => onEdited && onEdited()}>Editar mi perfil</button>
+                      <button className="btn btn-primary w-50" onClick={handleEditClick}>Editar mi perfil</button>
                       <button className="btn btn-danger w-50" onClick={onDeleted}>Eliminar mi perfil</button>
                     </div>
                   </div>

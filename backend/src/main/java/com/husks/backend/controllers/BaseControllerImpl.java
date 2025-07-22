@@ -61,6 +61,11 @@ public abstract class BaseControllerImpl<E extends Base, S extends BaseServiceIm
         }
     }
 
+    @Override
+    public ResponseEntity<E> getCurrent(@AuthenticationPrincipal E usuarioAuth) {
+        throw new UnsupportedOperationException("getCurrent no implementado para este recurso");
+    }
+
     @PostMapping("")
     @ResponseBody
     @PreAuthorize("hasAnyRole('ADMIN')")
@@ -103,20 +108,6 @@ public abstract class BaseControllerImpl<E extends Base, S extends BaseServiceIm
             return ResponseEntity.status(HttpStatus.OK).body(servicio.restore(id));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("{\"error\":\"Error al restaurar elemento\"}");
-        }
-    }
-
-    @Override
-    @GetMapping("/me")
-    @PreAuthorize("hasAnyRole('ADMIN', 'CLIENTE')")
-    public ResponseEntity<E> getCurrent(@AuthenticationPrincipal E usuarioAuth) {
-        try {
-            E full = servicio.findById(usuarioAuth.getId());
-            return ResponseEntity.ok(full);
-        } catch (Exception e) {
-            return ResponseEntity
-                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(null);
         }
     }
     

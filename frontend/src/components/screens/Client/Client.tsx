@@ -109,8 +109,20 @@ export const Client = () => {
   useEffect(() => {
     // Al entrar a /client, forzar la vista inicial a 'Client' (My user)
     setView("Client");
-    getUsuario();
+    // Si ya hay usuario en el store, no sobreescribas con null
+    if (!usuario) {
+      getUsuario();
+    } else {
+      setErrorMsg(null);
+    }
   }, [token]);
+
+  // Cuando el usuario cambie y la vista sea 'Client', asegúrate de limpiar el error
+  useEffect(() => {
+    if (view === "Client" && usuario) {
+      setErrorMsg(null);
+    }
+  }, [view, usuario]);
 
    useEffect(() => {
     getOrdenes();

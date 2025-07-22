@@ -111,6 +111,8 @@ public class SecurityConfig {
                                                                 "/usuario-direccion/soft-delete/**")
                                                 .hasAnyRole("ADMIN", "CLIENTE")
 
+                                                .requestMatchers(HttpMethod.PATCH, "/usuario/me")
+                                                .hasAnyRole("ADMIN", "CLIENTE")
                                                 .requestMatchers(HttpMethod.PATCH,
                                                                 "/orden-compra/soft-delete/**",
                                                                 "/usuario/restore/**",
@@ -120,11 +122,11 @@ public class SecurityConfig {
                                                                 "/talle/restore/**",
                                                                 "/usuario-direccion/restore/**",
                                                                 "/orden-compra/restore/**",
-                                                                "/usuario/**/imagen-perfil",
-                                                                "/usuario/**/activar",
-                                                                "/usuario/**/desactivar",
-                                                                "/usuario/**/corregir-rol-admin",
-                                                                "/producto/**/imagen")
+                                                                "/usuario/*/imagen-perfil",
+                                                                "/usuario/*/activar",
+                                                                "/usuario/*/desactivar",
+                                                                "/usuario/*/corregir-rol-admin",
+                                                                "/producto/*/imagen")
                                                 .hasRole("ADMIN")
 
                                                 // CLIENTE USUARIO DELETE

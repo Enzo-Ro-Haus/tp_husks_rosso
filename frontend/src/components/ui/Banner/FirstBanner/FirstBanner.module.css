@@ -29,20 +29,23 @@
   justify-content: center;
   width: 95vw;
   height: 15vh;
-  gap: 3rem;
+  gap: 0rem;
+}
+
+.bannerInfo > h2,
+.bannerInfo > p {
+  width: 60vw;
 }
 
 .bannerInfo > h2 {
-  width: 40vw;
-  height: 1.5rem;
+  height: 3rem;
   font-size: 3rem;
   font-weight: 500;
   color: #231f20;
 }
 
 .bannerInfo > p {
-  width: 40vw;
-  height: 0.5rem;
+  height: 2rem;
   font-size: 1rem;
   color: var( --color-letra-normal);
   margin: 5px;

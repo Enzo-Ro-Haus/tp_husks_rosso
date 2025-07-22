@@ -4,6 +4,7 @@ import * as yup from "yup";
 import { Modal, Button, Form as BootstrapForm, Row, Col, Alert, Badge } from "react-bootstrap";
 import { usuarioStore } from "../../../../store/usuarioStore";
 import Swal from "sweetalert2";
+import { useNavigate } from "react-router-dom";
 
 import * as userAPI from "../../../../http/usuarioHTTP";
 import * as productAPI from "../../../../http/productoHTTP";
@@ -321,6 +322,7 @@ const DEFAULT_IMAGE_PUBLIC_ID = "user_img";
 
 export const EditButtonBootstrap: React.FC<Props> = ({ view, item, onClose, onUpdated }) => {
   const token = usuarioStore((s) => s.usuarioActivo?.token)!;
+  const navigate = useNavigate();
 
   const [categorias, setCategorias] = useState<ICategoria[]>([]);
   const [tipos, setTipos] = useState<ITipo[]>([]);
@@ -575,12 +577,20 @@ export const EditButtonBootstrap: React.FC<Props> = ({ view, item, onClose, onUp
           usuarioStore.getState().setArrayUsuarios(usuariosActualizados);
         }
         if (view === "Client") {
-          // Actualizar el usuario activo en el store, manteniendo el token
+          // Actualizar el usuario activo en el store, manteniendo el token y normalizando el rol
           const usuarioStoreState = usuarioStore.getState();
-          usuarioStoreState.setUsuarioActivo({
-            ...result,
-            token: usuarioStoreState.usuarioActivo?.token || null
-          });
+          // Normalizar el campo rol a string y convertir a Rol si es válido
+          let rolNormalizado: any = undefined;
+          if (typeof result.rol === "string") {
+            rolNormalizado = result.rol;
+          } else if (result.rol && typeof result.rol === "object" && "name" in result.rol) {
+            rolNormalizado = (result.rol as any).name;
+          }
+          const rolesValidos = ["ADMIN", "CLIENTE"];
+          const rolFinal = rolesValidos.includes(rolNormalizado) ? rolNormalizado : undefined;
+
+          // usuarioStoreState.setUsuarioActivo({ ...result, token: usuarioStoreState.usuarioActivo?.token || null, rol: rolFinal });
+          usuarioStoreState.setUsuarioPendienteActualizar(true); // <-- Solo marcar pendiente
         }
         onUpdated?.();
         onClose();

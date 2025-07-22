@@ -6,6 +6,7 @@ interface IUsuariostore {
   usuarios: IUsuario[];
   usuarioActivo: IUsuario | null;
   usuarioSeleccionado: IUsuario | null;
+  usuarioPendienteActualizar: boolean;
   setToken: (token: string | null) => void;
   setUsuarioActivo: (usuarioActivo: IUsuario | null) => void;
   setUsuarioSeleccionado: (usuarioSeleccionado: IUsuario | null) => void;
@@ -14,6 +15,7 @@ interface IUsuariostore {
   editarUnUsuario: (usuarioActualizado: IUsuario) => void;
   eliminarUnUsuario: (idUsuario: number) => void;
   logOut: () => void;
+  setUsuarioPendienteActualizar: (pendiente: boolean) => void;
 }
 
 export const usuarioStore = create<IUsuariostore>()(
@@ -22,6 +24,7 @@ export const usuarioStore = create<IUsuariostore>()(
       usuarios: [],
       usuarioActivo: null,
       usuarioSeleccionado: null,
+      usuarioPendienteActualizar: false,
 
       setToken: (tokenIn) =>
         set((state) => ({
@@ -60,6 +63,8 @@ export const usuarioStore = create<IUsuariostore>()(
 
         setUsuarioSeleccionado: (usuarioSeleccinadoIn) =>
         set({ usuarioSeleccionado: usuarioSeleccinadoIn }),
+
+        setUsuarioPendienteActualizar: (pendiente) => set({ usuarioPendienteActualizar: pendiente }),
     }),
     {
       name: "usuario-storage",
@@ -67,6 +72,7 @@ export const usuarioStore = create<IUsuariostore>()(
       partialize: (state) => ({
         usuarioActivo: state.usuarioActivo,
         usuarios: state.usuarios,
+        usuarioPendienteActualizar: state.usuarioPendienteActualizar,
       }),
     }
   )

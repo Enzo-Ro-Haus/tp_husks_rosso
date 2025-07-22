@@ -29,6 +29,9 @@ export const Client = () => {
   const usuario = usuarioStore((s) => s.usuarioActivo);
   const token = usuarioStore((s) => s.usuarioActivo?.token);
   const setArrayUsuarios = usuarioStore((s) => s.setArrayUsuarios);
+  const setUsuarioActivo = usuarioStore((s) => s.setUsuarioActivo);
+  const usuarioPendienteActualizar = usuarioStore((s) => s.usuarioPendienteActualizar);
+  const setUsuarioPendienteActualizar = usuarioStore((s) => s.setUsuarioPendienteActualizar);
 
   const setArrayOrdenes = ordenStore((s) => s.setArrayOrdenes);
   const ordenes = ordenStore((s) => s.ordenes);
@@ -43,6 +46,7 @@ export const Client = () => {
       const data = await getUsuarioActual(token);
       if (data) {
         setArrayUsuarios([data]);
+        setUsuarioActivo({ ...data, token }); // <-- ACTUALIZA USUARIO ACTIVO
         setErrorMsg(null);
         console.log("Usuario actual completo:", JSON.stringify(data, null, 2));
         console.log("imagenPerfilPublicId:", data.imagenPerfilPublicId);
@@ -116,6 +120,14 @@ export const Client = () => {
       setErrorMsg(null);
     }
   }, [token]);
+
+  useEffect(() => {
+    if (usuarioPendienteActualizar) {
+      getUsuario().then(() => {
+        setUsuarioPendienteActualizar(false);
+      });
+    }
+  }, [usuarioPendienteActualizar]);
 
   // Cuando el usuario cambie y la vista sea 'Client', asegúrate de limpiar el error
   useEffect(() => {

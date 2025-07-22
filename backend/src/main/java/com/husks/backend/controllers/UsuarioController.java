@@ -104,6 +104,34 @@ public class UsuarioController extends BaseControllerImpl<Usuario, UsuarioServic
         }
     }
 
+    // --- GET /me: usuario autenticado ---
+    @GetMapping("/me")
+    public ResponseEntity<?> getMe(@org.springframework.security.core.annotation.AuthenticationPrincipal Usuario usuarioAuth) {
+        if (usuarioAuth == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("No autenticado");
+        }
+        return ResponseEntity.ok(new UsuarioDTO(usuarioAuth));
+    }
+
+    // DTO para exponer solo los campos necesarios y evitar lazy loading
+    public static class UsuarioDTO {
+        public Long id;
+        public String nombre;
+        public String email;
+        public String rol;
+        public String imagenPerfilPublicId;
+        public boolean activo;
+
+        public UsuarioDTO(Usuario u) {
+            this.id = u.getId();
+            this.nombre = u.getNombre();
+            this.email = u.getEmail();
+            this.rol = u.getRol() != null ? u.getRol().name() : null;
+            this.imagenPerfilPublicId = u.getImagenPerfilPublicId();
+            this.activo = u.isActivo();
+        }
+    }
+
     // --- PATCH /me eliminado, ahora está en UsuarioMeController ---
 
     @PatchMapping("/{id}")

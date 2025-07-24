@@ -97,30 +97,32 @@ export const Cart = () => {
     <div className={styles.containerPrincipalCart}>
       <Header />
       <div className={styles.containerBody}>
-        <div className={styles.containerOrders} style={{ flexDirection: 'column', width: '100%' }}>
-          {detalles && detalles.length > 0 ? (
-            detalles.map((d) => (
-              <div key={d.producto.id} style={{ width: '100%', marginBottom: '1rem', display: 'flex', justifyContent: 'center' }}>
-                <ListCard
-                  variant="CartProduct"
-                  id={d.producto.id || "NN"}
-                  name={d.producto.nombre}
-                  description={d.producto.descripcion}
-                  price={d.producto.precio}
-                  quantity={d.cantidad}
-                  category={d.producto.categoria}
-                  type={d.producto.tipo}
-                  sizes={d.producto.tallesDisponibles}
-                  imagenPublicId={d.producto.imagenPublicId}
-                  onDeleted={() => { eliminarDetalle(d.producto.id as number); }}
-                />
+        <div className={styles.muestraDeElementos}>
+          <div className={styles.containerOrders}>
+            {detalles && detalles.length > 0 ? (
+              detalles.map((d) => (
+                <div key={d.producto.id} style={{ width: '100%', marginBottom: '1rem', display: 'flex', justifyContent: 'center' }}>
+                  <ListCard
+                    variant="CartProduct"
+                    id={d.producto.id || "NN"}
+                    name={d.producto.nombre}
+                    description={d.producto.descripcion}
+                    price={d.producto.precio}
+                    quantity={d.cantidad}
+                    category={d.producto.categoria}
+                    type={d.producto.tipo}
+                    sizes={d.producto.tallesDisponibles}
+                    imagenPublicId={d.producto.imagenPublicId}
+                    onDeleted={() => { eliminarDetalle(d.producto.id as number); }}
+                  />
+                </div>
+              ))
+            ) : (
+              <div style={{ width: '100%' }}>
+                <h3>Este carrito está vacío, cambiemos eso</h3>
               </div>
-            ))
-          ) : (
-            <div style={{ width: '100%' }}>
-              <h3>Este carrito está vacío, cambiemos eso</h3>
-            </div>
-          )}
+            )}
+          </div>
         </div>
         <div style={{height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-start', minWidth: '220px', maxWidth: '260px', padding: '1rem 0.5rem', marginLeft: '1rem'}}>
           <CartSideBar total={total} onBuy={() => setShowModal(true)} buyDisabled={detalles.length === 0} />

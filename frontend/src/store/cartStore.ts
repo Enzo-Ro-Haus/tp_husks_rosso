@@ -40,7 +40,23 @@ export const cartStore = create<ICartStore>()(
         
       //Los detalles de la orden
       agregarDetalle: (nuevoDetalle) =>
-        set((state) => ({ detalles: [...state.detalles, nuevoDetalle] })),
+        set((state) => {
+          const index = state.detalles.findIndex(
+            (d) => d.producto.id === nuevoDetalle.producto.id
+          );
+          if (index !== -1) {
+            // Si ya existe, sumamos la cantidad
+            const detallesActualizados = state.detalles.map((d, i) =>
+              i === index
+                ? { ...d, cantidad: d.cantidad + nuevoDetalle.cantidad }
+                : d
+            );
+            return { detalles: detallesActualizados };
+          } else {
+            // Si no existe, lo agregamos
+            return { detalles: [...state.detalles, nuevoDetalle] };
+          }
+        }),
 
       //Calcula el total de la orden
       setTotal: (detalles) => {

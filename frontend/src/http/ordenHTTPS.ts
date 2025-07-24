@@ -167,3 +167,21 @@ export const getMisOrdenes = async (
   );
   return data;
 };
+
+// Notificar manualmente al backend que se recibió un evento de Mercado Pago (opcional)
+export async function notificarWebhookMP(payload: any) {
+  return fetch(`${import.meta.env.VITE_API_URL}/webhook/mercadopago`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(payload),
+  });
+}
+
+// Obtener el estado de la orden por preferenceId
+export async function getEstadoOrdenPorPreferenceId(preferenceId: string) {
+  const res = await fetch(`${import.meta.env.VITE_API_URL}/orden-compra/preference/${preferenceId}`);
+  if (!res.ok) throw new Error('No se pudo obtener el estado de la orden');
+  return res.json();
+}

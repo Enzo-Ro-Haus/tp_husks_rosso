@@ -57,6 +57,19 @@ public class OrdenDeCompraController extends  BaseControllerImpl<OrdenDeCompra, 
         }
     }
 
+    @GetMapping("/preference/{preferenceId}")
+    public ResponseEntity<?> getByPreferenceId(@PathVariable String preferenceId) {
+        try {
+            var orden = servicio.findByPreferenceId(preferenceId);
+            if (orden == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Orden no encontrada");
+            }
+            return ResponseEntity.ok(orden);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error buscando la orden");
+        }
+    }
+
     @PostMapping("")
     @ResponseBody
     @PreAuthorize("hasAnyRole('ADMIN', 'CLIENTE')")

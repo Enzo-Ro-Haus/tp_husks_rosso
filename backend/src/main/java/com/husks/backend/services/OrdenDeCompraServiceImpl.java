@@ -120,4 +120,8 @@ public class OrdenDeCompraServiceImpl
       throw new RuntimeException("Orden no encontrada");
     }
   }
+
+  public OrdenDeCompra findByPreferenceId(String preferenceId) {
+      return ordenRepo.findByPreferenceId(preferenceId);
+  }
 }

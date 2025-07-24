@@ -45,6 +45,9 @@ public class OrdenDeCompra extends Base{
     @Column(nullable = false)
     private EstadoOrden estado = EstadoOrden.En_proceso;
 
+    @Column(unique = true)
+    private String preferenceId;
+
     @OneToMany(mappedBy = "ordenDeCompra", cascade = CascadeType.ALL)
     @JsonIgnoreProperties("ordenDeCompra")
     private List<Detalle> detalles = new ArrayList<>();
@@ -74,6 +77,10 @@ public class OrdenDeCompra extends Base{
         return estado;
     }
 
+    public String getPreferenceId() {
+        return preferenceId;
+    }
+
     public List<Detalle> getDetalles() {
         return detalles;
     }
@@ -101,6 +108,10 @@ public class OrdenDeCompra extends Base{
 
     public void setEstado(EstadoOrden estado) {
         this.estado = estado;
+    }
+
+    public void setPreferenceId(String preferenceId) {
+        this.preferenceId = preferenceId;
     }
 
     public void setDetalles(List<Detalle> detalles) {

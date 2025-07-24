@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { CartSideBar } from "../../ui/CartSideBar/CartSideBar";
 import { Footer } from "../../ui/Footer/Footer";
 import { Header } from "../../ui/Header/Header";
@@ -16,10 +16,11 @@ import { createOrden } from '../../../http/ordenHTTPS';
 import { EstadoOrden } from '../../../types/enums/EstadoOrden';
 import Modal from 'react-bootstrap/Modal';
 import Button from 'react-bootstrap/Button';
-import { useState } from 'react';
-import Swal from 'sweetalert2';
+import { limpiarCarrito } from '../../../store/cartStore';
+import { getEstadoOrdenPorPreferenceId } from '../../../http/ordenHTTPS';
 import { useLocation } from 'react-router-dom';
 import axios from 'axios';
+import Swal from 'sweetalert2';
 import { MercadoLibreButton } from '../../ui/Buttons/MercadoLibreButton/MercadoLibreButton';
 
 type ProductoMP = {
@@ -57,6 +58,8 @@ export const Cart = () => {
   const [showModal, setShowModal] = useState(false);
   const [metodoPago, setMetodoPago] = useState<MetodoPago>(MetodoPago.Tarjeta);
   const [loading, setLoading] = useState(false);
+  const [estadoOrden, setEstadoOrden] = useState<string | null>(null);
+  const [mensaje, setMensaje] = useState<string | null>(null);
 
   // Depuración: mostrar detalles en consola
   console.log("Detalles del carrito:", detalles);
@@ -65,71 +68,18 @@ export const Cart = () => {
     setTotal(detalles);
   }, [detalles]);
 
-  // Detectar estado de pago en la URL y mostrar notificación
   useEffect(() => {
-    console.log("🟢 useEffect pago:", { usuario, direccionActiva, detalles, location: location.search });
     const params = new URLSearchParams(location.search);
     const status = params.get('status');
-    const paymentId = params.get('payment_id');
-
-    const verificarPagoYGuardarOrden = async () => {
-      if (!usuario || !direccionActiva || detalles.length === 0 || !paymentId) return;
-      // Evitar duplicados
-      if (localStorage.getItem('ordenGuardada') === paymentId) return;
-      try {
-        // Consultar el estado real del pago a Mercado Pago
-        const mpResponse = await axios.get(`https://api.mercadopago.com/v1/payments/${paymentId}`, {
-          headers: {
-            Authorization: `Bearer ${import.meta.env.VITE_MP_ACCESS_TOKEN || 'APP_USR-3234138127327288-072322-8e925fd50b06a15c71e38704a7290d59-2575816659'}`
-          }
-        });
-        const pago = mpResponse.data;
-        if (pago.status === 'approved') {
-          await createOrden(usuario.token || null, {
-            usuario,
-            usuarioDireccion: direccionActiva,
-            fecha: new Date().toISOString(),
-            precioTotal: total,
-            metodoPago,
-            estado: EstadoOrden.En_proceso,
-            detalles,
-          });
-          limpiarCarrito();
-          localStorage.setItem('ordenGuardada', paymentId);
-          Swal.fire({
-            icon: 'success',
-            title: '¡Pago exitoso!',
-            text: 'Tu pago fue aprobado. La orden se guardó y el carrito se limpió.',
-            confirmButtonText: 'OK'
-          });
-        } else if (pago.status === 'pending') {
-          Swal.fire({
-            icon: 'info',
-            title: 'Pago pendiente',
-            text: 'Tu pago está pendiente de confirmación.',
-            confirmButtonText: 'OK'
-          });
-        } else {
-          Swal.fire({
-            icon: 'error',
-            title: 'Pago rechazado',
-            text: 'Hubo un problema con tu pago. Intenta nuevamente.',
-            confirmButtonText: 'OK'
-          });
-        }
-      } catch (error) {
-        Swal.fire({
-          icon: 'error',
-          title: 'Error al verificar el pago',
-          text: 'No se pudo verificar el estado del pago en Mercado Pago.',
-          confirmButtonText: 'OK'
-        });
-        console.error(error);
-      }
-    };
-
-    if (status === 'approved' && paymentId) {
-      verificarPagoYGuardarOrden();
+    if (!status) return;
+    if (status === 'approved') {
+      Swal.fire({
+        icon: 'success',
+        title: '¡Pago exitoso!',
+        text: 'Tu pago fue aprobado. La orden se guardó y el carrito se limpió.',
+        confirmButtonText: 'OK'
+      });
+      limpiarCarrito();
     } else if (status === 'pending') {
       Swal.fire({
         icon: 'info',
@@ -137,7 +87,7 @@ export const Cart = () => {
         text: 'Tu pago está pendiente de confirmación.',
         confirmButtonText: 'OK'
       });
-    } else if (status === 'rejected' || status === 'failure') {
+    } else {
       Swal.fire({
         icon: 'error',
         title: 'Pago rechazado',
@@ -145,11 +95,7 @@ export const Cart = () => {
         confirmButtonText: 'OK'
       });
     }
-  }, [location.search, usuario, direccionActiva, detalles]);
-
-  const limpiarCarrito = () => {
-    cartStore.setState({ detalles: [], total: 0 });
-  };
+  }, [location.search]);
 
   const handleComprar = async () => {
     if (!usuario || !direccionActiva || detalles.length === 0) return;
@@ -311,6 +257,9 @@ export const Cart = () => {
           <Button variant="secondary" onClick={() => setShowModal(false)} disabled={loading}>Cancelar</Button>
         </Modal.Footer>
       </Modal>
+      {mensaje && <div className={estadoOrden === 'Entregado' ? 'success' : 'error'}>{mensaje}</div>}
     </div>
   );
 };
+
+export default Cart;

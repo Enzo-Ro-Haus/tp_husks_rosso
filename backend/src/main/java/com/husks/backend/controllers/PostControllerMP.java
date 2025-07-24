@@ -18,7 +18,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.springframework.web.bind.annotation.GetMapping;
+//import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
@@ -49,9 +49,9 @@ public class PostControllerMP {
 
             PreferenceBackUrlsRequest backUrls =
                     PreferenceBackUrlsRequest.builder()
-                            .success("http://localhost:5173/Cart")
-                            .pending("http://localhost:5173/Cart")
-                            .failure("http://localhost:5173/Cart")
+                            .success("https://myfrontend.share.zrok.io/cart")
+                            .pending("https://myfrontend.share.zrok.io/cart")
+                            .failure("https://myfrontend.share.zrok.io/cart")
                             .build();
 
             List<PreferenceItemRequest> items = new ArrayList<>();

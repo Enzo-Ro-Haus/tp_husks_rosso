@@ -33,6 +33,7 @@ public class SecurityConfig {
                                 .csrf(csrf -> csrf.disable())
                                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                                 .authorizeHttpRequests(req -> req
+                                                .requestMatchers(HttpMethod.POST, "/api/mercadopago/webhook").permitAll()
                                                 .requestMatchers(HttpMethod.POST, "/public/register", "/public/login")
                                                 .permitAll()
                                                 .requestMatchers(HttpMethod.GET,

@@ -95,37 +95,8 @@ export const Cart = () => {
 
   // Handler para Mercado Pago
   const handleMercadoPago = async () => {
-    if (!detalles || detalles.length === 0) return;
-    // Mapear los detalles al formato esperado por el backend usando ProductoMP
-    const productos: ProductoMP[] = detalles.map((d): ProductoMP => ({
-      id: String(d.producto.id),
-      title: String(d.producto.nombre),
-      description: String(d.producto.descripcion),
-      pictureUrl: String(d.producto.imagenPublicId || ''),
-      categoryId: typeof d.producto.categoria === 'string'
-        ? d.producto.categoria
-        : (d.producto.categoria?.nombre || ''),
-      quantity: Number(d.cantidad),
-      currencyId: 'ARS',
-      unitPrice: Number(d.producto.precio),
-    }));
-    try {
-      console.log("Productos a enviar a MP:", productos, Array.isArray(productos));
-      const response = await fetch('http://localhost:9000/api/mercado', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(token ? { 'Authorization': `Bearer ${token}` } : {})
-        },
-        body: JSON.stringify(Array.isArray(productos) ? productos : [productos]),
-      });
-      if (!response.ok) throw new Error('Error al generar link de pago');
-      const url = await response.text();
-      window.open(url, '_blank');
-    } catch (error) {
-      alert('No se pudo conectar con Mercado Pago');
-      console.error(error);
-    }
+    // En pruebas, abrir el link fijo de Mercado Pago
+    window.open('https://sandbox.mercadopago.com.ar/checkout/v1/redirect?pref_id=2575816659-3dafa5e7-c1b8-47e8-a323-d20072c3a4aa', '_blank');
   };
 
   // Si detalles es undefined o null, mostrar error visible

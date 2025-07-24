@@ -47,8 +47,8 @@ public class PostControllerMP {
         logger.info("🔍 POST /api/mercado llamado");
         logger.info("🔍 Productos recibidos: {}", productos);
         logger.info("🔍 Cantidad de productos: {}", productos != null ? productos.size() : "null");
-        MercadoPagoConfig.setAccessToken("TEST-1378664629593967-072216-f3fa0609db060ba8209a26712af99e21-625659215");
-
+        MercadoPagoConfig.setAccessToken("APP_USR-3234138127327288-072322-8e925fd50b06a15c71e38704a7290d59-2575816659");
+        //Vendedor es el dueño, Comprador es el cliente
         PreferenceBackUrlsRequest backUrls =
                 PreferenceBackUrlsRequest.builder()
                         .success("https://localhost:5173/Cart")

@@ -81,3 +81,9 @@ export const cartStore = create<ICartStore>()(
     }
   )
 );
+
+// Nueva función para limpiar el carrito y el localStorage
+export function limpiarCarrito() {
+  cartStore.setState({ detalles: [] });
+  localStorage.removeItem('cart-storage');
+}

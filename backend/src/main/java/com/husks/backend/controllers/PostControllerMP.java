@@ -44,41 +44,46 @@ public class PostControllerMP {
 
     @PostMapping("/mercado")
     public String mercado(@RequestBody List<ProductoMP> productos) throws MPException, MPApiException {
-        logger.info("🔍 POST /api/mercado llamado");
-        logger.info("🔍 Productos recibidos: {}", productos);
-        logger.info("🔍 Cantidad de productos: {}", productos != null ? productos.size() : "null");
-        MercadoPagoConfig.setAccessToken("APP_USR-3234138127327288-072322-8e925fd50b06a15c71e38704a7290d59-2575816659");
-        //Vendedor es el dueño, Comprador es el cliente
-        PreferenceBackUrlsRequest backUrls =
-                PreferenceBackUrlsRequest.builder()
-                        .success("http://localhost:5173/cart?status=success")
-                        .pending("http://localhost:5173/cart?status=pending")
-                        .failure("http://localhost:5173/cart?status=failure")
+        try {
+            MercadoPagoConfig.setAccessToken("APP_USR-3234138127327288-072322-8e925fd50b06a15c71e38704a7290d59-2575816659");
+
+            PreferenceBackUrlsRequest backUrls =
+                    PreferenceBackUrlsRequest.builder()
+                            .success("http://localhost:5173/Cart")
+                            .pending("http://localhost:5173/Cart")
+                            .failure("http://localhost:5173/Cart")
+                            .build();
+
+            List<PreferenceItemRequest> items = new ArrayList<>();
+            for (ProductoMP p : productos) {
+                PreferenceItemRequest itemRequest = PreferenceItemRequest.builder()
+                        .id(p.id)
+                        .title(p.title)
+                        .description(p.description)
+                        .pictureUrl(p.pictureUrl)
+                        .categoryId(p.categoryId)
+                        .quantity(p.quantity)
+                        .currencyId(p.currencyId)
+                        .unitPrice(p.unitPrice)
                         .build();
+                items.add(itemRequest);
+            }
 
-        List<PreferenceItemRequest> items = new ArrayList<>();
-        for (ProductoMP p : productos) {
-            PreferenceItemRequest itemRequest = PreferenceItemRequest.builder()
-                    .id(p.id)
-                    .title(p.title)
-                    .description(p.description)
-                    .pictureUrl(p.pictureUrl)
-                    .categoryId(p.categoryId)
-                    .quantity(p.quantity)
-                    .currencyId(p.currencyId)
-                    .unitPrice(p.unitPrice)
+            PreferenceRequest preferenceRequest = PreferenceRequest.builder()
+                    .items(items)
+                    .backUrls(backUrls)
                     .build();
-            items.add(itemRequest);
+
+            PreferenceClient client = new PreferenceClient();
+            Preference preference = client.create(preferenceRequest);
+
+            return preference.getSandboxInitPoint();
+        } catch (MPApiException e) {
+            System.out.println("❌ Mercado Pago API error: " + e.getApiResponse().getContent());
+            throw e;
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
         }
-
-        PreferenceRequest preferenceRequest = PreferenceRequest.builder()
-                .items(items).backUrls(backUrls).build();
-
-        logger.info("🔍 PreferenceRequest a enviar: {}", preferenceRequest);
-
-        PreferenceClient client = new PreferenceClient();
-        Preference preference = client.create(preferenceRequest);
-
-        return preference.getSandboxInitPoint();
     }
 }

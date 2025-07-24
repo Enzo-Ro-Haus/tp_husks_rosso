@@ -19,6 +19,8 @@ import Button from 'react-bootstrap/Button';
 import { useState } from 'react';
 import Swal from 'sweetalert2';
 import { useLocation } from 'react-router-dom';
+import axios from 'axios';
+import { MercadoLibreButton } from '../../ui/Buttons/MercadoLibreButton/MercadoLibreButton';
 
 type ProductoMP = {
   id: string;
@@ -65,29 +67,69 @@ export const Cart = () => {
 
   // Detectar estado de pago en la URL y mostrar notificación
   useEffect(() => {
+    console.log("🟢 useEffect pago:", { usuario, direccionActiva, detalles, location: location.search });
     const params = new URLSearchParams(location.search);
     const status = params.get('status');
-    if (status === 'success') {
-      Swal.fire({
-        icon: 'success',
-        title: '¡Pago exitoso!',
-        text: 'Tu pago fue aprobado. La orden se guardará y el carrito se limpiará.',
-        confirmButtonText: 'OK'
-      });
-      // Guardar la orden y limpiar el carrito si hay detalles
-      if (usuario && direccionActiva && detalles.length > 0) {
-        createOrden(usuario.token || null, {
-          usuario,
-          usuarioDireccion: direccionActiva,
-          fecha: new Date().toISOString(),
-          precioTotal: total,
-          metodoPago,
-          estado: EstadoOrden.En_proceso,
-          detalles,
-        }).then(() => {
-          limpiarCarrito();
+    const paymentId = params.get('payment_id');
+
+    const verificarPagoYGuardarOrden = async () => {
+      if (!usuario || !direccionActiva || detalles.length === 0 || !paymentId) return;
+      // Evitar duplicados
+      if (localStorage.getItem('ordenGuardada') === paymentId) return;
+      try {
+        // Consultar el estado real del pago a Mercado Pago
+        const mpResponse = await axios.get(`https://api.mercadopago.com/v1/payments/${paymentId}`, {
+          headers: {
+            Authorization: `Bearer ${import.meta.env.VITE_MP_ACCESS_TOKEN || 'APP_USR-3234138127327288-072322-8e925fd50b06a15c71e38704a7290d59-2575816659'}`
+          }
         });
+        const pago = mpResponse.data;
+        if (pago.status === 'approved') {
+          await createOrden(usuario.token || null, {
+            usuario,
+            usuarioDireccion: direccionActiva,
+            fecha: new Date().toISOString(),
+            precioTotal: total,
+            metodoPago,
+            estado: EstadoOrden.En_proceso,
+            detalles,
+          });
+          limpiarCarrito();
+          localStorage.setItem('ordenGuardada', paymentId);
+          Swal.fire({
+            icon: 'success',
+            title: '¡Pago exitoso!',
+            text: 'Tu pago fue aprobado. La orden se guardó y el carrito se limpió.',
+            confirmButtonText: 'OK'
+          });
+        } else if (pago.status === 'pending') {
+          Swal.fire({
+            icon: 'info',
+            title: 'Pago pendiente',
+            text: 'Tu pago está pendiente de confirmación.',
+            confirmButtonText: 'OK'
+          });
+        } else {
+          Swal.fire({
+            icon: 'error',
+            title: 'Pago rechazado',
+            text: 'Hubo un problema con tu pago. Intenta nuevamente.',
+            confirmButtonText: 'OK'
+          });
+        }
+      } catch (error) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Error al verificar el pago',
+          text: 'No se pudo verificar el estado del pago en Mercado Pago.',
+          confirmButtonText: 'OK'
+        });
+        console.error(error);
       }
+    };
+
+    if (status === 'approved' && paymentId) {
+      verificarPagoYGuardarOrden();
     } else if (status === 'pending') {
       Swal.fire({
         icon: 'info',
@@ -95,7 +137,7 @@ export const Cart = () => {
         text: 'Tu pago está pendiente de confirmación.',
         confirmButtonText: 'OK'
       });
-    } else if (status === 'failure') {
+    } else if (status === 'rejected' || status === 'failure') {
       Swal.fire({
         icon: 'error',
         title: 'Pago rechazado',
@@ -103,7 +145,7 @@ export const Cart = () => {
         confirmButtonText: 'OK'
       });
     }
-  }, [location.search]);
+  }, [location.search, usuario, direccionActiva, detalles]);
 
   const limpiarCarrito = () => {
     cartStore.setState({ detalles: [], total: 0 });
@@ -154,6 +196,7 @@ export const Cart = () => {
       unitPrice: Number(d.producto.precio),
     }));
     try {
+      console.log("Token enviado a /api/mercado:", token);
       const response = await fetch('http://localhost:9000/api/mercado', {
         method: 'POST',
         headers: {
@@ -214,7 +257,7 @@ export const Cart = () => {
           </div>
         </div>
         <div style={{height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-start', minWidth: '220px', maxWidth: '260px', padding: '1rem 0.5rem', marginLeft: '1rem'}}>
-          <CartSideBar total={total} onBuy={() => setShowModal(true)} buyDisabled={detalles.length === 0} onMercadoPagoClick={handleMercadoPago} />
+          <CartSideBar total={total} onBuy={() => setShowModal(true)} buyDisabled={detalles.length === 0} />
         </div>
       </div>
       <Footer />
@@ -253,8 +296,19 @@ export const Cart = () => {
           </div>
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowModal(false)} disabled={loading}>Cancelar</Button>
+          <div style={{ width: '100%', textAlign: 'center', marginBottom: '0.25rem', fontSize: '0.80rem', color: '#888' }}>
+            Para usar Mercado Pago debes seleccionar una dirección de entrega y el método de pago "Transferencia" o "Tarjeta".
+          </div>
+          <MercadoLibreButton 
+            onClick={handleMercadoPago} 
+            disabled={
+              !direccionActiva ||
+              !(metodoPago === MetodoPago.Transferencia || metodoPago === MetodoPago.Tarjeta)
+            }
+            style={{ marginBottom: '0.5rem' }}
+          />
           <Button variant="success" onClick={handleComprar} disabled={loading || !direccionActiva || direcciones.length === 0}>{loading ? 'Procesando...' : 'Comprar'}</Button>
+          <Button variant="secondary" onClick={() => setShowModal(false)} disabled={loading}>Cancelar</Button>
         </Modal.Footer>
       </Modal>
     </div>

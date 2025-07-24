@@ -2,16 +2,30 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: 5px;
+    padding: 0.25rem 0.5rem;
     background-color: #007AFF;
     color: #f2f2f2;
     border: #007AFF 4px solid;
-    font-size: 1rem;
-    border-radius: 50px;
+    font-size: 0.85rem;
+    border-radius: 0.5rem;
     font-weight: 500;
     gap: 0.5rem;
     font-family: "Assistant", sans-serif;
-    transition: transform 0.5s ease-in-out;
+    transition: transform 0.5s ease-in-out, background 0.2s, border 0.2s, opacity 0.2s;
+    min-height: 24px;
+    min-width: 70px;
+    max-width: 110px;
+    width: auto;
+    box-sizing: border-box;
+}
+
+.buttonMercadoLibre img {
+    height: 24px;
+    width: auto;
+    max-width: 80px;
+    display: block;
+    margin: 0 auto;
+    object-fit: contain;
 }
 
 .buttonMercadoLibre:hover {
@@ -19,4 +33,18 @@
     background-color: #3798ff;
     box-shadow: 0 2px 8px #3798ff44;
     transform: scale(1.04);
+}
+
+.buttonMercadoLibre:disabled {
+    background-color: #bdbdbd;
+    border: #bdbdbd 4px solid;
+    color: #888;
+    opacity: 0.7;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+.buttonMercadoLibre:disabled img {
+    filter: grayscale(1) brightness(1.2) contrast(0.7);
+    opacity: 0.7;
 }

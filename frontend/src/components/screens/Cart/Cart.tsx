@@ -17,6 +17,8 @@ import { EstadoOrden } from '../../../types/enums/EstadoOrden';
 import Modal from 'react-bootstrap/Modal';
 import Button from 'react-bootstrap/Button';
 import { useState } from 'react';
+import Swal from 'sweetalert2';
+import { useLocation } from 'react-router-dom';
 
 type ProductoMP = {
   id: string;
@@ -31,6 +33,7 @@ type ProductoMP = {
 
 export const Cart = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const token = usuarioStore((s) => s.usuarioActivo?.token);
 
   const orden = cartStore((s) => s.orden);
@@ -59,6 +62,48 @@ export const Cart = () => {
   useEffect(() => {
     setTotal(detalles);
   }, [detalles]);
+
+  // Detectar estado de pago en la URL y mostrar notificación
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const status = params.get('status');
+    if (status === 'success') {
+      Swal.fire({
+        icon: 'success',
+        title: '¡Pago exitoso!',
+        text: 'Tu pago fue aprobado. La orden se guardará y el carrito se limpiará.',
+        confirmButtonText: 'OK'
+      });
+      // Guardar la orden y limpiar el carrito si hay detalles
+      if (usuario && direccionActiva && detalles.length > 0) {
+        createOrden(usuario.token || null, {
+          usuario,
+          usuarioDireccion: direccionActiva,
+          fecha: new Date().toISOString(),
+          precioTotal: total,
+          metodoPago,
+          estado: EstadoOrden.En_proceso,
+          detalles,
+        }).then(() => {
+          limpiarCarrito();
+        });
+      }
+    } else if (status === 'pending') {
+      Swal.fire({
+        icon: 'info',
+        title: 'Pago pendiente',
+        text: 'Tu pago está pendiente de confirmación.',
+        confirmButtonText: 'OK'
+      });
+    } else if (status === 'failure') {
+      Swal.fire({
+        icon: 'error',
+        title: 'Pago rechazado',
+        text: 'Hubo un problema con tu pago. Intenta nuevamente.',
+        confirmButtonText: 'OK'
+      });
+    }
+  }, [location.search]);
 
   const limpiarCarrito = () => {
     cartStore.setState({ detalles: [], total: 0 });
@@ -95,8 +140,35 @@ export const Cart = () => {
 
   // Handler para Mercado Pago
   const handleMercadoPago = async () => {
-    // En pruebas, abrir el link fijo de Mercado Pago
-    window.open('https://sandbox.mercadopago.com.ar/checkout/v1/redirect?pref_id=2575816659-3dafa5e7-c1b8-47e8-a323-d20072c3a4aa', '_blank');
+    if (!detalles || detalles.length === 0) return;
+    const productos: ProductoMP[] = detalles.map((d): ProductoMP => ({
+      id: String(d.producto.id),
+      title: String(d.producto.nombre),
+      description: String(d.producto.descripcion),
+      pictureUrl: String(d.producto.imagenPublicId || ''),
+      categoryId: typeof d.producto.categoria === 'string'
+        ? d.producto.categoria
+        : (d.producto.categoria?.nombre || ''),
+      quantity: Number(d.cantidad),
+      currencyId: 'ARS',
+      unitPrice: Number(d.producto.precio),
+    }));
+    try {
+      const response = await fetch('http://localhost:9000/api/mercado', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+        },
+        body: JSON.stringify(Array.isArray(productos) ? productos : [productos]),
+      });
+      if (!response.ok) throw new Error('Error al generar link de pago');
+      const url = await response.text();
+      window.open(url, '_blank');
+    } catch (error) {
+      alert('No se pudo conectar con Mercado Pago');
+      console.error(error);
+    }
   };
 
   // Si detalles es undefined o null, mostrar error visible

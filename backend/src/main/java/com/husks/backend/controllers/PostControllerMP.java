@@ -51,9 +51,9 @@ public class PostControllerMP {
         //Vendedor es el dueño, Comprador es el cliente
         PreferenceBackUrlsRequest backUrls =
                 PreferenceBackUrlsRequest.builder()
-                        .success("https://localhost:5173/Cart")
-                        .pending("https://localhost:5173/Cart")
-                        .failure("https://localhost:5173/Cart")
+                        .success("http://localhost:5173/cart?status=success")
+                        .pending("http://localhost:5173/cart?status=pending")
+                        .failure("http://localhost:5173/cart?status=failure")
                         .build();
 
         List<PreferenceItemRequest> items = new ArrayList<>();

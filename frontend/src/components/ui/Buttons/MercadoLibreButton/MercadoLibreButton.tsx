@@ -1,8 +1,8 @@
 import style from './MercadoLibre.module.css'
 
-export const MercadoLibreButton = () => {
+export const MercadoLibreButton = ({ onClick }: { onClick: () => void }) => {
   return (
-    <button className={style.buttonMercadoLibre}>
+    <button className={style.buttonMercadoLibre} onClick={onClick}>
       <img src="src/assets/landings/MP_RGB_HANDSHAKE_color-blanco_hori-izq.png" alt="logo of mercadopago" width="150px" height="50px"></img>
     </button>
   )

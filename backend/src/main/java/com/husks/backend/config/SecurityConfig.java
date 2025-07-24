@@ -45,8 +45,10 @@ public class SecurityConfig {
                                                                 "/tipo/**",
                                                                 "/categoria",
                                                                 "/categoria/**",
-                                                                "/error")
+                                                                "/error",
+                                                                "/api/mercado") // <-- Permitir acceso público a /api/mercado
                                                 .permitAll()
+                                                .requestMatchers(HttpMethod.POST, "/api/mercado").hasAnyRole("ADMIN", "CLIENTE")
 
                                                 // USUARIO / ADMIN GET
                                                 .requestMatchers(HttpMethod.GET,

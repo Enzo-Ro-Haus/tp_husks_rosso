@@ -18,6 +18,17 @@ import Modal from 'react-bootstrap/Modal';
 import Button from 'react-bootstrap/Button';
 import { useState } from 'react';
 
+type ProductoMP = {
+  id: string;
+  title: string;
+  description: string;
+  pictureUrl: string;
+  categoryId: string;
+  quantity: number;
+  currencyId: string;
+  unitPrice: number;
+};
+
 export const Cart = () => {
   const navigate = useNavigate();
   const token = usuarioStore((s) => s.usuarioActivo?.token);
@@ -82,6 +93,41 @@ export const Cart = () => {
     }
   };
 
+  // Handler para Mercado Pago
+  const handleMercadoPago = async () => {
+    if (!detalles || detalles.length === 0) return;
+    // Mapear los detalles al formato esperado por el backend usando ProductoMP
+    const productos: ProductoMP[] = detalles.map((d): ProductoMP => ({
+      id: String(d.producto.id),
+      title: String(d.producto.nombre),
+      description: String(d.producto.descripcion),
+      pictureUrl: String(d.producto.imagenPublicId || ''),
+      categoryId: typeof d.producto.categoria === 'string'
+        ? d.producto.categoria
+        : (d.producto.categoria?.nombre || ''),
+      quantity: Number(d.cantidad),
+      currencyId: 'ARS',
+      unitPrice: Number(d.producto.precio),
+    }));
+    try {
+      console.log("Productos a enviar a MP:", productos, Array.isArray(productos));
+      const response = await fetch('http://localhost:9000/api/mercado', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+        },
+        body: JSON.stringify(Array.isArray(productos) ? productos : [productos]),
+      });
+      if (!response.ok) throw new Error('Error al generar link de pago');
+      const url = await response.text();
+      window.open(url, '_blank');
+    } catch (error) {
+      alert('No se pudo conectar con Mercado Pago');
+      console.error(error);
+    }
+  };
+
   // Si detalles es undefined o null, mostrar error visible
   if (typeof detalles === "undefined" || detalles === null) {
     return (
@@ -125,7 +171,7 @@ export const Cart = () => {
           </div>
         </div>
         <div style={{height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-start', minWidth: '220px', maxWidth: '260px', padding: '1rem 0.5rem', marginLeft: '1rem'}}>
-          <CartSideBar total={total} onBuy={() => setShowModal(true)} buyDisabled={detalles.length === 0} />
+          <CartSideBar total={total} onBuy={() => setShowModal(true)} buyDisabled={detalles.length === 0} onMercadoPagoClick={handleMercadoPago} />
         </div>
       </div>
       <Footer />

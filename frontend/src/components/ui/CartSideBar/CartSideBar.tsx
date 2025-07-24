@@ -6,15 +6,16 @@ type CartSideBarProps = {
   total: number;
   onBuy: () => void;
   buyDisabled: boolean;
+  onMercadoPagoClick: () => void;
 };
 
-export const CartSideBar: React.FC<CartSideBarProps> = ({ total, onBuy, buyDisabled }) => {
+export const CartSideBar: React.FC<CartSideBarProps> = ({ total, onBuy, buyDisabled, onMercadoPagoClick }) => {
   return (
     <div className={style.containerSideBarCart}>
       <h2 className={style.containerSideBarTitle}>CART</h2>
       <p className={style.price}><b>Total: </b>${total}</p>
       <CartButton onClick={onBuy} disabled={buyDisabled} />
-      <MercadoLibreButton />
+      <MercadoLibreButton onClick={onMercadoPagoClick} />
     </div>
   );
 };

@@ -165,6 +165,22 @@ public class UsuarioController extends BaseControllerImpl<Usuario, UsuarioServic
         }
     }
 
+    @PatchMapping("/delete-user/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> softDelete(@PathVariable Long id) {
+        try {
+            System.out.println("[INFO] Soft delete solicitado para usuario ID: " + id);
+            Usuario usuario = servicio.findById(id);
+            usuario.setActivo(false);
+            servicio.save(usuario);
+            System.out.println("[INFO] Soft delete exitoso para usuario ID: " + id);
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).body("{\"message\":\"Usuario dado de baja correctamente\"}");
+        } catch (Exception e) {
+            System.out.println("[ERROR] Error al hacer soft delete para usuario ID: " + id + ". Detalle: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("{\"error\":\"Error en borrado lógico\"}");
+        }
+    }
+
     // Clase interna para el request
     public static class ImageUpdateRequest {
         private String imagenPerfilPublicId;

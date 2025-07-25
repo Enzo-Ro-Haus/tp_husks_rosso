@@ -151,7 +151,7 @@ export const softDeleteUsuario = async (
   token: string | null,
   id: number
 ): Promise<void> => {
-  await axios.patch(`${API_URL}/usuario/soft-delete/${id}`, {}, {
+  await axios.patch(`${API_URL}/usuario/delete-user/${id}`, {}, {
     headers: { Authorization: `Bearer ${token}` },
   });
 };

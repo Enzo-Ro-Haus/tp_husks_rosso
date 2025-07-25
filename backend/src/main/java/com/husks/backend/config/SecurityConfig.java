@@ -109,6 +109,10 @@ public class SecurityConfig {
                                                 // ADMIN PATCH
                                                 .requestMatchers(HttpMethod.PATCH,
                                                                 "/usuario/soft-delete/**",
+                                                                "/usuario/delete-user/**",
+                                                                "/usuario/admin/soft-delete/**",
+                                                                "/usuario/me/soft-delete/**",
+                                                                "/usuario/me/admin/soft-delete/**",
                                                                 "/producto/soft-delete/**",
                                                                 "/categoria/soft-delete/**",
                                                                 "/tipo/soft-delete/**",

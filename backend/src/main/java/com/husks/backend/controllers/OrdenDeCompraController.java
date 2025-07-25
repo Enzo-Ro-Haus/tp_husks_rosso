@@ -75,8 +75,15 @@ public class OrdenDeCompraController extends  BaseControllerImpl<OrdenDeCompra, 
     @PreAuthorize("hasAnyRole('ADMIN', 'CLIENTE')")
     public ResponseEntity<?> save(@RequestBody OrdenDeCompra orden) {
         try {
-            return ResponseEntity.status(HttpStatus.OK).body(servicio.save(orden));
+            System.out.println("[DEBUG] Payload recibido en /orden-compra:");
+            System.out.println(orden);
+            ResponseEntity<?> response = ResponseEntity.status(HttpStatus.OK).body(servicio.save(orden));
+            System.out.println("[DEBUG] Orden guardada correctamente:");
+            System.out.println(response.getBody());
+            return response;
         } catch (Exception e) {
+            System.out.println("[DEBUG] Error al guardar la orden:");
+            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body("{\"error\":\"Error. SAVE Intente mas tarde.\" }");
         }

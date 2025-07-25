@@ -73,13 +73,44 @@ export const Cart = () => {
     const status = params.get('status');
     if (!status) return;
     if (status === 'approved') {
-      Swal.fire({
-        icon: 'success',
-        title: '¡Pago exitoso!',
-        text: 'Tu pago fue aprobado. La orden se guardó y el carrito se limpió.',
-        confirmButtonText: 'OK'
-      });
-      limpiarCarrito();
+      // Crear la orden en el backend solo si el pago fue exitoso
+      const preferenceId = params.get('preference_id');
+      const paymentId = params.get('payment_id');
+      // Solo crear la orden si hay detalles en el carrito y usuario logueado
+      if (usuario && direccionActiva && detalles.length > 0) {
+        createOrden(usuario.token || null, {
+          usuario,
+          usuarioDireccion: direccionActiva,
+          fecha: new Date().toISOString(),
+          precioTotal: total,
+          metodoPago,
+          estado: EstadoOrden.En_proceso, // O puedes poner 'Aprobada' si tienes ese estado
+          detalles,
+        }).then(() => {
+          Swal.fire({
+            icon: 'success',
+            title: '¡Pago exitoso!',
+            text: 'Tu pago fue aprobado. La orden se guardó y el carrito se limpió.',
+            confirmButtonText: 'OK'
+          });
+          limpiarCarrito();
+        }).catch(() => {
+          Swal.fire({
+            icon: 'error',
+            title: 'Error al guardar la orden',
+            text: 'El pago fue exitoso pero no se pudo guardar la orden.',
+            confirmButtonText: 'OK'
+          });
+        });
+      } else {
+        Swal.fire({
+          icon: 'success',
+          title: '¡Pago exitoso!',
+          text: 'Tu pago fue aprobado.',
+          confirmButtonText: 'OK'
+        });
+        limpiarCarrito();
+      }
     } else if (status === 'pending') {
       Swal.fire({
         icon: 'info',
@@ -128,35 +159,59 @@ export const Cart = () => {
 
   // Handler para Mercado Pago
   const handleMercadoPago = async () => {
-    if (!detalles || detalles.length === 0) return;
-    const productos: ProductoMP[] = detalles.map((d): ProductoMP => ({
-      id: String(d.producto.id),
-      title: String(d.producto.nombre),
-      description: String(d.producto.descripcion),
-      pictureUrl: String(d.producto.imagenPublicId || ''),
-      categoryId: typeof d.producto.categoria === 'string'
-        ? d.producto.categoria
-        : (d.producto.categoria?.nombre || ''),
-      quantity: Number(d.cantidad),
-      currencyId: 'ARS',
-      unitPrice: Number(d.producto.precio),
-    }));
+    if (!detalles || detalles.length === 0 || !usuario || !direccionActiva) return;
+    setLoading(true);
     try {
-      console.log("Token enviado a /api/mercado:", token);
+      // 1. Crear la orden en el backend con estado En_proceso
+      console.log('[DEBUG] Enviando orden al backend:', {
+        usuario,
+        usuarioDireccion: direccionActiva,
+        fecha: new Date().toISOString(),
+        precioTotal: total,
+        metodoPago,
+        estado: EstadoOrden.En_proceso,
+        detalles,
+      });
+      const nuevaOrden = await createOrden(usuario.token || null, {
+        usuario,
+        usuarioDireccion: direccionActiva,
+        fecha: new Date().toISOString(),
+        precioTotal: total,
+        metodoPago,
+        estado: EstadoOrden.En_proceso,
+        detalles,
+      });
+      console.log('[DEBUG] Respuesta del backend al crear orden:', nuevaOrden);
+      // 2. Generar la preferencia de Mercado Pago y asociar el preferenceId a la orden
+      const productos: ProductoMP[] = detalles.map((d): ProductoMP => ({
+        id: String(d.producto.id),
+        title: String(d.producto.nombre),
+        description: String(d.producto.descripcion),
+        pictureUrl: String(d.producto.imagenPublicId || ''),
+        categoryId: typeof d.producto.categoria === 'string'
+          ? d.producto.categoria
+          : (d.producto.categoria?.nombre || ''),
+        quantity: Number(d.cantidad),
+        currencyId: 'ARS',
+        unitPrice: Number(d.producto.precio),
+      }));
+      // Aquí deberías enviar el id de la orden creada si quieres asociar el preferenceId después
       const response = await fetch('http://localhost:9000/api/mercado', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+          ...(usuario.token ? { 'Authorization': `Bearer ${usuario.token}` } : {})
         },
         body: JSON.stringify(Array.isArray(productos) ? productos : [productos]),
       });
       if (!response.ok) throw new Error('Error al generar link de pago');
       const url = await response.text();
-      window.open(url, '_blank');
+      window.location.href = url;
     } catch (error) {
       alert('No se pudo conectar con Mercado Pago');
       console.error(error);
+    } finally {
+      setLoading(false);
     }
   };
 

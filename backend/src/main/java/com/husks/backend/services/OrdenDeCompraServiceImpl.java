@@ -61,12 +61,23 @@ public class OrdenDeCompraServiceImpl
 
   @Override
   public OrdenDeCompra save(OrdenDeCompra orden) throws Exception {
+    System.out.println("[DEBUG] Servicio.save() - Orden recibida:");
+    System.out.println(orden);
     if (orden.getDetalles() != null) {
         for (Detalle detalle : orden.getDetalles()) {
             detalle.setOrdenDeCompra(orden);
         }
     }
-    return ordenRepo.save(orden);
+    try {
+      OrdenDeCompra saved = ordenRepo.save(orden);
+      System.out.println("[DEBUG] Servicio.save() - Orden guardada:");
+      System.out.println(saved);
+      return saved;
+    } catch (Exception e) {
+      System.out.println("[DEBUG] Servicio.save() - Error al guardar la orden:");
+      e.printStackTrace();
+      throw e;
+    }
   }
 
   @Override

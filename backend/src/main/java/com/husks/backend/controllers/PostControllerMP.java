@@ -16,7 +16,9 @@ import com.mercadopago.resources.preference.Preference;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 //import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -43,8 +45,9 @@ public class PostControllerMP {
     }
 
     @PostMapping("/mercado")
-    public String mercado(@RequestBody List<ProductoMP> productos) throws MPException, MPApiException {
+    public Map<String, String> mercado(@RequestBody List<ProductoMP> productos) throws MPException, MPApiException {
         try {
+            System.out.println("[MP] Generando preferencia de pago...");
             MercadoPagoConfig.setAccessToken("APP_USR-3234138127327288-072322-8e925fd50b06a15c71e38704a7290d59-2575816659");
 
             PreferenceBackUrlsRequest backUrls =
@@ -77,7 +80,15 @@ public class PostControllerMP {
             PreferenceClient client = new PreferenceClient();
             Preference preference = client.create(preferenceRequest);
 
-            return preference.getSandboxInitPoint();
+            System.out.println("[MP] Preferencia creada:");
+            System.out.println("[MP] - ID: " + preference.getId());
+            System.out.println("[MP] - Init Point: " + preference.getSandboxInitPoint());
+
+            Map<String, String> response = new HashMap<>();
+            response.put("url", preference.getSandboxInitPoint());
+            response.put("preferenceId", preference.getId());
+            
+            return response;
         } catch (MPApiException e) {
             System.out.println("❌ Mercado Pago API error: " + e.getApiResponse().getContent());
             throw e;

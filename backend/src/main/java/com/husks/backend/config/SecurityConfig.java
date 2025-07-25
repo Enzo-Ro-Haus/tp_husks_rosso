@@ -34,6 +34,9 @@ public class SecurityConfig {
                                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                                 .authorizeHttpRequests(req -> req
                                                 .requestMatchers(HttpMethod.POST, "/api/mercadopago/webhook").permitAll()
+                                .requestMatchers(HttpMethod.GET, "/api/mercadopago/webhook/test/**").permitAll()
+                                .requestMatchers(HttpMethod.POST, "/api/mercadopago/webhook/simulate/**").permitAll()
+                                .requestMatchers(HttpMethod.GET, "/api/mercadopago/webhook/orders").permitAll()
                                                 .requestMatchers(HttpMethod.POST, "/public/register", "/public/login")
                                                 .permitAll()
                                                 .requestMatchers(HttpMethod.GET,

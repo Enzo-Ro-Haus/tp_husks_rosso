@@ -162,27 +162,7 @@ export const Cart = () => {
     if (!detalles || detalles.length === 0 || !usuario || !direccionActiva) return;
     setLoading(true);
     try {
-      // 1. Crear la orden en el backend con estado En_proceso
-      console.log('[DEBUG] Enviando orden al backend:', {
-        usuario,
-        usuarioDireccion: direccionActiva,
-        fecha: new Date().toISOString(),
-        precioTotal: total,
-        metodoPago,
-        estado: EstadoOrden.En_proceso,
-        detalles,
-      });
-      const nuevaOrden = await createOrden(usuario.token || null, {
-        usuario,
-        usuarioDireccion: direccionActiva,
-        fecha: new Date().toISOString(),
-        precioTotal: total,
-        metodoPago,
-        estado: EstadoOrden.En_proceso,
-        detalles,
-      });
-      console.log('[DEBUG] Respuesta del backend al crear orden:', nuevaOrden);
-      // 2. Generar la preferencia de Mercado Pago y asociar el preferenceId a la orden
+      // 1. Generar la preferencia de Mercado Pago
       const productos: ProductoMP[] = detalles.map((d): ProductoMP => ({
         id: String(d.producto.id),
         title: String(d.producto.nombre),
@@ -195,7 +175,6 @@ export const Cart = () => {
         currencyId: 'ARS',
         unitPrice: Number(d.producto.precio),
       }));
-      // Aquí deberías enviar el id de la orden creada si quieres asociar el preferenceId después
       const response = await fetch('http://localhost:9000/api/mercado', {
         method: 'POST',
         headers: {
@@ -205,8 +184,22 @@ export const Cart = () => {
         body: JSON.stringify(Array.isArray(productos) ? productos : [productos]),
       });
       if (!response.ok) throw new Error('Error al generar link de pago');
-      const url = await response.text();
-      window.location.href = url;
+      const mpResponse = await response.json();
+      console.log('[DEBUG] Respuesta de Mercado Pago:', mpResponse);
+      // 2. Crear la orden en el backend con el preferenceId
+      const nuevaOrden = await createOrden(usuario.token || null, {
+        usuario,
+        usuarioDireccion: direccionActiva,
+        fecha: new Date().toISOString(),
+        precioTotal: total,
+        metodoPago,
+        estado: EstadoOrden.En_proceso,
+        detalles,
+        preferenceId: mpResponse.preferenceId,
+      });
+      console.log('[DEBUG] Orden creada con preferenceId:', nuevaOrden);
+      // 3. Redirigir al usuario
+      window.location.href = mpResponse.url;
     } catch (error) {
       alert('No se pudo conectar con Mercado Pago');
       console.error(error);

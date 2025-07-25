@@ -59,7 +59,8 @@ export const createOrden = async (
     detalles: (nuevaOrden.detalles || []).map((detalle: any) => ({
       producto: detalle.producto && typeof detalle.producto === 'object' ? { id: detalle.producto.id } : detalle.producto,
       cantidad: detalle.cantidad
-    }))
+    })),
+    ...(nuevaOrden.preferenceId ? { preferenceId: nuevaOrden.preferenceId } : {})
   };
 
   console.log('🔍 createOrden - payload limpio:', ordenLimpia);
@@ -69,12 +70,12 @@ export const createOrden = async (
     ordenLimpia,
     { headers: { Authorization: `Bearer ${token}` } }
   );
-  Swal.fire({
-    icon: "success",
-    title: "Orden creada",
-    timer: 2000,
-    showConfirmButton: false,
-  });
+  // Swal.fire({
+  //   icon: "success",
+  //   title: "Orden creada",
+  //   timer: 2000,
+  //   showConfirmButton: false,
+  // });
   return data;
 };
 

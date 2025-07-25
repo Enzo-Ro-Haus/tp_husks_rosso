@@ -13,5 +13,6 @@ export interface IOrden {
   metodoPago: MetodoPago;
   estado: EstadoOrden;
   detalles: IDetalle[];
+  preferenceId?: string;
   activo?: boolean;
 }

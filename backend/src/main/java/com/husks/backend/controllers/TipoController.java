@@ -39,5 +39,20 @@ public class TipoController extends BaseControllerImpl<Tipo, TipoServiceImpl>{
                     .body("{\"error\":\"Error. UPDATE Intente mas tarde.\" }");
         }
     }
-    
+
+    @PatchMapping("/soft-delete/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> softDelete(@PathVariable Long id) {
+        try {
+            System.out.println("[INFO] Soft delete solicitado para tipo ID: " + id);
+            Tipo tipo = servicio.findById(id);
+            tipo.setActivo(false);
+            servicio.save(tipo);
+            System.out.println("[INFO] Soft delete exitoso para tipo ID: " + id);
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).body("{\"message\":\"Tipo dado de baja correctamente\"}");
+        } catch (Exception e) {
+            System.out.println("[ERROR] Error al hacer soft delete para tipo ID: " + id + ". Detalle: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("{\"error\":\"Error en borrado lógico\"}");
+        }
+    }
 }

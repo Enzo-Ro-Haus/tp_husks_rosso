@@ -36,4 +36,20 @@ public class CategoriaController extends BaseControllerImpl<Categoria, Categoria
                     .body("{\"error\":\"Error. UPDATE Intente mas tarde.\" }");
         }
     }
+
+    @PatchMapping("/soft-delete/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> softDelete(@PathVariable Long id) {
+        try {
+            System.out.println("[INFO] Soft delete solicitado para categoría ID: " + id);
+            Categoria categoria = servicio.findById(id);
+            categoria.setActivo(false);
+            servicio.save(categoria);
+            System.out.println("[INFO] Soft delete exitoso para categoría ID: " + id);
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).body("{\"message\":\"Categoría dada de baja correctamente\"}");
+        } catch (Exception e) {
+            System.out.println("[ERROR] Error al hacer soft delete para categoría ID: " + id + ". Detalle: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("{\"error\":\"Error en borrado lógico\"}");
+        }
+    }
 }

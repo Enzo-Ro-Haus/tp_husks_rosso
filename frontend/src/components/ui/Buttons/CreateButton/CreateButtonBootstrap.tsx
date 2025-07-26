@@ -701,6 +701,18 @@ export const CreateButtonBootstrap: React.FC<Props> = ({ view, onClose, onCreate
 
     // Manejo especial para tipos en Categories
     if (view === "Categories" && key === "tipos") {
+      if (tipos.length === 0) {
+        return (
+          <Col md={12} key={key}>
+            <BootstrapForm.Group>
+              <BootstrapForm.Label><strong>Tipos asociados</strong></BootstrapForm.Label>
+              <div className="border rounded p-3">
+                <span className="text-muted">No hay tipos disponibles. Crea tipos primero.</span>
+              </div>
+            </BootstrapForm.Group>
+          </Col>
+        );
+      }
       // Tipos seleccionados y no seleccionados
       const selectedIds = (values.tipos || []).map((t: any) => t.id);
       const tiposSeleccionados = tipos.filter((t) => selectedIds.includes(t.id));

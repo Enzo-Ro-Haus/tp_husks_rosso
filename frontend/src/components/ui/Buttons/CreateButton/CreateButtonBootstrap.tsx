@@ -426,10 +426,10 @@ export const CreateButtonBootstrap: React.FC<Props> = ({ view, onClose, onCreate
       userAPI.getAllUsuarios(token).then(setUsuarios);
       // Usar direcciones del store si están disponibles, sino cargar desde la API
       if (direccionesFromStore && direccionesFromStore.length > 0) {
-        console.log("✅ Usando direcciones del store:", direccionesFromStore.length, "direcciones");
+       
         setDirecciones(direccionesFromStore);
       } else {
-        console.log("🔄 Cargando direcciones desde la API...");
+       
         addressAPI.getAllUsuarioDirecciones(token).then(setDirecciones);
       }
     }
@@ -441,12 +441,12 @@ export const CreateButtonBootstrap: React.FC<Props> = ({ view, onClose, onCreate
 
   // Actualizar direcciones locales cuando cambie el store
   useEffect(() => {
-    console.log("🔄 CreateButtonBootstrap - direccionesFromStore actualizado:", direccionesFromStore);
+    
     if (direccionesFromStore && direccionesFromStore.length > 0) {
-      console.log("✅ Actualizando direcciones locales con datos del store");
+      
       setDirecciones(direccionesFromStore);
     } else if (direccionesFromStore && direccionesFromStore.length === 0) {
-      console.log("🔄 Store vacío, limpiando direcciones locales");
+      
       setDirecciones([]);
     }
   }, [direccionesFromStore]);
@@ -490,7 +490,7 @@ export const CreateButtonBootstrap: React.FC<Props> = ({ view, onClose, onCreate
       const handler = createHandlers[view];
       const result = await handler(token, payload);
       if (result) {
-        console.log(`✅ ${view} creado exitosamente:`, result);
+     
         
         // Actualizar stores según la vista
         if (view === "Categories") {
@@ -520,12 +520,12 @@ export const CreateButtonBootstrap: React.FC<Props> = ({ view, onClose, onCreate
           const usuariosActualizados = await userAPI.getAllUsuarios(token);
           usuarioStore.getState().setArrayUsuarios(usuariosActualizados);
         }
-        console.log('🔄 Llamando onCreated callback...');
+        
         onCreated?.();
-        console.log('🔄 onCreated callback ejecutado');
+       
         onClose();
       } else {
-        Swal.fire({ icon: 'error', title: 'Error', text: 'No se pudo crear el elemento.' });
+        Swal.fire({ icon: 'error', title: 'Error', text: 'The item could not be created' });
       }
     } catch (err: any) {
       console.error(`Error creating ${view}:`, err);
@@ -557,13 +557,13 @@ export const CreateButtonBootstrap: React.FC<Props> = ({ view, onClose, onCreate
       return (
         <Col md={12} key={key}>
           <BootstrapForm.Group>
-            <BootstrapForm.Label><strong>Direcciones</strong></BootstrapForm.Label>
+            <BootstrapForm.Label><strong>Addresses</strong></BootstrapForm.Label>
             <div className="border rounded p-3">
               {values.direcciones && values.direcciones.length > 0 ? (
                 values.direcciones.map((direccion: any, index: number) => (
                   <div key={index} className="d-flex justify-content-between align-items-center p-2 bg-light rounded mb-2">
                     <span>
-                      <strong>Dirección {index + 1}:</strong> {direccion.calle}, {direccion.localidad} ({direccion.cp})
+                      <strong>Address {index + 1}:</strong> {direccion.calle}, {direccion.localidad} ({direccion.cp})
                     </span>
                     <Button
                       variant="danger"
@@ -573,12 +573,12 @@ export const CreateButtonBootstrap: React.FC<Props> = ({ view, onClose, onCreate
                         setFieldValue("direcciones", newDirecciones);
                       }}
                     >
-                      Eliminar
+                      Delete
                     </Button>
                   </div>
                 ))
               ) : (
-                <p className="text-muted fst-italic">No hay direcciones agregadas</p>
+                <p className="text-muted fst-italic">No addresses added</p>
               )}
               
               <div className="mt-3">
@@ -641,7 +641,7 @@ export const CreateButtonBootstrap: React.FC<Props> = ({ view, onClose, onCreate
         return (
           <Col md={6} key={key}>
             <BootstrapForm.Group>
-              <BootstrapForm.Label><strong>Usuario</strong></BootstrapForm.Label>
+              <BootstrapForm.Label><strong>User</strong></BootstrapForm.Label>
               <Field
                 as="select"
                 name="usuario.id"
@@ -656,7 +656,7 @@ export const CreateButtonBootstrap: React.FC<Props> = ({ view, onClose, onCreate
                   }
                 }}
               >
-                <option value="">Seleccionar usuario</option>
+                <option value="">Select user</option>
                 {usuarios.map((u) => (
                   <option key={u.id} value={u.id}>
                     {u.nombre} ({u.email})
@@ -678,14 +678,14 @@ export const CreateButtonBootstrap: React.FC<Props> = ({ view, onClose, onCreate
         return (
           <Col md={6} key={key}>
             <BootstrapForm.Group>
-              <BootstrapForm.Label><strong>Dirección (primero elija un usuario válido)</strong></BootstrapForm.Label>
+              <BootstrapForm.Label><strong>Address (Please select a valid user first)</strong></BootstrapForm.Label>
               <Field
                 as="select"
                 name="usuarioDireccion.id"
                 className="form-select"
                 disabled={!usuarioSeleccionado}
               >
-                <option value="">Seleccionar dirección</option>
+                <option value="">Select address</option>
                 {direccionesUsuario.map((d) => (
                   <option key={d.id} value={d.id}>
                     {d.direccion.calle}, {d.direccion.localidad}
@@ -705,9 +705,9 @@ export const CreateButtonBootstrap: React.FC<Props> = ({ view, onClose, onCreate
         return (
           <Col md={12} key={key}>
             <BootstrapForm.Group>
-              <BootstrapForm.Label><strong>Tipos asociados</strong></BootstrapForm.Label>
+              <BootstrapForm.Label><strong>Associated types</strong></BootstrapForm.Label>
               <div className="border rounded p-3">
-                <span className="text-muted">No hay tipos disponibles. Crea tipos primero.</span>
+                <span className="text-muted">No types available. Please create types first.</span>
               </div>
             </BootstrapForm.Group>
           </Col>
@@ -720,12 +720,12 @@ export const CreateButtonBootstrap: React.FC<Props> = ({ view, onClose, onCreate
       return (
         <Col md={12} key={key}>
           <BootstrapForm.Group>
-            <BootstrapForm.Label><strong>Tipos asociados</strong></BootstrapForm.Label>
+            <BootstrapForm.Label><strong>Associated types</strong></BootstrapForm.Label>
             <div className="border rounded p-3">
               <div className="mb-2">
-                <strong>Tipos seleccionados:</strong>
+                <strong>Selected types:</strong>
                 {tiposSeleccionados.length === 0 && (
-                  <span className="text-muted ms-2">Ninguno</span>
+                  <span className="text-muted ms-2">No one</span>
                 )}
                 <div className="d-flex flex-wrap mt-2">
                   {tiposSeleccionados.map((tipo: any) => (
@@ -747,9 +747,9 @@ export const CreateButtonBootstrap: React.FC<Props> = ({ view, onClose, onCreate
                 </div>
               </div>
               <div className="mb-2">
-                <strong>Otros tipos:</strong>
+                <strong>Othes types:</strong>
                 {tiposNoSeleccionados.length === 0 && (
-                  <span className="text-muted ms-2">Ninguno</span>
+                  <span className="text-muted ms-2">No one</span>
                 )}
                 <div className="d-flex flex-wrap mt-2">
                   {tiposNoSeleccionados.map((tipo: any) => (
@@ -786,12 +786,12 @@ export const CreateButtonBootstrap: React.FC<Props> = ({ view, onClose, onCreate
       return (
         <Col md={12} key={key}>
           <BootstrapForm.Group>
-            <BootstrapForm.Label><strong>Categorías asociadas</strong></BootstrapForm.Label>
+            <BootstrapForm.Label><strong>Associated categories</strong></BootstrapForm.Label>
             <div className="border rounded p-3">
               <div className="mb-2">
-                <strong>Categorías seleccionadas:</strong>
+                <strong>Selected categories:</strong>
                 {categoriasSeleccionadas.length === 0 && (
-                  <span className="text-muted ms-2">Ninguna</span>
+                  <span className="text-muted ms-2">No one</span>
                 )}
                 <div className="d-flex flex-wrap mt-2">
                   {categoriasSeleccionadas.map((categoria: any) => (
@@ -814,9 +814,9 @@ export const CreateButtonBootstrap: React.FC<Props> = ({ view, onClose, onCreate
                 </div>
               </div>
               <div className="mb-2">
-                <strong>Otras categorías:</strong>
+                <strong>Others categories:</strong>
                 {categoriasNoSeleccionadas.length === 0 && (
-                  <span className="text-muted ms-2">Ninguna</span>
+                  <span className="text-muted ms-2">No one</span>
                 )}
                 <div className="d-flex flex-wrap mt-2">
                   {categoriasNoSeleccionadas.map((categoria: any) => (
@@ -851,7 +851,7 @@ export const CreateButtonBootstrap: React.FC<Props> = ({ view, onClose, onCreate
         return (
           <Col md={6} key={key}>
             <BootstrapForm.Group>
-              <BootstrapForm.Label><strong>Categoría</strong></BootstrapForm.Label>
+              <BootstrapForm.Label><strong>Categories</strong></BootstrapForm.Label>
               <Field
                 as="select"
                 name="categoria.id"
@@ -866,7 +866,7 @@ export const CreateButtonBootstrap: React.FC<Props> = ({ view, onClose, onCreate
                 }}
                 value={values.categoria && values.categoria.id ? values.categoria.id : ""}
               >
-                <option value="">Seleccionar categoría</option>
+                <option value="">Select categorie</option>
                 {categorias.map((categoria) => (
                   <option key={categoria.id} value={categoria.id}>
                     {categoria.nombre}
@@ -883,7 +883,7 @@ export const CreateButtonBootstrap: React.FC<Props> = ({ view, onClose, onCreate
         return (
           <Col md={6} key={key}>
             <BootstrapForm.Group>
-              <BootstrapForm.Label><strong>Tipo</strong></BootstrapForm.Label>
+              <BootstrapForm.Label><strong>Type</strong></BootstrapForm.Label>
               <Field
                 as="select"
                 name="tipo.id"
@@ -898,7 +898,7 @@ export const CreateButtonBootstrap: React.FC<Props> = ({ view, onClose, onCreate
                 }}
                 value={values.tipo && values.tipo.id ? values.tipo.id : ""}
               >
-                <option value="">Seleccionar tipo</option>
+                <option value="">Select type</option>
                 {tipos.map((tipo) => (
                   <option key={tipo.id} value={tipo.id}>
                     {tipo.nombre}
@@ -930,7 +930,7 @@ export const CreateButtonBootstrap: React.FC<Props> = ({ view, onClose, onCreate
                 }}
                 value={values.talles && values.talles[0] ? values.talles[0] : ""}
               >
-                <option value="">Seleccionar talle</option>
+                <option value="">Select size</option>
                 {talles.map((talle) => (
                   <option key={talle.id} value={talle.id}>
                     {talle.sistema} - {talle.valor}
@@ -980,7 +980,7 @@ export const CreateButtonBootstrap: React.FC<Props> = ({ view, onClose, onCreate
     if (view === "Sizes" && key === "sistema") {
       return (
         <BootstrapForm.Group key={key} className="mb-3" controlId={key}>
-          <BootstrapForm.Label><b>Sistema de Talle</b></BootstrapForm.Label>
+          <BootstrapForm.Label><b>Size system</b></BootstrapForm.Label>
           <Field name={key}>
             {({ field }: any) => (
               <div style={{ display: 'flex', gap: '2rem', marginBottom: '0.5rem' }}>
@@ -1023,14 +1023,14 @@ export const CreateButtonBootstrap: React.FC<Props> = ({ view, onClose, onCreate
       return (
         <Col md={6} key={key}>
           <BootstrapForm.Group>
-            <BootstrapForm.Label><strong>Fecha de la orden</strong></BootstrapForm.Label>
+            <BootstrapForm.Label><strong>Order date</strong></BootstrapForm.Label>
             <Field
               name={key}
               type="datetime-local"
               className="form-control"
               placeholder="Seleccionar fecha y hora"
             />
-            <small className="text-muted">Seleccione la fecha y hora de la orden</small>
+            <small className="text-muted">Select the order date and time</small>
             <ErrorMessage name={key} component="div" className="text-danger small" />
           </BootstrapForm.Group>
         </Col>
@@ -1042,13 +1042,13 @@ export const CreateButtonBootstrap: React.FC<Props> = ({ view, onClose, onCreate
       return (
         <Col md={6} key={key}>
           <BootstrapForm.Group>
-            <BootstrapForm.Label><strong>Método de pago</strong></BootstrapForm.Label>
+            <BootstrapForm.Label><strong>Payment method</strong></BootstrapForm.Label>
             <Field
               as="select"
               name={key}
               className="form-select"
             >
-              <option value="">Seleccionar método de pago</option>
+              <option value="">Select payment method</option>
               {Object.values(MetodoPago).map((metodo) => (
                 <option key={metodo} value={metodo}>
                   {getMetodoPagoLabel(metodo)}
@@ -1066,13 +1066,13 @@ export const CreateButtonBootstrap: React.FC<Props> = ({ view, onClose, onCreate
       return (
         <Col md={6} key={key}>
           <BootstrapForm.Group>
-            <BootstrapForm.Label><strong>Estado de la orden</strong></BootstrapForm.Label>
+            <BootstrapForm.Label><strong>Order status</strong></BootstrapForm.Label>
             <Field
               as="select"
               name={key}
               className="form-select"
             >
-              <option value="">Seleccionar estado</option>
+              <option value="">Select status</option>
               {Object.values(EstadoOrden).map((estado) => (
                 <option key={estado} value={estado}>
                   {getEstadoOrdenLabel(estado)}
@@ -1125,7 +1125,7 @@ export const CreateButtonBootstrap: React.FC<Props> = ({ view, onClose, onCreate
                 {view === "Products" && (
                   <Col md={12}>
                     <BootstrapForm.Group>
-                      <BootstrapForm.Label><strong>Imagen del producto</strong></BootstrapForm.Label>
+                      <BootstrapForm.Label><strong>Product image</strong></BootstrapForm.Label>
                       <ImageUpload
                         label=""
                         currentImagePublicId={values.imagenPublicId}
@@ -1143,7 +1143,7 @@ export const CreateButtonBootstrap: React.FC<Props> = ({ view, onClose, onCreate
                 {view === "Users" && (
                   <Col md={12}>
                     <BootstrapForm.Group>
-                      <BootstrapForm.Label><strong>Imagen de perfil (opcional)</strong></BootstrapForm.Label>
+                      <BootstrapForm.Label><strong>Profile image (optional)</strong></BootstrapForm.Label>
                       <ImageUpload
                         label=""
                         currentImagePublicId={values.imagenPerfilPublicId && values.imagenPerfilPublicId !== "" ? values.imagenPerfilPublicId : undefined}
@@ -1161,7 +1161,7 @@ export const CreateButtonBootstrap: React.FC<Props> = ({ view, onClose, onCreate
                 {view === "Orders" && (
                   <Col md={12}>
                     <BootstrapForm.Group>
-                      <BootstrapForm.Label><strong>Productos de la orden</strong></BootstrapForm.Label>
+                      <BootstrapForm.Label><strong>Order products</strong></BootstrapForm.Label>
                       <div className="border rounded p-3">
                         {values.detalles && values.detalles.length > 0 ? (
                           values.detalles.map((item: any, index: number) => {
@@ -1173,11 +1173,11 @@ export const CreateButtonBootstrap: React.FC<Props> = ({ view, onClose, onCreate
                             return (
                               <div key={index} className="d-flex justify-content-between align-items-center p-2 bg-light rounded mb-2">
                                 <span>
-                                  <strong>Producto:</strong> {producto?.nombre || 'Producto no encontrado'} | 
-                                  <strong>Cantidad:</strong> {item.cantidad} | 
+                                  <strong>Product:</strong> {producto?.nombre || 'Producto no encontrado'} | 
+                                  <strong>Quantity:</strong> {item.cantidad} | 
                                   <strong>Stock:</strong> {stockDisponible}
                                   {excedeStock && (
-                                    <Badge bg="danger" className="ms-2">⚠️ Excede stock</Badge>
+                                    <Badge bg="danger" className="ms-2">⚠️ Exceeds stock</Badge>
                                   )}
                                 </span>
                                 <Button
@@ -1193,13 +1193,13 @@ export const CreateButtonBootstrap: React.FC<Props> = ({ view, onClose, onCreate
                                     setFieldValue("precioTotal", nuevoTotal);
                                   }}
                                 >
-                                  Eliminar
+                                  Delete
                                 </Button>
                               </div>
                             );
                           })
                         ) : (
-                          <p className="text-muted fst-italic">No hay productos agregados</p>
+                          <p className="text-muted fst-italic">No products added</p>
                         )}
                         
                         <div className="mt-3">
@@ -1217,7 +1217,7 @@ export const CreateButtonBootstrap: React.FC<Props> = ({ view, onClose, onCreate
                                   }
                                 }}
                               >
-                                <option value="">Seleccionar producto</option>
+                                <option value="">Select products</option>
                                 {productos.map((p) => (
                                   <option key={p.id} value={p.id}>
                                     {p.nombre} - ${p.precio} (Stock: {p.cantidad})
@@ -1262,8 +1262,8 @@ export const CreateButtonBootstrap: React.FC<Props> = ({ view, onClose, onCreate
                                                                       if (productoYaAgregado) {
                                     Swal.fire({
                                       icon: 'warning',
-                                      title: 'Producto ya agregado',
-                                      text: 'Este producto ya está en la orden.',
+                                      title: 'Product already added.',
+                                      text: 'This product is already in the order.',
                                     });
                                     return;
                                   }
@@ -1287,13 +1287,13 @@ export const CreateButtonBootstrap: React.FC<Props> = ({ view, onClose, onCreate
                                   }
                                 }}
                               >
-                                Agregar
+                                Add
                               </Button>
                             </Col>
                           </Row>
                           {values.productoSeleccionado && (
                             <small className="text-muted">
-                              Stock disponible: {productos.find(p => p.id === values.productoSeleccionado)?.cantidad || 0} unidades
+                              Available stock: {productos.find(p => p.id === values.productoSeleccionado)?.cantidad || 0} units
                             </small>
                           )}
                         </div>
@@ -1306,10 +1306,10 @@ export const CreateButtonBootstrap: React.FC<Props> = ({ view, onClose, onCreate
 
               <Modal.Footer>
                 <Button variant="secondary" onClick={onClose}>
-                  Cancelar
+                  Cancel
                 </Button>
                 <Button variant="primary" type="submit">
-                  Crear
+                  Create
                 </Button>
               </Modal.Footer>
             </Form>

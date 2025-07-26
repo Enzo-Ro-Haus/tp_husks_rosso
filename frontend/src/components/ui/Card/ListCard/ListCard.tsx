@@ -206,19 +206,19 @@ export const ListCard: React.FC<ListCardProps> = (props) => {
                   <h5 className="fw-bold mb-2">{name}</h5>
                   <div className="mb-2 text-secondary">{description}</div>
                   <div className="d-flex flex-wrap gap-2 mb-2">
-                    {category && <span className="badge bg-dark text-white">Categoría: {category.nombre}</span>}
-                    {type && <span className="badge bg-dark text-white">Tipo: {type.nombre}</span>}
+                    {category && <span className="badge bg-dark text-white">Categorie: {category.nombre}</span>}
+                    {type && <span className="badge bg-dark text-white">Type: {type.nombre}</span>}
                     {Array.isArray(sizes) && sizes.length > 0 && (
                       <span className="badge bg-dark text-white">
                         Talles: {sizes.map((s) => `${s.sistema} ${s.valor}`).join(", ")}
                       </span>
                     )}
                   </div>
-                  <div className="mb-2"><b>Precio:</b> ${price}</div>
-                  <div className="mb-2"><b>Cantidad:</b> {quantity}</div>
+                  <div className="mb-2"><b>Price:</b> ${price}</div>
+                  <div className="mb-2"><b>Stock:</b> {quantity}</div>
                 </Col>
                 <Col xs={3} className="d-flex flex-column align-items-center justify-content-center">
-                  <button className="btn btn-danger w-100" onClick={onDeleted}>Quitar</button>
+                  <button className="btn btn-danger w-100" onClick={onDeleted}>Remove</button>
                 </Col>
               </Row>
             ) : (
@@ -271,7 +271,7 @@ export const ListCard: React.FC<ListCardProps> = (props) => {
                     <h3 className="mt-4 mb-2 text-center">{usuario.nombre}</h3>
                     <p className="mb-4 text-center" style={{ fontSize: "1.1rem" }}>{usuario.email}</p>
                     <div className="w-100 d-flex flex-column align-items-center">
-                      <h5 className="text-center mb-3">Direcciones</h5>
+                      <h5 className="text-center mb-3">Address</h5>
                       {usuario.direcciones && usuario.direcciones.filter((d: any) => d.activo !== false).length > 0 ? (
                         <ul className="list-group mb-3" style={{maxWidth: 400, width: '100%'}}>
                           {usuario.direcciones.filter((d: any) => d.activo !== false).map((d: any) => (
@@ -283,8 +283,8 @@ export const ListCard: React.FC<ListCardProps> = (props) => {
                       ) : null}
                     </div>
                     <div className="d-flex flex-column gap-3 mt-4 w-100 align-items-center">
-                      <button className="btn btn-primary w-50" onClick={handleEditClick}>Editar mi perfil</button>
-                      <button className="btn btn-danger w-50" onClick={onDeleted}>Eliminar mi perfil</button>
+                      <button className="btn btn-primary w-50" onClick={handleEditClick}>Edit profile</button>
+                      <button className="btn btn-danger w-50" onClick={onDeleted}>Delete profile</button>
                     </div>
                   </div>
                 )}
@@ -326,7 +326,7 @@ export const ListCard: React.FC<ListCardProps> = (props) => {
                               <div style={{ flex: 1, minWidth: 0 }}>${price}</div>
                             </div>
                             <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap', marginBottom: 8 }}>
-                              <span style={{ fontWeight: 600, minWidth: 90 }}>Cantidad:</span>
+                              <span style={{ fontWeight: 600, minWidth: 90 }}>Quantity:</span>
                               <div style={{ flex: 1, minWidth: 0 }}>{quantity}</div>
                             </div>
                             {/* Los botones originales debajo, no se agregan nuevos */}
@@ -476,26 +476,26 @@ export const ListCard: React.FC<ListCardProps> = (props) => {
                     {variant === "Orders" && (
                       <div style={{padding: '0.5rem 0'}}>
                         <div className="mb-2">
-                          <span className="fw-bold">Dirección:</span> <span className="text-dark">{usuarioDireccion?.direccion.calle}, {usuarioDireccion?.direccion.localidad}</span>
+                          <span className="fw-bold">Address:</span> <span className="text-dark">{usuarioDireccion?.direccion.calle}, {usuarioDireccion?.direccion.localidad}</span>
                         </div>
                         <div className="mb-2 d-flex flex-wrap gap-2 align-items-center">
-                          <span className="fw-bold">Productos:</span>
+                          <span className="fw-bold">Products:</span>
                           {detail?.map((d, idx) => (
                             <span key={idx} className="badge bg-dark text-white">{d.cantidad}× {d.producto?.nombre || 'Producto desconocido'}</span>
                           ))}
                         </div>
                         <div className="mb-2">
-                          <span className="fw-bold">Fecha:</span> <span className="text-secondary">{formattedDate}</span>
+                          <span className="fw-bold">Date:</span> <span className="text-secondary">{formattedDate}</span>
                         </div>
                         <div className="mb-2">
                           <span className="fw-bold">Total:</span> <span className="text-success">${total}</span>
                         </div>
                         <div className="mb-2 d-flex flex-wrap gap-2 align-items-center">
-                          <span className="fw-bold">Método de pago:</span>
+                          <span className="fw-bold">Payment method:</span>
                           <span className="badge bg-info text-dark">{payMethod}</span>
                         </div>
                         <div className="mb-2 d-flex flex-wrap gap-2 align-items-center">
-                          <span className="fw-bold">Estado:</span>
+                          <span className="fw-bold">Status:</span>
                           <span className={`badge ${Dstatus === 'En_proceso' ? 'bg-warning text-dark' : Dstatus === 'Enviado' ? 'bg-primary' : Dstatus === 'Entregado' ? 'bg-success' : 'bg-secondary'}`}>{Dstatus === 'En_proceso' ? 'En proceso' : Dstatus === 'Enviado' ? 'Enviado' : Dstatus === 'Entregado' ? 'Entregado' : Dstatus}</span>
                         </div>
                       </div>
@@ -514,7 +514,7 @@ export const ListCard: React.FC<ListCardProps> = (props) => {
                               className="w-75"
                               onClick={handleEditClick}
                             >
-                              Editar
+                              Edit
                             </Button>
                             <div className="w-75">
                               <DeleteButton view={variant} id={id} onDeleted={onDeleted} />

@@ -724,15 +724,15 @@ export const EditButton: React.FC<EditButtonProps> = ({ view, initialData, onClo
 
                           {/* Campos básicos de la orden */}
                           <div className={style.Input}>
-                            <label><b>Fecha</b></label>
+                            <label><b>Date</b></label>
                             <Field name="fecha" type="date" className={style.Field} />
                             <ErrorMessage name="fecha" component="div" className="error-message" />
                           </div>
 
                           <div className={style.Input}>
-                            <label><b>Método de pago</b></label>
+                            <label><b>Payment method</b></label>
                             <Field as="select" name="metodoPago" className={style.Field}>
-                              <option value="">-- Seleccionar --</option>
+                              <option value="">-- Select --</option>
                               {Object.values(MetodoPago).map((v) => (
                                 <option key={v} value={v}>
                                   {v}
@@ -743,9 +743,9 @@ export const EditButton: React.FC<EditButtonProps> = ({ view, initialData, onClo
                           </div>
 
                           <div className={style.Input}>
-                            <label><b>Estado</b></label>
+                            <label><b>Status</b></label>
                             <Field as="select" name="estado" className={style.Field}>
-                              <option value="">-- Seleccionar --</option>
+                              <option value="">-- Select --</option>
                               {Object.values(EstadoOrden).map((v) => (
                                 <option key={v} value={v}>
                                   {v}
@@ -757,7 +757,7 @@ export const EditButton: React.FC<EditButtonProps> = ({ view, initialData, onClo
 
                           {/* Sección de Productos */}
                           <div className={style.Input}>
-                            <label><b>Productos de la orden</b></label>
+                            <label><b>Order products</b></label>
                             <div style={{ border: '1px solid #ccc', padding: '10px', borderRadius: '5px' }}>
                               {values.detalle && values.detalle.length > 0 ? (
                                 values.detalle.map((item: any, index: number) => {
@@ -770,12 +770,12 @@ export const EditButton: React.FC<EditButtonProps> = ({ view, initialData, onClo
                                     <div key={index} style={{ marginBottom: '10px', padding: '10px', backgroundColor: '#f9f9f9', borderRadius: '5px' }}>
                                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                         <span>
-                                          <strong>Producto:</strong> {producto?.nombre || 'Producto no encontrado'} | 
-                                          <strong>Cantidad:</strong> {item.cantidad} | 
-                                          <strong>Stock disponible:</strong> {stockDisponible}
+                                          <strong>Product:</strong> {producto?.nombre || 'Producto no encontrado'} | 
+                                          <strong>Quantity:</strong> {item.cantidad} | 
+                                          <strong>Stock:</strong> {stockDisponible}
                                           {excedeStock && (
                                             <span style={{ color: 'red', marginLeft: '10px' }}>
-                                              ⚠️ Excede stock disponible
+                                              ⚠️ Exceeds available stock
                                             </span>
                                           )}
                                         </span>
@@ -793,7 +793,7 @@ export const EditButton: React.FC<EditButtonProps> = ({ view, initialData, onClo
                                           }}
                                           style={{ background: 'red', color: 'white', border: 'none', borderRadius: '3px', padding: '2px 8px', cursor: 'pointer' }}
                                         >
-                                          Eliminar
+                                          Delete
                                         </button>
                                       </div>
                                     </div>
@@ -817,7 +817,7 @@ export const EditButton: React.FC<EditButtonProps> = ({ view, initialData, onClo
                                       }
                                     }}
                                   >
-                                    <option value="">Seleccionar producto</option>
+                                    <option value="">Select product</option>
                                     {productos.map((p) => (
                                       <option key={p.id} value={p.id}>
                                         {p.nombre} - ${p.precio} (Stock: {p.cantidad})
@@ -885,12 +885,12 @@ export const EditButton: React.FC<EditButtonProps> = ({ view, initialData, onClo
                                     }}
                                     style={{ background: 'green', color: 'white', border: 'none', borderRadius: '3px', padding: '5px 10px', cursor: 'pointer' }}
                                   >
-                                    Agregar
+                                    Add
                                   </button>
                                 </div>
                                 {values.productoSeleccionado && (
                                   <div style={{ fontSize: '12px', color: '#666' }}>
-                                    Stock disponible: {productos.find(p => p.id === values.productoSeleccionado)?.cantidad || 0} unidades
+                                    Stock: {productos.find(p => p.id === values.productoSeleccionado)?.cantidad || 0} units
                                   </div>
                                 )}
                               </div>
@@ -916,7 +916,7 @@ export const EditButton: React.FC<EditButtonProps> = ({ view, initialData, onClo
                         // Campos específicos para Addresses
                         <>
                           <div className={style.Input}>
-                            <label><b>Calle</b></label>
+                            <label><b>Street</b></label>
                             <Field
                               className={style.Field}
                               name="calle"
@@ -925,7 +925,7 @@ export const EditButton: React.FC<EditButtonProps> = ({ view, initialData, onClo
                             <ErrorMessage name="calle" component="div" className="error-message" />
                           </div>
                           <div className={style.Input}>
-                            <label><b>Localidad</b></label>
+                            <label><b>Locality</b></label>
                             <Field
                               className={style.Field}
                               name="localidad"
@@ -947,9 +947,9 @@ export const EditButton: React.FC<EditButtonProps> = ({ view, initialData, onClo
                         // Campos específicos para Sizes
                         <>
                           <div className={style.Input}>
-                            <label><b>Sistema</b></label>
+                            <label><b>System</b></label>
                             <Field as="select" className={style.Field} name="sistema">
-                              <option value="">-- Seleccionar --</option>
+                              <option value="">-- Select --</option>
                               {Object.values(SistemaTalle).map((v) => (
                                 <option key={v} value={v}>{v}</option>
                               ))}
@@ -957,7 +957,7 @@ export const EditButton: React.FC<EditButtonProps> = ({ view, initialData, onClo
                             <ErrorMessage name="sistema" component="div" className="error-message" />
                           </div>
                           <div className={style.Input}>
-                            <label><b>Valor</b></label>
+                            <label><b>Value</b></label>
                             <Field
                               className={style.Field}
                               name="valor"
@@ -967,7 +967,7 @@ export const EditButton: React.FC<EditButtonProps> = ({ view, initialData, onClo
                           </div>
                           {/* Mostrar productos que utilizan este talle */}
                           <div className={style.Input}>
-                            <label><b>Productos que utilizan este talle</b></label>
+                            <label><b>Products that use this size</b></label>
                             <div style={{ 
                               border: '1px solid #ccc', 
                               padding: '10px', 
@@ -999,7 +999,7 @@ export const EditButton: React.FC<EditButtonProps> = ({ view, initialData, onClo
                                   ))
                                 ) : (
                                   <div style={{ color: '#666', fontStyle: 'italic' }}>
-                                    Ningún producto utiliza este talle actualmente.
+                                    No products currently use this size
                                   </div>
                                 );
                               })()}
@@ -1010,7 +1010,7 @@ export const EditButton: React.FC<EditButtonProps> = ({ view, initialData, onClo
                         // Campos específicos para Categories
                         <>
                           <div className={style.Input}>
-                            <label><b>Nombre</b></label>
+                            <label><b>Name</b></label>
                             <Field
                               className={style.Field}
                               name="nombre"
@@ -1019,7 +1019,7 @@ export const EditButton: React.FC<EditButtonProps> = ({ view, initialData, onClo
                             <ErrorMessage name="nombre" component="div" className="error-message" />
                           </div>
                           <div className={style.Input}>
-                            <label><b>Tipos</b></label>
+                            <label><b>Type</b></label>
                             <select
                               multiple
                               className={style.Field}
@@ -1032,10 +1032,10 @@ export const EditButton: React.FC<EditButtonProps> = ({ view, initialData, onClo
                               {tipos.map(t => <option key={t.id} value={t.id}>{t.nombre}</option>)}
                             </select>
                             <ErrorMessage name="tipos" component="div" className="error-message" />
-                            <div className="form-text">Puedes dejar vacío si la categoría no tiene tipos.</div>
+                            <div className="form-text">You can leave it empty if the category has no types.</div>
                           </div>
                           <div className={style.Input}>
-                            <label><b>Productos vinculados a esta categoría</b></label>
+                            <label><b>Products linked to this category</b></label>
                             <div style={{ border: '1px solid #ccc', padding: '10px', borderRadius: '5px', maxHeight: '200px', overflowY: 'auto' }}>
                               {normalizedInitialData.id && productos.filter(p => p.categoria?.id === normalizedInitialData.id).length > 0 ? (
                                 productos.filter(p => p.categoria?.id === normalizedInitialData.id).map(producto => (
@@ -1048,7 +1048,7 @@ export const EditButton: React.FC<EditButtonProps> = ({ view, initialData, onClo
                                 ))
                               ) : (
                                 <div style={{ color: '#666', fontStyle: 'italic' }}>
-                                  No hay productos vinculados a esta categoría actualmente.
+                                  There are currently no products linked to this category.
                                 </div>
                               )}
                             </div>
@@ -1058,7 +1058,7 @@ export const EditButton: React.FC<EditButtonProps> = ({ view, initialData, onClo
                         // Campos específicos para Types
                         <>
                           <div className={style.Input}>
-                            <label><b>Nombre</b></label>
+                            <label><b>Name</b></label>
                             <Field
                               className={style.Field}
                               name="nombre"
@@ -1067,20 +1067,20 @@ export const EditButton: React.FC<EditButtonProps> = ({ view, initialData, onClo
                             <ErrorMessage name="nombre" component="div" className="error-message" />
                           </div>
                           <div className={style.Input}>
-                            <label><b>Categorías asociadas a este tipo</b></label>
+                            <label><b>Categories associated with this type</b></label>
                             <div style={{ border: '1px solid #ccc', padding: '10px', borderRadius: '5px', maxHeight: '200px', overflowY: 'auto' }}>
                               {categorias.filter(c => c.tipos?.some(t => t.id === normalizedInitialData.id)).length > 0 ? (
                                 categorias.filter(c => c.tipos?.some(t => t.id === normalizedInitialData.id)).map(categoria => (
                                   <div key={categoria.id} style={{ padding: '5px', borderBottom: '1px solid #eee', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                     <span><strong>{categoria.nombre}</strong></span>
                                     <span style={{ color: '#666', fontSize: '0.9em' }}>
-                                      {categoria.productos?.length || 0} productos
+                                      {categoria.productos?.length || 0} products
                                     </span>
                                   </div>
                                 ))
                               ) : (
                                 <div style={{ color: '#666', fontStyle: 'italic' }}>
-                                  No hay categorías asociadas a este tipo actualmente.
+                                 There are currently no categories associated with this type.
                                 </div>
                               )}
                             </div>
@@ -1090,7 +1090,7 @@ export const EditButton: React.FC<EditButtonProps> = ({ view, initialData, onClo
                         // Campos específicos para productos
                         <>
                           <div className={style.Input}>
-                            <label><b>Nombre</b></label>
+                            <label><b>Name</b></label>
                             <Field
                               className={style.Field}
                               name="nombre"
@@ -1099,7 +1099,7 @@ export const EditButton: React.FC<EditButtonProps> = ({ view, initialData, onClo
                             <ErrorMessage name="nombre" component="div" className="error-message" />
                           </div>
                           <div className={style.Input}>
-                            <label><b>Descripción</b></label>
+                            <label><b>Description</b></label>
                             <Field
                               as="textarea"
                               className={style.Field}
@@ -1118,7 +1118,7 @@ export const EditButton: React.FC<EditButtonProps> = ({ view, initialData, onClo
                             <ErrorMessage name="color" component="div" className="error-message" />
                           </div>
                           <div className={style.Input}>
-                            <label><b>Precio</b></label>
+                            <label><b>Price</b></label>
                             <Field
                               className={style.Field}
                               name="precio"
@@ -1129,7 +1129,7 @@ export const EditButton: React.FC<EditButtonProps> = ({ view, initialData, onClo
                             <ErrorMessage name="precio" component="div" className="error-message" />
                           </div>
                           <div className={style.Input}>
-                            <label><b>Cantidad (Stock)</b></label>
+                            <label><b>Stock</b></label>
                             <Field
                               className={style.Field}
                               name="cantidad"
@@ -1139,7 +1139,7 @@ export const EditButton: React.FC<EditButtonProps> = ({ view, initialData, onClo
                             <ErrorMessage name="cantidad" component="div" className="error-message" />
                           </div>
                           <div className={style.Input}>
-                            <label><b>Categoría</b></label>
+                            <label><b>Categorie</b></label>
                             <select
                               className={style.Field}
                               value={values.categoria?.id || ''}
@@ -1148,13 +1148,13 @@ export const EditButton: React.FC<EditButtonProps> = ({ view, initialData, onClo
                                 setFieldValue('categoria', sel);
                               }}
                             >
-                              <option value="">Seleccione categoría</option>
+                              <option value="">Select categorie</option>
                               {categorias.map(c => <option key={c.id} value={c.id}>{c.nombre}</option>)}
                             </select>
                             <ErrorMessage name="categoria" component="div" className="error-message" />
                           </div>
                           <div className={style.Input}>
-                            <label><b>Tipo</b></label>
+                            <label><b>Type</b></label>
                             <select
                               className={style.Field}
                               value={values.tipo?.id || ''}
@@ -1163,13 +1163,13 @@ export const EditButton: React.FC<EditButtonProps> = ({ view, initialData, onClo
                                 setFieldValue('tipo', sel);
                               }}
                             >
-                              <option value="">Seleccione tipo</option>
+                              <option value="">Select typo</option>
                               {tipos.map(t => <option key={t.id} value={t.id}>{t.nombre}</option>)}
                             </select>
                             <ErrorMessage name="tipo" component="div" className="error-message" />
                           </div>
                           <div className={style.Input}>
-                            <label><b>Talles Disponibles</b></label>
+                            <label><b>Avaliable sizes</b></label>
                             <select
                               multiple
                               className={style.Field}
@@ -1202,7 +1202,7 @@ export const EditButton: React.FC<EditButtonProps> = ({ view, initialData, onClo
                         // Campos específicos para usuarios
                         <>
                           <div className={style.Input}>
-                            <label><b>Nombre</b></label>
+                            <label><b>Name</b></label>
                             <Field
                               className={style.Field}
                               name="nombre"
@@ -1224,7 +1224,7 @@ export const EditButton: React.FC<EditButtonProps> = ({ view, initialData, onClo
                             <div className={style.Input}>
                               <label><b>Rol</b></label>
                               <Field as="select" className={style.Field} name="rol">
-                                <option value="">Seleccione rol</option>
+                                <option value="">Select rol</option>
                                 {Object.values(Rol).map((rol) => (
                                   <option key={rol} value={rol}>{rol}</option>
                                 ))}
@@ -1283,10 +1283,10 @@ export const EditButton: React.FC<EditButtonProps> = ({ view, initialData, onClo
                             </div>
                           )}
                           <div className={style.Input}>
-                            <label><b>Estado</b></label>
+                            <label><b>Status</b></label>
                             <Field as="select" className={style.Field} name="activo">
-                              <option value="true">Activo</option>
-                              <option value="false">Inactivo</option>
+                              <option value="true">Active</option>
+                              <option value="false">Inactive</option>
                             </Field>
                             <ErrorMessage name="activo" component="div" className="error-message" />
                           </div>
@@ -1306,7 +1306,7 @@ export const EditButton: React.FC<EditButtonProps> = ({ view, initialData, onClo
                           </div>
                           {/* Mostrar órdenes del usuario */}
                           <div className={style.Input}>
-                            <label><b>Órdenes del usuario</b></label>
+                            <label><b>User orders</b></label>
                             <div style={{ 
                               border: '1px solid #ccc', 
                               padding: '10px', 
@@ -1323,7 +1323,7 @@ export const EditButton: React.FC<EditButtonProps> = ({ view, initialData, onClo
                                     justifyContent: 'space-between',
                                     alignItems: 'center'
                                   }}>
-                                    <span><strong>Orden #{orden.id}</strong></span>
+                                    <span><strong>Order #{orden.id}</strong></span>
                                     <span style={{ color: '#666', fontSize: '0.9em' }}>
                                       ${orden.total} - {orden.estado}
                                     </span>
@@ -1331,14 +1331,14 @@ export const EditButton: React.FC<EditButtonProps> = ({ view, initialData, onClo
                                 ))
                               ) : (
                                 <div style={{ color: '#666', fontStyle: 'italic' }}>
-                                  El usuario no tiene órdenes registradas.
+                                  The user has no orders registered.
                                 </div>
                               )}
                             </div>
                           </div>
                           {/* Mostrar direcciones del usuario */}
                           <div className={style.Input}>
-                            <label><b>Direcciones del usuario</b></label>
+                            <label><b>User addresses</b></label>
                             <div style={{ 
                               border: '1px solid #ccc', 
                               padding: '10px', 
@@ -1363,7 +1363,7 @@ export const EditButton: React.FC<EditButtonProps> = ({ view, initialData, onClo
                                 ))
                               ) : (
                                 <div style={{ color: '#666', fontStyle: 'italic' }}>
-                                  El usuario no tiene direcciones registradas.
+                                  The user has no addresses registered.
                                 </div>
                               )}
                             </div>
@@ -1376,7 +1376,7 @@ export const EditButton: React.FC<EditButtonProps> = ({ view, initialData, onClo
                             // Campos específicos para Addresses
                             <>
                               <div className={style.Input}>
-                                <label><b>Calle</b></label>
+                                <label><b>Street</b></label>
                                 <Field
                                   className={style.Field}
                                   name="calle"
@@ -1385,7 +1385,7 @@ export const EditButton: React.FC<EditButtonProps> = ({ view, initialData, onClo
                                 <ErrorMessage name="calle" component="div" className="error-message" />
                               </div>
                               <div className={style.Input}>
-                                <label><b>Localidad</b></label>
+                                <label><b>Loality</b></label>
                                 <Field
                                   className={style.Field}
                                   name="localidad"
@@ -1407,9 +1407,9 @@ export const EditButton: React.FC<EditButtonProps> = ({ view, initialData, onClo
                             // Campos específicos para Sizes
                             <>
                               <div className={style.Input}>
-                                <label><b>Sistema</b></label>
+                                <label><b>System</b></label>
                                 <Field as="select" className={style.Field} name="sistema">
-                                  <option value="">-- Seleccionar --</option>
+                                  <option value="">-- Select --</option>
                                   {Object.values(SistemaTalle).map((v) => (
                                     <option key={v} value={v}>{v}</option>
                                   ))}
@@ -1417,7 +1417,7 @@ export const EditButton: React.FC<EditButtonProps> = ({ view, initialData, onClo
                                 <ErrorMessage name="sistema" component="div" className="error-message" />
                               </div>
                               <div className={style.Input}>
-                                <label><b>Valor</b></label>
+                                <label><b>Value</b></label>
                                 <Field
                                   className={style.Field}
                                   name="valor"
@@ -1472,7 +1472,7 @@ export const EditButton: React.FC<EditButtonProps> = ({ view, initialData, onClo
                               {view === 'Categories' ? (
                                 <>
                                   <div className={style.Input}>
-                                    <label><b>Nombre</b></label>
+                                    <label><b>Names</b></label>
                                     <Field
                                       className={style.Field}
                                       name="nombre"
@@ -1481,7 +1481,7 @@ export const EditButton: React.FC<EditButtonProps> = ({ view, initialData, onClo
                                     <ErrorMessage name="nombre" component="div" className="error-message" />
                                   </div>
                                   <div className={style.Input}>
-                                    <label><b>Tipos</b></label>
+                                    <label><b>Types</b></label>
                                     <select
                                       multiple
                                       className={style.Field}
@@ -1589,10 +1589,10 @@ export const EditButton: React.FC<EditButtonProps> = ({ view, initialData, onClo
 
                     <div className={style.containerButtonsPopUp}>
                       <button type="submit" className={style.buttonEdit}>
-                        Editar
+                        Edit
                       </button>
                       <button type="button" onClick={handleClose} className={style.buttonClose}>
-                        Cancelar
+                        Cancel
                       </button>
                     </div>
                   </Form>

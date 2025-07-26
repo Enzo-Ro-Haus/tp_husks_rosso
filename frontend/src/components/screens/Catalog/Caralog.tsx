@@ -182,7 +182,7 @@ export const Catalog = () => {
           <div className="row g-3 align-items-center justify-content-center">
             <div className="col-12 col-md-3 col-lg-2">
               <select name="tipoId" value={filtros.tipoId} onChange={handleFiltroChange} className="form-select">
-                <option value="">Tipo</option>
+                <option value="">Type</option>
                 {tipos.map((tipo) => (
                   <option key={tipo.id} value={tipo.id}>{tipo.nombre}</option>
                 ))}
@@ -198,7 +198,7 @@ export const Catalog = () => {
             </div>
             <div className="col-6 col-md-3 col-lg-2">
               <select name="sistemaTalle" value={sistemaTalle} onChange={handleSistemaTalleChange} className="form-select">
-                <option value="">Sistema de talle</option>
+                <option value="">Size system</option>
                 {Object.values(SistemaTalle).map((s) => (
                   <option key={s} value={s}>{s.charAt(0).toUpperCase() + s.slice(1)}</option>
                 ))}
@@ -206,7 +206,7 @@ export const Catalog = () => {
             </div>
             <div className="col-6 col-md-3 col-lg-2">
               <select name="talleId" value={filtros.talleId} onChange={handleFiltroChange} className="form-select" disabled={!sistemaTalle}>
-                <option value="">Talle</option>
+                <option value="">Size</option>
                 {tallesFiltrados.map((talle) => (
                   <option key={talle.id} value={talle.id}>{talle.valor}</option>
                 ))}
@@ -234,9 +234,9 @@ export const Catalog = () => {
             </div>
             <div className="col-12 col-md-6 col-lg-1">
               <div className="d-flex gap-2">
-                <button type="submit" className="btn btn-primary w-100">Filtrar</button>
+                <button type="submit" className="btn btn-primary w-100">Filter</button>
                 <button type="button" className="btn btn-success w-100" onClick={handleReset}>Reset</button>
-                <button type="button" className="btn btn-danger w-100" onClick={() => setShowFilters(false)}>Cerrar</button>
+                <button type="button" className="btn btn-danger w-100" onClick={() => setShowFilters(false)}>Close</button>
               </div>
             </div>
           </div>
@@ -259,14 +259,14 @@ export const Catalog = () => {
           ))
         ) : (
           <div className="w-100 d-flex justify-content-center align-items-center" style={{ minHeight: '60vh' }}>
-            <h3 className="text-center">No hay productos</h3>
+            <h3 className="text-center">No prduct avaliable</h3>
           </div>
         )}
       </div>
       {/* Modal global de detalles de producto */}
       <Modal show={showModalDetalle} onHide={handleCloseDetalle} centered onExited={() => setProductoDetalle(null)}>
         <Modal.Header closeButton>
-          <Modal.Title>Detalles de {productoDetalle?.nombre}</Modal.Title>
+          <Modal.Title>{productoDetalle?.nombre} details</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <div className="d-flex flex-column align-items-center text-center">
@@ -297,14 +297,14 @@ export const Catalog = () => {
             </div>
             {/* Etiquetas informativas en fila */}
             <div className="mb-2 d-flex flex-wrap justify-content-center gap-2">
-              {productoDetalle?.categoria && <span className="badge bg-dark text-white">Categoría: {productoDetalle.categoria.nombre}</span>}
-              {productoDetalle?.tipo && <span className="badge bg-dark text-white">Tipo: {productoDetalle.tipo.nombre}</span>}
+              {productoDetalle?.categoria && <span className="badge bg-dark text-white">Categories: {productoDetalle.categoria.nombre}</span>}
+              {productoDetalle?.tipo && <span className="badge bg-dark text-white">Type: {productoDetalle.tipo.nombre}</span>}
               <span className="badge bg-dark text-white">
-                {productoDetalle?.cantidad > 0 ? `Stock: ${productoDetalle.cantidad}` : 'Sin stock'}
+                {productoDetalle?.cantidad > 0 ? `Stock: ${productoDetalle.cantidad}` : 'No stock'}
               </span>
               {productoDetalle?.tallesDisponibles && productoDetalle.tallesDisponibles.length > 0 && (
                 <span className="badge bg-dark text-white">
-                  Talles: {productoDetalle.tallesDisponibles.map((t: any, idx: number) => `${t.sistema} ${t.valor}`).join(", ")}
+                  Sizes: {productoDetalle.tallesDisponibles.map((t: any, idx: number) => `${t.sistema} ${t.valor}`).join(", ")}
                 </span>
               )}
             </div>
@@ -378,7 +378,7 @@ export const Catalog = () => {
       </Modal>
       <ToastContainer position="top-center" className="p-3">
         <Toast show={showToast} onClose={() => setShowToast(false)} delay={1200} autohide bg="success">
-          <Toast.Body className="text-white">¡Agregado con éxito!</Toast.Body>
+          <Toast.Body className="text-white">¡Succefully added!</Toast.Body>
         </Toast>
       </ToastContainer>
       <Footer /> 

@@ -62,7 +62,6 @@ export const Cart = () => {
   const [mensaje, setMensaje] = useState<string | null>(null);
 
   // Depuración: mostrar detalles en consola
-  console.log("Detalles del carrito:", detalles);
 
   useEffect(() => {
     setTotal(detalles);
@@ -89,24 +88,24 @@ export const Cart = () => {
         }).then(() => {
           Swal.fire({
             icon: 'success',
-            title: '¡Pago exitoso!',
-            text: 'Tu pago fue aprobado. La orden se guardó y el carrito se limpió.',
+            title: 'Payment Successful!',
+            text: 'Your payment was approved. The order was saved and the cart was cleared.',
             confirmButtonText: 'OK'
           });
           limpiarCarrito();
         }).catch(() => {
           Swal.fire({
             icon: 'error',
-            title: 'Error al guardar la orden',
-            text: 'El pago fue exitoso pero no se pudo guardar la orden.',
+            title: 'Error Saving Order',
+            text: 'The payment was successful but the order could not be saved.',
             confirmButtonText: 'OK'
           });
         });
       } else {
         Swal.fire({
           icon: 'success',
-          title: '¡Pago exitoso!',
-          text: 'Tu pago fue aprobado.',
+          title: 'Payment Successful!',
+          text: 'Your payment was approved.',
           confirmButtonText: 'OK'
         });
         limpiarCarrito();
@@ -114,15 +113,15 @@ export const Cart = () => {
     } else if (status === 'pending') {
       Swal.fire({
         icon: 'info',
-        title: 'Pago pendiente',
-        text: 'Tu pago está pendiente de confirmación.',
+        title: 'Payment Pending',
+        text: 'Your payment is pending confirmation.',
         confirmButtonText: 'OK'
       });
     } else {
       Swal.fire({
         icon: 'error',
-        title: 'Pago rechazado',
-        text: 'Hubo un problema con tu pago. Intenta nuevamente.',
+        title: 'Payment Rejected',
+        text: 'There was a problem with your payment. Please try again.',
         confirmButtonText: 'OK'
       });
     }
@@ -133,7 +132,7 @@ export const Cart = () => {
     // Validar stock
     for (const d of detalles) {
       if (d.cantidad > d.producto.cantidad) {
-        alert(`No hay suficiente stock para ${d.producto.nombre}`);
+        alert(`Not enough stock available for product: ${d.producto.nombre}`);
         return;
       }
     }
@@ -151,7 +150,7 @@ export const Cart = () => {
       limpiarCarrito();
       setShowModal(false);
     } catch (e) {
-      alert('Error al crear la orden');
+      alert('Failed to create the order');
     } finally {
       setLoading(false);
     }
@@ -185,7 +184,7 @@ export const Cart = () => {
       });
       if (!response.ok) throw new Error('Error al generar link de pago');
       const mpResponse = await response.json();
-      console.log('[DEBUG] Respuesta de Mercado Pago:', mpResponse);
+     
       // 2. Crear la orden en el backend con el preferenceId
       const nuevaOrden = await createOrden(usuario.token || null, {
         usuario,
@@ -197,7 +196,7 @@ export const Cart = () => {
         detalles,
         preferenceId: mpResponse.preferenceId,
       });
-      console.log('[DEBUG] Orden creada con preferenceId:', nuevaOrden);
+      
       // 3. Redirigir al usuario
       window.location.href = mpResponse.url;
     } catch (error) {

@@ -119,11 +119,11 @@ export const DeleteButton: React.FC<DeleteButtonProps> = ({
       title: `¿Deseas eliminar ${view} ID:${id}?`,
       icon: "warning",
       showCancelButton: true,
-      confirmButtonText: "Eliminar definitivamente",
-      cancelButtonText: "Cancelar",
+      confirmButtonText: "Permanently delet",
+      cancelButtonText: "Cancel",
       reverseButtons: true,
       showDenyButton: true,
-      denyButtonText: "Borrado lógico (soft delete)",
+      denyButtonText: "soft delete",
     });
 
     if (result.isConfirmed || result.isDenied) {
@@ -133,7 +133,7 @@ export const DeleteButton: React.FC<DeleteButtonProps> = ({
         await Swal.fire({
           icon: "success",
           title: result.isDenied ? "Borrado lógico" : "Eliminado",
-          text: `${view} ID:${id} fue ${result.isDenied ? "dado de baja (soft delete)" : "eliminado"} correctamente.`,
+          text: `${view} ID:${id} is ${result.isDenied ? "Deactivated (soft delete)" : "Deleted"} successfully.`,
           timer: 2000,
           showConfirmButton: false,
         });
@@ -175,7 +175,7 @@ export const DeleteButton: React.FC<DeleteButtonProps> = ({
 
   return (
     <Button variant="danger" className="w-100" onClick={handleDelete}>
-      Eliminar
+      Delete
     </Button>
   );
 };

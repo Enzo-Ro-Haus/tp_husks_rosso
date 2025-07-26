@@ -821,12 +821,12 @@ export const EditButtonBootstrap: React.FC<Props> = ({ view, item, onClose, onUp
                         setFieldValue("direcciones", newDirecciones);
                       }}
                     >
-                      Eliminar
+                      Delete
                     </Button>
                   </div>
                 ))
               ) : (
-                <p className="text-muted fst-italic">No hay direcciones agregadas</p>
+                <p className="text-muted fst-italic">No addresses have been added.</p>
               )}
               
               <div className="mt-3">
@@ -911,7 +911,7 @@ export const EditButtonBootstrap: React.FC<Props> = ({ view, item, onClose, onUp
                     onClick={() => setFieldValue("tipos", tipos.map(t => Number(t.id)))}
                     disabled={tipos.length === 0}
                   >
-                    Seleccionar todos
+                    Select all
                   </Button>
                   <Button
                     variant="outline-secondary"
@@ -919,7 +919,7 @@ export const EditButtonBootstrap: React.FC<Props> = ({ view, item, onClose, onUp
                     onClick={() => setFieldValue("tipos", [])}
                     disabled={tiposSeleccionados.length === 0}
                   >
-                    Deseleccionar todos
+                    Deselect all
                   </Button>
                 </Col>
               </Row>
@@ -927,7 +927,7 @@ export const EditButtonBootstrap: React.FC<Props> = ({ view, item, onClose, onUp
                 <strong>Seleccionados ({tiposSeleccionados.length}):</strong>
                 <div className="d-flex flex-wrap mt-2">
                   {tiposSeleccionados.length === 0 && (
-                    <span className="text-muted ms-2">Ninguno</span>
+                    <span className="text-muted ms-2">None</span>
                   )}
                   {tiposSeleccionados.map((tipo: any) => (
                     <Badge
@@ -945,10 +945,10 @@ export const EditButtonBootstrap: React.FC<Props> = ({ view, item, onClose, onUp
                 </div>
               </div>
               <div className="mb-2">
-                <strong>Otros tipos:</strong>
+                <strong>Others types:</strong>
                 <div className="d-flex flex-wrap mt-2">
                   {tiposNoSeleccionados.length === 0 && (
-                    <span className="text-muted ms-2">Ninguno</span>
+                    <span className="text-muted ms-2">None</span>
                   )}
                   {tiposNoSeleccionados
                     .filter((tipo: any) => tipo.nombre.toLowerCase().includes(searchTipos.toLowerCase()))
@@ -984,7 +984,7 @@ export const EditButtonBootstrap: React.FC<Props> = ({ view, item, onClose, onUp
       return (
         <Col md={12} key={key}>
           <BootstrapForm.Group>
-            <BootstrapForm.Label><strong>Categorías asociadas</strong></BootstrapForm.Label>
+            <BootstrapForm.Label><strong>Associated categories</strong></BootstrapForm.Label>
             <div className="border rounded p-3">
               <Row className="mb-2 align-items-center">
                 <Col xs={12} md={6} className="mb-2 mb-md-0">
@@ -1004,7 +1004,7 @@ export const EditButtonBootstrap: React.FC<Props> = ({ view, item, onClose, onUp
                     onClick={() => setFieldValue("categorias", categorias.map(c => Number(c.id)))}
                     disabled={categorias.length === 0}
                   >
-                    Seleccionar todas
+                    Select all
                   </Button>
                   <Button
                     variant="outline-secondary"
@@ -1012,15 +1012,15 @@ export const EditButtonBootstrap: React.FC<Props> = ({ view, item, onClose, onUp
                     onClick={() => setFieldValue("categorias", [])}
                     disabled={categoriasSeleccionadas.length === 0}
                   >
-                    Deseleccionar todas
+                    Deselect all
                   </Button>
                 </Col>
               </Row>
               <div className="mb-2">
-                <strong>Seleccionadas ({categoriasSeleccionadas.length}):</strong>
+                <strong>Selected ({categoriasSeleccionadas.length}):</strong>
                 <div className="d-flex flex-wrap mt-2">
                   {categoriasSeleccionadas.length === 0 && (
-                    <span className="text-muted ms-2">Ninguna</span>
+                    <span className="text-muted ms-2">None</span>
                   )}
                   {categoriasSeleccionadas.map((categoria: any) => (
                     <Badge
@@ -1038,10 +1038,10 @@ export const EditButtonBootstrap: React.FC<Props> = ({ view, item, onClose, onUp
                 </div>
               </div>
               <div className="mb-2">
-                <strong>Otras categorías:</strong>
+                <strong>Others categories:</strong>
                 <div className="d-flex flex-wrap mt-2">
                   {categoriasNoSeleccionadas.length === 0 && (
-                    <span className="text-muted ms-2">Ninguna</span>
+                    <span className="text-muted ms-2">None</span>
                   )}
                   {categoriasNoSeleccionadas.map((categoria: any) => (
                     <Badge
@@ -1069,7 +1069,7 @@ export const EditButtonBootstrap: React.FC<Props> = ({ view, item, onClose, onUp
     if (view === "Sizes" && key === "sistema") {
       return (
         <BootstrapForm.Group key={key} className="mb-3" controlId={key}>
-          <BootstrapForm.Label><b>Sistema de Talle</b></BootstrapForm.Label>
+          <BootstrapForm.Label><b>Size system</b></BootstrapForm.Label>
           <Field name={key}>
             {({ field }: any) => (
               <div style={{ display: 'flex', gap: '2rem', marginBottom: '0.5rem' }}>
@@ -1096,7 +1096,7 @@ export const EditButtonBootstrap: React.FC<Props> = ({ view, item, onClose, onUp
     if (view === "Sizes" && key === "valor") {
       return (
         <BootstrapForm.Group key={key} className="mb-3" controlId={key}>
-          <BootstrapForm.Label><b>Valor</b></BootstrapForm.Label>
+          <BootstrapForm.Label><b>Value</b></BootstrapForm.Label>
           <Field name={key}>
             {({ field }: any) => (
               <BootstrapForm.Control type="text" {...field} />
@@ -1113,12 +1113,12 @@ export const EditButtonBootstrap: React.FC<Props> = ({ view, item, onClose, onUp
         <Col md={6} key={key}>
           <BootstrapForm.Group>
             <BootstrapForm.Label>
-              <strong>Sistema de Talle</strong>
+              <strong>Size system</strong>
             </BootstrapForm.Label>
             <Field as="select" name={key} className="form-select">
-              <option value="">Seleccionar sistema</option>
-              <option value="americano">Americano</option>
-              <option value="europeo">Europeo</option>
+              <option value="">Select system</option>
+              <option value="americano">USA</option>
+              <option value="europeo">EU</option>
             </Field>
             <ErrorMessage name={key} component="div" className="text-danger small" />
           </BootstrapForm.Group>
@@ -1159,7 +1159,7 @@ export const EditButtonBootstrap: React.FC<Props> = ({ view, item, onClose, onUp
         return (
           <Col md={6} key={key}>
             <BootstrapForm.Group>
-              <BootstrapForm.Label><strong>Categoría</strong></BootstrapForm.Label>
+              <BootstrapForm.Label><strong>Categorie</strong></BootstrapForm.Label>
               <Field
                 as="select"
                 name="categoria.id"
@@ -1174,7 +1174,7 @@ export const EditButtonBootstrap: React.FC<Props> = ({ view, item, onClose, onUp
                 }}
                 value={values.categoria?.id || ""}
               >
-                <option value="">Seleccionar categoría</option>
+                <option value="">Select categorie</option>
                 {categorias.map((categoria) => (
                   <option key={categoria.id} value={categoria.id}>
                     {categoria.nombre}
@@ -1191,7 +1191,7 @@ export const EditButtonBootstrap: React.FC<Props> = ({ view, item, onClose, onUp
         return (
           <Col md={6} key={key}>
             <BootstrapForm.Group>
-              <BootstrapForm.Label><strong>Tipo</strong></BootstrapForm.Label>
+              <BootstrapForm.Label><strong>Type</strong></BootstrapForm.Label>
               <Field
                 as="select"
                 name="tipo.id"
@@ -1206,7 +1206,7 @@ export const EditButtonBootstrap: React.FC<Props> = ({ view, item, onClose, onUp
                 }}
                 value={values.tipo?.id || ""}
               >
-                <option value="">Seleccionar tipo</option>
+                <option value="">Select type</option>
                 {tipos.map((tipo) => (
                   <option key={tipo.id} value={tipo.id}>
                     {tipo.nombre}
@@ -1223,7 +1223,7 @@ export const EditButtonBootstrap: React.FC<Props> = ({ view, item, onClose, onUp
         return (
           <Col md={6} key={key}>
             <BootstrapForm.Group>
-              <BootstrapForm.Label><strong>Talle</strong></BootstrapForm.Label>
+              <BootstrapForm.Label><strong>Size</strong></BootstrapForm.Label>
               <Field
                 as="select"
                 name="talles"
@@ -1238,7 +1238,7 @@ export const EditButtonBootstrap: React.FC<Props> = ({ view, item, onClose, onUp
                 }}
                 value={values.talles?.[0] || ""}
               >
-                <option value="">Seleccionar talle</option>
+                <option value="">Select size</option>
                 {talles.map((talle) => (
                   <option key={talle.id} value={talle.id}>
                     {talle.sistema} - {talle.valor}
@@ -1258,7 +1258,7 @@ export const EditButtonBootstrap: React.FC<Props> = ({ view, item, onClose, onUp
         return (
           <Col md={6} key={key}>
             <BootstrapForm.Group>
-              <BootstrapForm.Label><strong>Usuario</strong></BootstrapForm.Label>
+              <BootstrapForm.Label><strong>User</strong></BootstrapForm.Label>
               <Field
                 as="select"
                 name="usuario.id"
@@ -1271,7 +1271,7 @@ export const EditButtonBootstrap: React.FC<Props> = ({ view, item, onClose, onUp
                   }
                 }}
               >
-                <option value="">Seleccionar usuario</option>
+                <option value="">Select user</option>
                 {usuarios.map((u) => (
                   <option key={u.id} value={u.id} selected={values.usuario?.id === u.id}>
                     {u.nombre} ({u.email})
@@ -1293,14 +1293,14 @@ export const EditButtonBootstrap: React.FC<Props> = ({ view, item, onClose, onUp
         return (
           <Col md={6} key={key}>
             <BootstrapForm.Group>
-              <BootstrapForm.Label><strong>Dirección</strong></BootstrapForm.Label>
+              <BootstrapForm.Label><strong>Address</strong></BootstrapForm.Label>
               <Field
                 as="select"
                 name="usuarioDireccion.id"
                 className="form-select"
                 disabled={!usuarioSeleccionado}
               >
-                <option value="">Seleccionar dirección</option>
+                <option value="">Select address</option>
                 {direccionesUsuario.map((d) => (
                   <option key={d.id} value={d.id} selected={values.usuarioDireccion?.id === d.id}>
                     {d.direccion.calle}, {d.direccion.localidad}
@@ -1319,7 +1319,7 @@ export const EditButtonBootstrap: React.FC<Props> = ({ view, item, onClose, onUp
       return (
         <Col md={6} key={key}>
           <BootstrapForm.Group>
-            <BootstrapForm.Label><strong>Usuario</strong></BootstrapForm.Label>
+            <BootstrapForm.Label><strong>User</strong></BootstrapForm.Label>
             <Field
               as="select"
               name="usuario.id"
@@ -1331,7 +1331,7 @@ export const EditButtonBootstrap: React.FC<Props> = ({ view, item, onClose, onUp
                 }
               }}
             >
-              <option value="">Seleccionar usuario</option>
+              <option value="">Select user</option>
               {usuarios.map((u) => (
                 <option key={u.id} value={u.id} selected={values.usuario?.id === u.id}>
                   {u.nombre} ({u.email})
@@ -1355,14 +1355,14 @@ export const EditButtonBootstrap: React.FC<Props> = ({ view, item, onClose, onUp
       return (
         <Col md={6} key={key}>
           <BootstrapForm.Group>
-            <BootstrapForm.Label><strong>Fecha de la orden</strong></BootstrapForm.Label>
+            <BootstrapForm.Label><strong>Order date</strong></BootstrapForm.Label>
             <Field
               name={key}
               type="datetime-local"
               className="form-control"
               placeholder="Seleccionar fecha y hora"
             />
-            <small className="text-muted">Seleccione la fecha y hora de la orden</small>
+            <small className="text-muted">Select the order date and time</small>
             <ErrorMessage name={key} component="div" className="text-danger small" />
           </BootstrapForm.Group>
         </Col>
@@ -1374,13 +1374,13 @@ export const EditButtonBootstrap: React.FC<Props> = ({ view, item, onClose, onUp
       return (
         <Col md={6} key={key}>
           <BootstrapForm.Group>
-            <BootstrapForm.Label><strong>Método de pago</strong></BootstrapForm.Label>
+            <BootstrapForm.Label><strong>Payment method</strong></BootstrapForm.Label>
             <Field
               as="select"
               name={key}
               className="form-select"
             >
-              <option value="">Seleccionar método de pago</option>
+              <option value="">Select payment method</option>
               {Object.values(MetodoPago).map((metodo) => (
                 <option key={metodo} value={metodo} selected={values.metodoPago === metodo}>
                   {getMetodoPagoLabel(metodo)}
@@ -1398,13 +1398,13 @@ export const EditButtonBootstrap: React.FC<Props> = ({ view, item, onClose, onUp
       return (
         <Col md={6} key={key}>
           <BootstrapForm.Group>
-            <BootstrapForm.Label><strong>Estado de la orden</strong></BootstrapForm.Label>
+            <BootstrapForm.Label><strong>Order status</strong></BootstrapForm.Label>
             <Field
               as="select"
               name={key}
               className="form-select"
             >
-              <option value="">Seleccionar estado</option>
+              <option value="">Select status</option>
               {Object.values(EstadoOrden).map((estado) => (
                 <option key={estado} value={estado} selected={values.estado === estado}>
                   {getEstadoOrdenLabel(estado)}
@@ -1422,14 +1422,14 @@ export const EditButtonBootstrap: React.FC<Props> = ({ view, item, onClose, onUp
         <BootstrapForm.Group>
           <BootstrapForm.Label>
             <strong>
-              {key === "password" ? "Contraseña (opcional)" : key.charAt(0).toUpperCase() + key.slice(1)}
+              {key === "password" ? "Password (opcional)" : key.charAt(0).toUpperCase() + key.slice(1)}
             </strong>
           </BootstrapForm.Label>
           <Field
             name={key}
             type={inputType}
             className="form-control"
-            placeholder={key === "password" ? "Dejar vacío para mantener la actual" : key}
+            placeholder={key === "password" ? "Leave blank to keep the current one" : key}
           />
           <ErrorMessage name={key} component="div" className="text-danger small" />
         </BootstrapForm.Group>
@@ -1450,7 +1450,7 @@ export const EditButtonBootstrap: React.FC<Props> = ({ view, item, onClose, onUp
   return (
     <Modal show={true} onHide={onClose} size="lg" centered backdrop="static">
       <Modal.Header closeButton>
-        <Modal.Title>Editar {view}</Modal.Title>
+        <Modal.Title>Edit {view}</Modal.Title>
       </Modal.Header>
       <Modal.Body>
         <Formik
@@ -1485,7 +1485,7 @@ export const EditButtonBootstrap: React.FC<Props> = ({ view, item, onClose, onUp
                   {view === "Products" && "imagenPublicId" in formik.values && (
                     <Col md={12}>
                       <BootstrapForm.Group>
-                        <BootstrapForm.Label><strong>Imagen del producto</strong></BootstrapForm.Label>
+                        <BootstrapForm.Label><strong>Product image</strong></BootstrapForm.Label>
                         <ImageUpload
                           label=""
                           currentImagePublicId={formik.values.imagenPublicId}
@@ -1503,7 +1503,7 @@ export const EditButtonBootstrap: React.FC<Props> = ({ view, item, onClose, onUp
                   {view === "Users" && "imagenPerfilPublicId" in formik.values && (
                     <Col md={12}>
                       <BootstrapForm.Group>
-                        <BootstrapForm.Label><strong>Imagen de perfil (opcional)</strong></BootstrapForm.Label>
+                        <BootstrapForm.Label><strong>Profile picture (optional)</strong></BootstrapForm.Label>
                         <ImageUpload
                           label=""
                           currentImagePublicId={formik.values.imagenPerfilPublicId && formik.values.imagenPerfilPublicId !== "" ? formik.values.imagenPerfilPublicId : undefined}
@@ -1521,7 +1521,7 @@ export const EditButtonBootstrap: React.FC<Props> = ({ view, item, onClose, onUp
                   {view === "Orders" && (
                     <Col md={12}>
                       <BootstrapForm.Group>
-                        <BootstrapForm.Label><strong>Productos de la orden</strong></BootstrapForm.Label>
+                        <BootstrapForm.Label><strong>Order products</strong></BootstrapForm.Label>
                         <div className="border rounded p-3">
                           {(formik.values as any).detalles && Array.isArray((formik.values as any).detalles) && (formik.values as any).detalles.length > 0 ? (
                             (formik.values as any).detalles.map((item: any, index: number) => {
@@ -1532,8 +1532,8 @@ export const EditButtonBootstrap: React.FC<Props> = ({ view, item, onClose, onUp
                               return (
                                 <div key={index} className="d-flex justify-content-between align-items-center p-2 bg-light rounded mb-2">
                                   <span>
-                                    <strong>Producto:</strong> {producto?.nombre || 'Producto no encontrado'} | 
-                                    <strong>Cantidad:</strong> {item.cantidad || 0} | 
+                                    <strong>Product:</strong> {producto?.nombre || 'Producto no encontrado'} | 
+                                    <strong>Quantity:</strong> {item.cantidad || 0} | 
                                     <strong>Stock:</strong> {stockDisponible}
                                     {excedeStock && (
                                       <Badge bg="danger" className="ms-2">⚠️ Excede stock</Badge>
@@ -1554,13 +1554,13 @@ export const EditButtonBootstrap: React.FC<Props> = ({ view, item, onClose, onUp
                                       formik.setFieldValue("precioTotal", nuevoTotal);
                                     }}
                                   >
-                                    Eliminar
+                                    Delete
                                   </Button>
                                 </div>
                               );
                             })
                           ) : (
-                            <p className="text-muted fst-italic">No hay productos agregados</p>
+                            <p className="text-muted fst-italic">No products have been added.</p>
                           )}
                           <div className="mt-3">
                             <Row>
@@ -1578,7 +1578,7 @@ export const EditButtonBootstrap: React.FC<Props> = ({ view, item, onClose, onUp
                                   }}
                                   value={"productoSeleccionado" in formik.values ? formik.values.productoSeleccionado : ""}
                                 >
-                                  <option value="">Seleccionar producto</option>
+                                  <option value="">Select product</option>
                                   {productos.map((p) => (
                                     <option key={p.id} value={p.id}>
                                       {p.nombre} - ${p.precio} (Stock: {p.cantidad})
@@ -1650,13 +1650,13 @@ export const EditButtonBootstrap: React.FC<Props> = ({ view, item, onClose, onUp
                                     }
                                   }}
                                 >
-                                  Agregar
+                                  Add
                                 </Button>
                               </Col>
                             </Row>
                             {(formik.values as any).productoSeleccionado && (
                               <small className="text-muted">
-                                Stock disponible: {productos.find(p => p.id === Number((formik.values as any).productoSeleccionado))?.cantidad || 0} unidades
+                                Stock: {productos.find(p => p.id === Number((formik.values as any).productoSeleccionado))?.cantidad || 0} unidades
                               </small>
                             )}
                           </div>
@@ -1669,10 +1669,10 @@ export const EditButtonBootstrap: React.FC<Props> = ({ view, item, onClose, onUp
 
                 <Modal.Footer>
                   <Button variant="secondary" onClick={onClose}>
-                    Cancelar
+                    Cancel
                   </Button>
                   <Button variant="primary" type="submit">
-                    Actualizar
+                    Update
                   </Button>
                 </Modal.Footer>
               </Form>

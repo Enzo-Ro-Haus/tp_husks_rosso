@@ -177,7 +177,7 @@ export const Register = () => {
                     values.direcciones.map((direccion: any, index: number) => (
                       <div key={index} className={style.AddressItem}>
                         <span className={style.AddressText}>
-                          <strong>Dirección {index + 1}:</strong> {direccion.calle}, {direccion.localidad} ({direccion.cp})
+                          <strong>Address {index + 1}:</strong> {direccion.calle}, {direccion.localidad} ({direccion.cp})
                         </span>
                         <button
                           type="button"
@@ -187,12 +187,12 @@ export const Register = () => {
                             setFieldValue("direcciones", newDirecciones);
                           }}
                         >
-                          Eliminar
+                          Delete
                         </button>
                       </div>
                     ))
                   ) : (
-                    <p className={style.NoAddresses}>No hay direcciones agregadas</p>
+                    <p className={style.NoAddresses}>No address added</p>
                   )}
                   
                   <div className={style.AddAddressSection}>

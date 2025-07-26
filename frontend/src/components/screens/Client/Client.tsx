@@ -91,7 +91,8 @@ export const Client = () => {
       await addressAPI.softDeleteUsuarioDireccion(token, id);
       Swal.fire({
         icon: 'success',
-        title: 'Dirección eliminada',
+        title: 'Address deleted',
+        text: 'The address was successfully deleted',
         timer: 1500,
         showConfirmButton: false,
       });
@@ -101,8 +102,8 @@ export const Client = () => {
     } catch (err) {
       Swal.fire({
         icon: 'error',
-        title: 'Error al eliminar',
-        text: 'No se pudo eliminar la dirección',
+        title: 'Error deleting',
+        text: 'The address could not be deleted',
         timer: 2000,
         showConfirmButton: false,
       });
@@ -171,7 +172,7 @@ export const Client = () => {
                     onDeleted={getUsuario}
                   />
                 ) : (
-                  <h3>No se encontró el usuario</h3>
+                  <h3>User not found</h3>
                 )
               ) : view === "Orders" ? (
                 Array.isArray(ordenes) && ordenes.length > 0 ? (
@@ -201,22 +202,22 @@ export const Client = () => {
               ) : view === "Address" ? (
                 direcciones && direcciones.filter((d: any) => d.activo !== false).length > 0 ? (
                   <div className="w-100" style={{ alignSelf: 'flex-start' }}>
-                    <h3 className="mb-3" style={{ marginTop: 0 }}>Mis direcciones</h3>
+                    <h3 className="mb-3" style={{ marginTop: 0 }}>My Address</h3>
                     <ul className="list-group mb-3">
                       {direcciones.filter((d: any) => d.activo !== false).map((d: any) => (
                         <li key={d.id} className="list-group-item d-flex justify-content-between align-items-center">
                           <span>{d.direccion.calle}, {d.direccion.localidad} ({d.direccion.cp})</span>
-                          <button className="btn btn-danger btn-sm" onClick={() => handleDeleteDireccion(d.id)}>Eliminar</button>
+                          <button className="btn btn-danger btn-sm" onClick={() => handleDeleteDireccion(d.id)}>Delete</button>
                         </li>
                       ))}
                     </ul>
-                    <button className="btn btn-success" onClick={() => setShowAddressModal(true)}>Agregar dirección</button>
+                    <button className="btn btn-success" onClick={() => setShowAddressModal(true)}>Add address</button>
                   </div>
                 ) : (
                   <div className="w-100" style={{ alignSelf: 'flex-start' }}>
-                    <h3 className="mb-3" style={{ marginTop: 0 }}>Mis direcciones</h3>
-                    <p className="text-muted">No tienes direcciones registradas</p>
-                    <button className="btn btn-success" onClick={() => setShowAddressModal(true)}>Agregar dirección</button>
+                    <h3 className="mb-3" style={{ marginTop: 0 }}>My Address</h3>
+                    <p className="text-muted">You have no registered addresses</p>
+                    <button className="btn btn-success" onClick={() => setShowAddressModal(true)}>Add address</button>
                   </div>
                 )
               ) : null}
@@ -229,7 +230,7 @@ export const Client = () => {
       </Container>
       <Modal show={showAddressModal} onHide={() => setShowAddressModal(false)} centered>
         <Modal.Header closeButton>
-          <Modal.Title>Agregar dirección</Modal.Title>
+          <Modal.Title>Add Address</Modal.Title>
         </Modal.Header>
         <Formik
           initialValues={{ calle: '', localidad: '', cp: '' }}
@@ -248,7 +249,7 @@ export const Client = () => {
               setShowAddressModal(false);
               resetForm();
             } catch (err) {
-              alert('Error al crear dirección');
+              alert('Error creating address');
             } finally {
               setSaving(false);
               setSubmitting(false);
@@ -259,12 +260,12 @@ export const Client = () => {
             <Form>
               <Modal.Body>
                 <div className="mb-3">
-                  <label className="form-label">Calle</label>
+                  <label className="form-label">Street</label>
                   <Field type="text" name="calle" className="form-control" />
                   <ErrorMessage name="calle" component="div" className="text-danger small" />
                 </div>
                 <div className="mb-3">
-                  <label className="form-label">Localidad</label>
+                  <label className="form-label">Locality</label>
                   <Field type="text" name="localidad" className="form-control" />
                   <ErrorMessage name="localidad" component="div" className="text-danger small" />
                 </div>
@@ -275,8 +276,8 @@ export const Client = () => {
                 </div>
               </Modal.Body>
               <Modal.Footer>
-                <Button variant="secondary" onClick={() => setShowAddressModal(false)} disabled={isSubmitting || saving}>Cancelar</Button>
-                <Button variant="success" type="submit" disabled={isSubmitting || saving}>{(isSubmitting || saving) ? 'Guardando...' : 'Guardar'}</Button>
+                <Button variant="secondary" onClick={() => setShowAddressModal(false)} disabled={isSubmitting || saving}>Cancel</Button>
+                <Button variant="success" type="submit" disabled={isSubmitting || saving}>{(isSubmitting || saving) ? 'Saving...' : 'Save'}</Button>
               </Modal.Footer>
             </Form>
           )}

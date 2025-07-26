@@ -312,7 +312,7 @@ export const Catalog = () => {
         </Modal.Body>
         <Modal.Footer>
           <div className="d-flex justify-content-between align-items-center gap-2 gap-md-4 w-100">
-            {usuarioActivo && (
+            {usuarioActivo && usuarioActivo.rol !== 'ADMIN' && (
               <>
                 <ButtonGroup>
                   <BsButton

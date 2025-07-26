@@ -230,7 +230,25 @@ const updateHandlers: Record<ViewType, (token: string, id: number, payload: any)
   },
   Types: async (token, id, payload) => {
     try {
-      const result = await typeAPI.updateTipo(token, id, payload);
+      console.log('=== DEBUG UPDATE HANDLER TYPES ===');
+      console.log('Payload recibido:', payload);
+      console.log('Payload.categorias:', payload.categorias);
+      console.log('Payload.categorias type:', typeof payload.categorias);
+      console.log('Payload.categorias isArray:', Array.isArray(payload.categorias));
+      
+      // Procesar las categorías seleccionadas (que ahora vienen en payload.categorias)
+      const categoriasIds = Array.isArray(payload.categorias) 
+        ? payload.categorias.map((c: any) => Number(c))
+        : [];
+      
+      // Limpiar campos auxiliares antes de enviar
+      const { categoriasExistentes, nuevaCategoriaNombre, ...tipoData } = payload;
+      tipoData.categorias = categoriasIds;
+      
+      console.log('TipoData final:', tipoData);
+      console.log('========================================');
+      
+      const result = await typeAPI.updateTipo(token, id, tipoData);
       return result; // Retornar el tipo actualizado en lugar de boolean
     } catch (error) {
       console.error('Error updating type:', error);
@@ -334,6 +352,7 @@ export const EditButtonBootstrap: React.FC<Props> = ({ view, item, onClose, onUp
 
   // Estado de búsqueda para tipos en Categories
   const [searchTipos, setSearchTipos] = useState("");
+  const [searchCategorias, setSearchCategorias] = useState("");
 
   useEffect(() => {
     // Carga select options según vista
@@ -396,12 +415,11 @@ export const EditButtonBootstrap: React.FC<Props> = ({ view, item, onClose, onUp
         });
       }
       
-      // --- CORRECCIÓN PARA CATEGORIES ---
-      if (view === "Categories") {
-        // Mantener tanto el nombre como los tipos seleccionados
-        payload = { 
+      // --- CORRECCIÓN PARA TYPES ---
+      if (view === "Types") {
+        payload = {
           nombre: values.nombre,
-          tipos: values.tipos || []
+          categorias: Array.isArray(values.categorias) ? values.categorias.map((id: any) => ({ id: Number(id) })) : []
         };
       }
       
@@ -528,15 +546,13 @@ export const EditButtonBootstrap: React.FC<Props> = ({ view, item, onClose, onUp
           direccionStore.getState().setArrayDirecciones(direccionesActualizadas);
         }
         if (view === "Categories") {
-          // Usar el método específico para editar una categoría en lugar de recargar todo
           if (result && typeof result === 'object' && result.id) {
-            console.log('✅ Actualizando store con categoría editada:', result);
             categoriaStore.getState().editarUnaCategoria(result);
-            
-            // También actualizar el store de tipos porque las relaciones son bidireccionales
-            console.log('🔄 Actualizando store de tipos debido a cambios en categoría');
+            // Recarga todos los tipos y categorías para asegurar sincronización
             const tiposActualizados = await typeAPI.getAllTipos(token);
             tipoStore.getState().setArrayTipos(tiposActualizados);
+            const categoriasActualizadas = await categoryAPI.getAllCategorias(token);
+            categoriaStore.getState().setArraycategorias(categoriasActualizadas);
           } else {
             console.log('🔄 Recargando todas las categorías desde la API');
             const categoriasActualizadas = await categoryAPI.getAllCategorias(token);
@@ -550,11 +566,10 @@ export const EditButtonBootstrap: React.FC<Props> = ({ view, item, onClose, onUp
         if (view === "Types") {
           // Usar el método específico para editar un tipo en lugar de recargar todo
           if (result && typeof result === 'object' && result.id) {
-            console.log('✅ Actualizando store con tipo editado:', result);
             tipoStore.getState().editarUnTipo(result);
-            
-            // También actualizar el store de categorías porque las relaciones son bidireccionales
-            console.log('🔄 Actualizando store de categorías debido a cambios en tipo');
+            // Recarga todos los tipos y categorías para asegurar sincronización
+            const tiposActualizados = await typeAPI.getAllTipos(token);
+            tipoStore.getState().setArrayTipos(tiposActualizados);
             const categoriasActualizadas = await categoryAPI.getAllCategorias(token);
             categoriaStore.getState().setArraycategorias(categoriasActualizadas);
           } else {
@@ -961,7 +976,6 @@ export const EditButtonBootstrap: React.FC<Props> = ({ view, item, onClose, onUp
 
     // UI de selección múltiple con buscador y badges para 'categorias' en Types (igual que en Categories)
     if (view === "Types" && key === "categorias") {
-      const [searchCategorias, setSearchCategorias] = useState("");
       // IDs de categorías asociadas al Type
       const selectedIds = (values.categorias || []).map((id: any) => Number(id));
       // Mapear a objetos completos del store

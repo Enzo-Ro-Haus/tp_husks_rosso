@@ -64,11 +64,17 @@ public class TipoServiceImpl extends BaseServiceImpl<Tipo, Long> implements Tipo
 
     @Override
     public Tipo update(Long id, Tipo tipo) throws Exception {
+        System.out.println("[DEBUG] update Tipo - ID: " + id);
+        System.out.println("[DEBUG] update Tipo - Nombre recibido: " + tipo.getNombre());
+        System.out.println("[DEBUG] update Tipo - Categorias recibidas: " + (tipo.getCategorias() != null ? tipo.getCategorias().size() : "null"));
+        if (tipo.getCategorias() != null) {
+            for (Categoria cat : tipo.getCategorias()) {
+                System.out.println("[DEBUG] update Tipo - Categoria recibida: " + cat.getId() + " - " + cat.getNombre());
+            }
+        }
         Tipo existente = tipoRepository.findById(id)
             .orElseThrow(() -> new Exception("Tipo no encontrado"));
-
         existente.setNombre(tipo.getNombre());
-
         // Manejar la relación muchos a muchos
         if (tipo.getCategorias() != null) {
             List<Categoria> categoriasAdjuntas = new ArrayList<>();
@@ -77,14 +83,41 @@ public class TipoServiceImpl extends BaseServiceImpl<Tipo, Long> implements Tipo
                     Categoria catEntity = categoriaRepository.findById(cat.getId())
                         .orElseThrow(() -> new Exception("Categoría no encontrada"));
                     categoriasAdjuntas.add(catEntity);
+                    System.out.println("[DEBUG] update Tipo - Categoria asociada: " + catEntity.getId() + " - " + catEntity.getNombre());
                 }
             }
-            existente.setCategorias(categoriasAdjuntas);
-        } else {
-            existente.setCategorias(new ArrayList<>());
-        }
+            // Limpia la colección antes de agregar las nuevas
+            existente.getCategorias().clear();
+            existente.getCategorias().addAll(categoriasAdjuntas);
 
-        return tipoRepository.save(existente);
+            // --- Sincronizar desde el lado dueño (Categoria) ---
+            for (Categoria categoria : categoriaRepository.findAll()) {
+                if (categoriasAdjuntas.contains(categoria)) {
+                    if (!categoria.getTipos().contains(existente)) {
+                        categoria.getTipos().add(existente);
+                        categoriaRepository.save(categoria);
+                    }
+                } else {
+                    if (categoria.getTipos().contains(existente)) {
+                        categoria.getTipos().remove(existente);
+                        categoriaRepository.save(categoria);
+                    }
+                }
+            }
+        } else {
+            existente.getCategorias().clear();
+            System.out.println("[DEBUG] update Tipo - No se encontraron categorias, limpiando relaciones");
+            // --- Sincronizar desde el lado dueño (Categoria) ---
+            for (Categoria categoria : categoriaRepository.findAll()) {
+                if (categoria.getTipos().contains(existente)) {
+                    categoria.getTipos().remove(existente);
+                    categoriaRepository.save(categoria);
+                }
+            }
+        }
+        Tipo resultado = tipoRepository.save(existente);
+        System.out.println("[DEBUG] update Tipo - Categorias finales: " + (resultado.getCategorias() != null ? resultado.getCategorias().size() : "null"));
+        return resultado;
     }
 
     @Override

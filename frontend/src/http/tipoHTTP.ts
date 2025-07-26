@@ -57,7 +57,10 @@ export const updateTipo = async (
   tipoUpdated: Partial<ITipo>
 ): Promise<ITipo> => {
   const payload: any = { nombre: tipoUpdated.nombre };
-  payload.categorias = (tipoUpdated.categorias || []).map(c => ({ id: c.id })); // Siempre enviar array
+  // Permitir que categorias sea un array de IDs o de objetos
+  payload.categorias = (tipoUpdated.categorias || []).map((c: any) =>
+    typeof c === 'object' && c.id ? { id: c.id } : { id: c }
+  ); // Siempre enviar array de objetos {id}
   const { data } = await axios.put<ITipo>(
     `${API_URL}/tipo/${id}`,
     payload,

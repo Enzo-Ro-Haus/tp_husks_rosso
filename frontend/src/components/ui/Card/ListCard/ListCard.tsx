@@ -16,6 +16,7 @@ import CloudinaryImg from "../../Image/CoudinaryImg";
 import styles from "./ListCard.module.css";
 import UserProfileCard from '../../UserProfileCard/UserProfileCard';
 import type { ViewType } from "../../Buttons/EditButton/EditButtonBootstrap";
+import { tipoStore } from '../../../../store/tipoStore';
 
 export type ListCardVariant =
   | "Products"
@@ -133,13 +134,24 @@ export const ListCard: React.FC<ListCardProps> = (props) => {
   };
 
   const getItemForEdit = () => {
+    console.log('[DEBUG getItemForEdit] EJECUTADO', variant, type);
     if (variant === "Products" && producto) return producto;
     if (variant === "Users" && usuario) return usuario;
     if (variant === "Client" && usuario) return usuario;
     if (variant === "Categories" && category) return category;
     if (variant === "Types" && type) {
-      // Asegura que el objeto tenga la propiedad categorias como array de IDs
-      const categoriaIds = (categories ?? type.categorias ?? []).map((c: any) => c.id);
+      console.log('[DEBUG getItemForEdit] type:', type);
+      let categoriaIds = (categories ?? type.categorias ?? []).map((c: any) => c.id);
+      console.log('[DEBUG getItemForEdit] categoriaIds inicial:', categoriaIds);
+      if ((!categoriaIds || categoriaIds.length === 0) && type.id) {
+        const tipoEnStore = tipoStore.getState().tipos.find((t) => t.id === type.id);
+        console.log('[DEBUG getItemForEdit] tipoEnStore:', tipoEnStore);
+        if (tipoEnStore && tipoEnStore.categorias) {
+          categoriaIds = tipoEnStore.categorias.map((c: any) => c.id);
+          console.log('[DEBUG getItemForEdit] categoriaIds desde store:', categoriaIds);
+        }
+      }
+      console.log('[DEBUG getItemForEdit] categoriaIds final:', categoriaIds);
       return { ...type, categorias: categoriaIds };
     }
     if (variant === "Sizes") return { sistema: system, valor: value, id };

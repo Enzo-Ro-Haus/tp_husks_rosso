@@ -346,6 +346,7 @@ export const Admin = () => {
               id={t.id || "NN"}
               name={t.nombre}
               categories={t.categorias ?? []}
+              type={t} // <-- PASO EL OBJETO COMPLETO
               activo={t.activo}
               onEdited={getTipos}
               onDeleted={getTipos}

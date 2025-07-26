@@ -105,9 +105,7 @@ const schemaMap: Record<ViewType, yup.ObjectSchema<any>> = {
   }),
   Types: yup.object({
     nombre: yup.string().required(),
-    categorias: yup.array().of(
-      yup.object({ id: yup.number().required(), nombre: yup.string().required() })
-    ).min(0),
+    categorias: yup.array().of(yup.number()).min(0),
   }),
   Sizes: yup.object({
     sistema: yup.string().required(),
@@ -498,6 +496,14 @@ export const EditButtonBootstrap: React.FC<Props> = ({ view, item, onClose, onUp
         }
       }
       
+      // En handleSubmit, al guardar Types, enviar solo los IDs de categorias
+      if (view === "Types") {
+        payload = {
+          ...payload,
+          categorias: values.categorias || []
+        };
+      }
+      
       if (!item.id) {
         Swal.fire({ icon: 'error', title: 'Error', text: 'ID del elemento no encontrado.' });
         return;
@@ -666,11 +672,11 @@ export const EditButtonBootstrap: React.FC<Props> = ({ view, item, onClose, onUp
             : [],
         };
       case "Types":
-        // Inicializar con IDs de las categorías asociadas (ya es array de IDs)
+        // Inicializar con IDs de las categorías asociadas
         return {
           nombre: item.nombre || item.name || "",
           categorias: Array.isArray(item.categorias)
-            ? item.categorias
+            ? item.categorias.map((c: any) => typeof c === "object" && c.id ? Number(c.id) : Number(c))
             : [],
         };
       case "Sizes":
@@ -953,7 +959,7 @@ export const EditButtonBootstrap: React.FC<Props> = ({ view, item, onClose, onUp
       );
     }
 
-    // Reemplazo el renderizado de la selección múltiple de categorías en Tipo
+    // UI de selección múltiple con buscador y badges para 'categorias' en Types (igual que en Categories)
     if (view === "Types" && key === "categorias") {
       const [searchCategorias, setSearchCategorias] = useState("");
       // IDs de categorías asociadas al Type
@@ -1035,74 +1041,6 @@ export const EditButtonBootstrap: React.FC<Props> = ({ view, item, onClose, onUp
                     >
                       {categoria.nombre} <span style={{ marginLeft: 4, color: "#0dcaf0" }}>+</span>
                     </Badge>
-                  ))}
-                </div>
-              </div>
-              <ErrorMessage name="categorias" component="div" className="text-danger small" />
-            </div>
-          </BootstrapForm.Group>
-        </Col>
-      );
-    }
-
-    // Manejo especial para categorías en Types
-    if (view === "Types" && key === "categorias") {
-      // Categorías seleccionadas y no seleccionadas
-      const selectedIds = (values.categorias || []).map((c: any) => c.id);
-      const categoriasSeleccionadas = categorias.filter((c) => selectedIds.includes(c.id));
-      const categoriasNoSeleccionadas = categorias.filter((c) => !selectedIds.includes(c.id));
-      return (
-        <Col md={12} key={key}>
-          <BootstrapForm.Group>
-            <BootstrapForm.Label><strong>Categorías asociadas</strong></BootstrapForm.Label>
-            <div className="border rounded p-3">
-              <div className="mb-2">
-                <strong>Categorías seleccionadas:</strong>
-                {categoriasSeleccionadas.length === 0 && (
-                  <span className="text-muted ms-2">Ninguna</span>
-                )}
-                <div className="d-flex flex-wrap mt-2">
-                  {categoriasSeleccionadas.map((categoria: any) => (
-                    <label key={categoria.id} className="me-3 mb-2" style={{ cursor: 'pointer' }}>
-                      <input
-                        type="checkbox"
-                        checked={true}
-                        onChange={() => {
-                          // Quitar de seleccionadas
-                          setFieldValue(
-                            "categorias",
-                            categoriasSeleccionadas.filter((c: any) => c.id !== categoria.id)
-                          );
-                        }}
-                        className="me-1"
-                      />
-                      <span className="badge bg-info text-dark">{categoria.nombre}</span>
-                    </label>
-                  ))}
-                </div>
-              </div>
-              <div className="mb-2">
-                <strong>Otras categorías:</strong>
-                {categoriasNoSeleccionadas.length === 0 && (
-                  <span className="text-muted ms-2">Ninguna</span>
-                )}
-                <div className="d-flex flex-wrap mt-2">
-                  {categoriasNoSeleccionadas.map((categoria: any) => (
-                    <label key={categoria.id} className="me-3 mb-2" style={{ cursor: 'pointer' }}>
-                      <input
-                        type="checkbox"
-                        checked={false}
-                        onChange={() => {
-                          // Agregar a seleccionadas
-                          setFieldValue(
-                            "categorias",
-                            [...categoriasSeleccionadas, categoria]
-                          );
-                        }}
-                        className="me-1"
-                      />
-                      <span>{categoria.nombre}</span>
-                    </label>
                   ))}
                 </div>
               </div>
@@ -1507,21 +1445,18 @@ export const EditButtonBootstrap: React.FC<Props> = ({ view, item, onClose, onUp
           onSubmit={handleSubmit}
         >
           {(formik) => {
-            // Sincronizar categorías seleccionadas cuando el store se cargue
+            // Sincronizar categorías seleccionadas cuando el store se cargue (para Types)
             React.useEffect(() => {
               if (view === "Types" && item && categorias.length > 0) {
                 const idsAsociadas = Array.isArray(item.categorias)
-                  ? item.categorias.map((c: any) => c.id)
+                  ? item.categorias.map((c: any) => typeof c === "object" && c.id ? Number(c.id) : Number(c))
                   : [];
-                const categoriasAsociadas = categorias.filter((cat) => idsAsociadas.includes(cat.id));
-                // Type guard para evitar error de propiedad inexistente
-                const valuesCategorias = Array.isArray((formik.values as any).categorias)
-                  ? (formik.values as any).categorias
+                const idsFormik = Array.isArray((formik.values as any).categorias)
+                  ? (formik.values as any).categorias.map((id: any) => Number(id)).sort()
                   : [];
-                const idsFormik = valuesCategorias.map((c: any) => c.id).sort();
-                const idsStore = categoriasAsociadas.map((c) => c.id).sort();
+                const idsStore = idsAsociadas.sort();
                 if (JSON.stringify(idsFormik) !== JSON.stringify(idsStore)) {
-                  formik.setFieldValue("categorias", categoriasAsociadas);
+                  formik.setFieldValue("categorias", idsAsociadas);
                 }
               }
               // eslint-disable-next-line

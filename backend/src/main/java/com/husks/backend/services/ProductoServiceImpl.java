@@ -1,6 +1,7 @@
 package com.husks.backend.services;
 
 import com.husks.backend.entities.Producto;
+import com.husks.backend.enums.SistemaTalle;
 import com.husks.backend.repositories.BaseRepository;
 import com.husks.backend.repositories.ProductoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,7 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 @Service
-public class ProductoServiceImpl extends BaseServiceImpl<Producto, Long> implements ProductoService{
+public class ProductoServiceImpl extends BaseServiceImpl<Producto, Long> implements ProductoService {
 
     @Autowired
     private ProductoRepository productoRepository;
@@ -34,7 +35,7 @@ public class ProductoServiceImpl extends BaseServiceImpl<Producto, Long> impleme
             throw e;
         }
     }
-    
+
     @Override
     @Transactional(readOnly = true)
     public List<Producto> findActiveProducts() throws Exception {
@@ -44,7 +45,8 @@ public class ProductoServiceImpl extends BaseServiceImpl<Producto, Long> impleme
             System.out.println("=== DEBUG: Found " + productos.size() + " active products ===");
             return productos;
         } catch (Exception e) {
-            System.out.println("=== DEBUG: Exception in ProductoServiceImpl.findActiveProducts(): " + e.getMessage() + " ===");
+            System.out.println(
+                    "=== DEBUG: Exception in ProductoServiceImpl.findActiveProducts(): " + e.getMessage() + " ===");
             e.printStackTrace();
             throw new Exception(e.getMessage());
         }
@@ -63,7 +65,9 @@ public class ProductoServiceImpl extends BaseServiceImpl<Producto, Long> impleme
     }
 
     @Override
-    public List<Producto> filtrarProductos(Long tipoId, Long categoriaId, String nombre, Double precioMin, Double precioMax, Long talleId, String sistemaTalle) throws Exception {
-        return productoRepository.filtrarProductos(tipoId, categoriaId, nombre, precioMin, precioMax, talleId, sistemaTalle);
+    public List<Producto> filtrarProductos(Long tipoId, Long categoriaId, String nombre, Double precioMin,
+            Double precioMax, Long talleId, SistemaTalle sistemaTalle) throws Exception {
+        return productoRepository.filtrarProductos(tipoId, categoriaId, nombre, precioMin, precioMax, talleId,
+                sistemaTalle);
     }
 }

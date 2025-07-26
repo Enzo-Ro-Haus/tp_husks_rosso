@@ -210,7 +210,15 @@ export const getPublicProductos = async (): Promise<IProducto[]> => {
   }
 };
 
-export const getProductosFiltrados = async ({ tipoId, categoriaId, nombre, precioMin, precioMax, talleId, sistemaTalle }: {
+export const getProductosFiltrados = async ({ 
+  tipoId, 
+  categoriaId, 
+  nombre, 
+  precioMin, 
+  precioMax, 
+  talleId, 
+  sistemaTalle 
+}: {
   tipoId?: number;
   categoriaId?: number;
   nombre?: string;
@@ -220,18 +228,35 @@ export const getProductosFiltrados = async ({ tipoId, categoriaId, nombre, preci
   sistemaTalle?: string;
 }): Promise<IProducto[]> => {
   try {
+    console.log("Input parameters:", { tipoId, categoriaId, nombre, precioMin, precioMax, talleId, sistemaTalle });
+    
+    // Build query parameters properly
     const params: any = {};
-    if (tipoId) params.tipoId = tipoId;
-    if (categoriaId) params.categoriaId = categoriaId;
+    
+    if (tipoId !== undefined && tipoId !== null && tipoId !== 0) params.tipoId = tipoId;
+    if (categoriaId !== undefined && categoriaId !== null && categoriaId !== 0) params.categoriaId = categoriaId;
     if (nombre) params.nombre = nombre;
-    if (precioMin !== undefined) params.precioMin = precioMin;
-    if (precioMax !== undefined) params.precioMax = precioMax;
-    if (talleId) params.talleId = talleId;
+    if (precioMin !== undefined && precioMin !== null) params.precioMin = precioMin;
+    if (precioMax !== undefined && precioMax !== null) params.precioMax = precioMax;
+    if (talleId !== undefined && talleId !== null && talleId !== 0) params.talleId = talleId;
     if (sistemaTalle) params.sistemaTalle = sistemaTalle;
+    
+    console.log("Final params:", params);
+    console.log("URL:", `${API_URL}/producto/filtrar`);
+    
     const response = await axios.get<IProducto[]>(`${API_URL}/producto/filtrar`, { params });
+    
+    console.log("Response status:", response.status);
+    console.log("Response data:", response.data);
+    console.log("Response data length:", Array.isArray(response.data) ? response.data.length : "Not an array");
+    
     return response.data;
   } catch (error: any) {
-    console.error('Error al filtrar productos:', error);
+    console.error("=== DEBUG getProductosFiltrados ERROR ===");
+    console.error("Error:", error);
+    console.error("Error response:", error.response);
+    console.error("Error status:", error.response?.status);
+    console.error("Error data:", error.response?.data);
     return [];
   }
 };

@@ -2,6 +2,7 @@
 package com.husks.backend.controllers;
 
 import com.husks.backend.entities.Producto;
+import com.husks.backend.enums.SistemaTalle;
 import com.husks.backend.services.ProductoServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -76,14 +77,23 @@ public class ProductoController extends BaseControllerImpl<Producto, ProductoSer
             @RequestParam(required = false) Double precioMin,
             @RequestParam(required = false) Double precioMax,
             @RequestParam(required = false) Long talleId,
-            @RequestParam(required = false) String sistemaTalle
+            @RequestParam(required = false) SistemaTalle sistemaTalle
     ) {
+        // Log para depuración: ver qué parámetros llegan al backend
+        System.out.println(String.format(
+            "--- Iniciando filtro de productos con: tipoId=%s, categoriaId=%s, nombre=%s, precioMin=%s, precioMax=%s, talleId=%s, sistemaTalle=%s ---",
+            tipoId, categoriaId, nombre, precioMin, precioMax, talleId, sistemaTalle
+        ));
+
         try {
             List<Producto> productos = servicio.filtrarProductos(tipoId, categoriaId, nombre, precioMin, precioMax, talleId, sistemaTalle);
             return ResponseEntity.status(HttpStatus.OK).body(productos);
         } catch (Exception e) {
+            // Log del error completo en la consola del servidor
+            System.err.println("[ERROR] Falló el endpoint /producto/filtrar: " + e.getMessage());
+            e.printStackTrace(); // ¡Esto es clave para ver la traza del error!
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("{\"error\":\"Error filtrando productos: " + e.getMessage() + "\"}");
+                    .body("{\"error\":\"Error interno al filtrar productos. Revise los logs del servidor.\"}");
         }
     }
 

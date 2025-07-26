@@ -27,6 +27,13 @@ public class ProductoController extends BaseControllerImpl<Producto, ProductoSer
         return ResponseEntity.status(HttpStatus.OK).body("{\"message\":\"Producto controller is working\"}");
     }
 
+    @GetMapping("/auth-test")
+    @PreAuthorize("hasAnyRole('ADMIN', 'CLIENTE')")
+    public ResponseEntity<?> authTest() {
+        System.out.println("=== DEBUG: Producto auth-test endpoint called ===");
+        return ResponseEntity.status(HttpStatus.OK).body("{\"message\":\"Authentication successful\", \"timestamp\":\"" + System.currentTimeMillis() + "\"}");
+    }
+
     @GetMapping("/test-data")
     public ResponseEntity<?> testData() {
         System.out.println("=== DEBUG: Producto test-data endpoint called ===");
@@ -94,7 +101,33 @@ public class ProductoController extends BaseControllerImpl<Producto, ProductoSer
     @GetMapping("")
     @PreAuthorize("hasAnyRole('ADMIN', 'CLIENTE')")
     public ResponseEntity<?> getAllProductos() {
-        return super.getAll();
+        try {
+            System.out.println("=== DEBUG: getAllProductos endpoint called ===");
+            System.out.println("=== DEBUG: Authentication check passed ===");
+            var result = servicio.findAll();
+            System.out.println("=== DEBUG: Found " + result.size() + " productos ===");
+            return ResponseEntity.status(HttpStatus.OK).body(result);
+        } catch (Exception e) {
+            System.out.println("=== DEBUG: Exception in getAllProductos: " + e.getMessage() + " ===");
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("{\"error\":\"Error GETALL Intente mas tarde.\" }");
+        }
+    }
+
+    @PatchMapping("/soft-delete/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> softDelete(@PathVariable Long id) {
+        try {
+            System.out.println("[INFO] Soft delete solicitado para producto ID: " + id);
+            Producto producto = servicio.findById(id);
+            producto.setActivo(false);
+            servicio.save(producto);
+            System.out.println("[INFO] Soft delete exitoso para producto ID: " + id);
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).body("{\"message\":\"Producto dado de baja correctamente\"}");
+        } catch (Exception e) {
+            System.out.println("[ERROR] Error al hacer soft delete para producto ID: " + id + ". Detalle: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("{\"error\":\"Error en borrado lógico\"}");
+        }
     }
 
     // Clase interna para el request

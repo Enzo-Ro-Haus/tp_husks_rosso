@@ -15,7 +15,7 @@ public interface ProductoRepository extends BaseRepository<Producto, Long> {
     @Query("SELECT p FROM Producto p LEFT JOIN FETCH p.tallesDisponibles LEFT JOIN FETCH p.categoria WHERE p.activo = true")
     List<Producto> findActiveProductsWithTalles();
 
-    @Query("SELECT p FROM Producto p LEFT JOIN FETCH p.tallesDisponibles LEFT JOIN FETCH p.categoria LEFT JOIN FETCH p.tipo")
+    @Query("SELECT p FROM Producto p LEFT JOIN FETCH p.tallesDisponibles LEFT JOIN FETCH p.categoria LEFT JOIN FETCH p.tipo ORDER BY p.id")
     List<Producto> findAllWithRelations();
 
     @Query("""

@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router";
-import { getAllProductos, testBackendConnection, testProductoData } from "../../../http/productoHTTP";
+import { getAllProductos, testBackendConnection, testProductoData, testProductoAuth } from "../../../http/productoHTTP";
 import { getAllUsuarios } from "../../../http/usuarioHTTP";
 import { getAllCategorias } from "../../../http/categoriaHTTP";
 import { getAllTipos } from "../../../http/tipoHTTP";
@@ -38,14 +38,26 @@ export const Admin = () => {
       if (connected) {
         const data = await testProductoData();
         console.log("Producto data test result:", data);
+        
+        // Test authentication if we have a token
+        if (token) {
+          const authResult = await testProductoAuth(token);
+          console.log("Producto auth test result:", authResult);
+        }
       }
     };
     testConnection();
-  }, []); // Empty dependency array to run only once
+  }, [token]); // Add token as dependency
 
   // stores
   const productos = productoStore((s) => s.productos);
   const setArrayProductos = productoStore((s) => s.setArrayProductos);
+  
+  // Debug: log cuando cambian los productos
+  useEffect(() => {
+    console.log('🔍 Admin - productos store actualizado:', productos);
+    console.log('🔍 Admin - productos length:', productos ? productos.length : 0);
+  }, [productos]);
 
   const usuarios = usuarioStore((s) => s.usuarios);
   const usuario = usuarioStore((s) => s.usuarioActivo);
@@ -75,14 +87,24 @@ export const Admin = () => {
   const { view, setView } = useAdminView();
 
   const getProductos = useCallback(async () => {
-    console.log("=== getProductos llamado (endpoint público)===" );
-    // const data = await getAllProductos(token ?? null);
-    const data = await getPublicProductos();
+    console.log("=== getProductos llamado (endpoint admin)===" );
+    console.log("getProductos - token disponible:", !!token);
+    console.log("getProductos - token value:", token);
+    console.log("getProductos - role:", role);
+    // Log extra para depuración
+    if (!token) {
+      console.warn("[DEBUG] No hay token disponible para getAllProductos");
+    }
+    const data = await getAllProductos(token ?? null);
     console.log("getProductos - data recibida:", data);
+    console.log("getProductos - data length:", data ? data.length : 0);
+    console.log("getProductos - data type:", typeof data);
+    console.log("getProductos - is array:", Array.isArray(data));
     if (data) {
       setArrayProductos(data);
+      console.log("getProductos - store actualizado con", data.length, "productos");
     }
-  }, [setArrayProductos]);
+  }, [setArrayProductos, token, role]);
 
   const getUsuarios = useCallback(async () => {
     if (!token) return;
@@ -176,8 +198,10 @@ export const Admin = () => {
       navigate("/client");
       return;
     }*/
+    console.log("🔄 Admin useEffect - token:", !!token, "role:", role);
     // Solo cargar datos si tenemos token y somos admin
     if (token && role === "ADMIN") {
+      console.log("🔄 Admin - Iniciando carga de datos...");
       getUsuarios();
       getProductos();
       getCategorias();
@@ -188,6 +212,8 @@ export const Admin = () => {
       // También cargar las direcciones de usuario-dirección
       getUsuarioDirecciones();
       console.log("🔄 Admin - Cargando direcciones de usuario al inicializar...");
+    } else {
+      console.log("❌ Admin - No se cargan datos. Token:", !!token, "Role:", role);
     }
   }, [token, role, navigate, getUsuarios, getProductos, getCategorias, getTipos, getTalles, getDirecciones, getOrdenes, getUsuarioDirecciones]);
 
@@ -223,33 +249,42 @@ export const Admin = () => {
     
     switch (view) {
       case "Products":
-        return Array.isArray(productos) && productos.length > 0 ? (
-          productos.map((el) => {
-            return (
-              <ListCard
-                key={el.id}
-                variant="Products"
-                id={el.id || "NN"}
-                name={el.nombre}
-                description={el.descripcion}
-                price={el.precio}
-                quantity={el.cantidad}
-                color={el.color}
-                category={el.categoria}
-                sizes={el.tallesDisponibles}
-                type={el.tipo}
-                imagenPublicId={el.imagenPublicId}
-                producto={el}
-                activo={el.activo}
-                onEdited={getProductos}
-                onDeleted={getProductos}
-                onRestored={getProductos}
-              />
-            );
-          })
-        ) : (
-          <h3>No hay productos</h3>
-        );
+        console.log("=== renderList Products ===");
+        console.log("productos array:", productos);
+        console.log("productos length:", productos ? productos.length : 0);
+        console.log("is array:", Array.isArray(productos));
+        if (Array.isArray(productos) && productos.length > 0) {
+          return (
+            <>
+              {productos.map((el) => {
+                console.log("Rendering product:", el);
+                return (
+                  <ListCard
+                    key={el.id}
+                    variant="Products"
+                    id={el.id || "NN"}
+                    name={el.nombre}
+                    description={el.descripcion}
+                    price={el.precio}
+                    quantity={el.cantidad}
+                    color={el.color}
+                    category={el.categoria}
+                    sizes={el.tallesDisponibles}
+                    type={el.tipo}
+                    imagenPublicId={el.imagenPublicId}
+                    producto={el}
+                    activo={el.activo}
+                    onEdited={getProductos}
+                    onDeleted={getProductos}
+                    onRestored={getProductos}
+                  />
+                );
+              })}
+            </>
+          );
+        } else {
+          return <h3>No hay productos</h3>;
+        }
 
       case "Users":
         return Array.isArray(usuarios) && usuarios.length > 0 ? (
@@ -396,7 +431,11 @@ export const Admin = () => {
           onChangeView={setView}
           name={usuario?.nombre ?? "NN"}
           onUserCreated={handleUserCreated}
-          onProductCreated={getProductos}
+          onProductCreated={async () => {
+            console.log('🔄 onProductCreated callback ejecutado');
+            await getProductos();
+            console.log('🔄 onProductCreated callback completado');
+          }}
           onCategoryCreated={getCategorias}
           onTypeCreated={getTipos}
           onSizeCreated={getTalles}

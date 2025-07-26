@@ -109,12 +109,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
         String path = request.getRequestURI();
         String method = request.getMethod();
-        // Ignorar GET públicos
+        // Ignorar GET públicos (NO excluir /producto)
         return method.equals("GET") && (
             path.startsWith("/categoria") ||
             path.startsWith("/tipo") ||
             path.startsWith("/talle") ||
-            path.startsWith("/producto") ||
             path.equals("/error")
         );
     }

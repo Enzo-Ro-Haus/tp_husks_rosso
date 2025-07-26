@@ -40,9 +40,8 @@ public class SecurityConfig {
                                                 .requestMatchers(HttpMethod.POST, "/public/register", "/public/login")
                                                 .permitAll()
                                                 .requestMatchers(HttpMethod.GET,
-                                                                "/producto", 
-                                                                "/producto/**",
                                                                 "/producto/public",
+                                                                "/producto/filtrar",
                                                                 "/talle",
                                                                 "/talle/**",
                                                                 "/tipo",
@@ -55,6 +54,8 @@ public class SecurityConfig {
 
                                                 // USUARIO / ADMIN GET
                                                 .requestMatchers(HttpMethod.GET,
+                                                                "/producto",
+                                                                "/producto/**",
                                                                 "/direccion", "/direccion/**",
                                                                 "/usuario/**",
                                                                 "/usuario/",

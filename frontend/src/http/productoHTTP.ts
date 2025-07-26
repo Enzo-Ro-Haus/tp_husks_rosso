@@ -30,22 +30,49 @@ export const testProductoData = async (): Promise<any> => {
   }
 };
 
+export const testProductoAuth = async (token: string | null): Promise<any> => {
+  try {
+    console.log("=== DEBUG: Testing producto auth endpoint ===");
+    console.log("Token for auth test:", token ? "Present" : "Missing");
+    const response = await axios.get(`${API_URL}/producto/auth-test`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    console.log("Auth test response:", response.data);
+    return response.data;
+  } catch (error: any) {
+    console.error("=== DEBUG: Producto auth test failed ===");
+    console.error("Error:", error);
+    console.error("Error response:", error.response);
+    console.error("Error status:", error.response?.status);
+    return null;
+  }
+};
+
 export const getAllProductos = async (
   token: string | null
 ): Promise<IProducto[]> => {
   try {
     console.log("=== DEBUG getAllProductos ===");
     console.log("Token:", token ? "Present" : "Missing");
+    console.log("Token value:", token);
     console.log("URL:", `${API_URL}/producto`);
     
+    const headers = { Authorization: `Bearer ${token}` };
+    console.log("Headers:", headers);
+    
     const response = await axios.get<IProducto[]>(`${API_URL}/producto`, {
-      headers: { Authorization: `Bearer ${token}` },
+      headers: headers,
     });
     
     console.log("Response status:", response.status);
     console.log("Response data:", response.data);
     console.log("Response data type:", typeof response.data);
     console.log("Response data length:", Array.isArray(response.data) ? response.data.length : "Not an array");
+    
+    if (Array.isArray(response.data)) {
+      console.log("Response data IDs:", response.data.map(p => p.id));
+      console.log("Response data nombres:", response.data.map(p => p.nombre));
+    }
     
     return response.data;
   } catch (error: any) {
@@ -54,6 +81,7 @@ export const getAllProductos = async (
     console.error("Error response:", error.response);
     console.error("Error status:", error.response?.status);
     console.error("Error data:", error.response?.data);
+    console.error("Error message:", error.message);
     return [];
   }
 };
@@ -72,11 +100,24 @@ export const createProducto = async (
   nuevoProducto: IProducto
 ): Promise<IProducto> => {
   try {
-    const { data } = await axios.post<IProducto>(
+    console.log("=== DEBUG createProducto ===");
+    console.log("Payload:", nuevoProducto);
+    console.log("URL:", `${API_URL}/producto`);
+    
+    const response = await axios.post<IProducto>(
       `${API_URL}/producto`,
       nuevoProducto,
       { headers: { Authorization: `Bearer ${token}` } }
     );
+    
+    console.log("=== DEBUG createProducto response ===");
+    console.log("Response status:", response.status);
+    console.log("Response data:", response.data);
+    console.log("Response data ID:", response.data?.id);
+    console.log("Response data nombre:", response.data?.nombre);
+    
+    const data = response.data;
+    
     Swal.fire({
       icon: "success",
       title: "Producto creado",

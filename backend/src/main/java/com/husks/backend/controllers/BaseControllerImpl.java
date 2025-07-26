@@ -71,8 +71,13 @@ public abstract class BaseControllerImpl<E extends Base, S extends BaseServiceIm
     @PreAuthorize("hasAnyRole('ADMIN')")
     public ResponseEntity<?> save(@RequestBody E entity) {
         try {
-            return ResponseEntity.status(HttpStatus.OK).body(servicio.save(entity));
+            System.out.println("=== DEBUG: save endpoint called for entity: " + entity.getClass().getSimpleName() + " ===");
+            E savedEntity = servicio.save(entity);
+            System.out.println("=== DEBUG: Entity saved successfully with ID: " + savedEntity.getId() + " ===");
+            return ResponseEntity.status(HttpStatus.OK).body(savedEntity);
         } catch (Exception e) {
+            System.out.println("=== DEBUG: Exception in save: " + e.getMessage() + " ===");
+            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body("{\"error\":\"Error. SAVE Intente mas tarde.\" }");
         }

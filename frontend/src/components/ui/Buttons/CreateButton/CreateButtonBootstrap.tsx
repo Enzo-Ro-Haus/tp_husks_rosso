@@ -231,7 +231,7 @@ const schemaMap: Record<ViewType, yup.ObjectSchema<any>> = {
 };
 
 // Handlers para crear elementos
-const createHandlers: Record<ViewType, (token: string, payload: any) => Promise<boolean>> = {
+const createHandlers: Record<ViewType, (token: string, payload: any) => Promise<any>> = {
   Users: async (token, payload) => {
     try {
       const { direcciones, ...userData } = payload;
@@ -265,10 +265,10 @@ const createHandlers: Record<ViewType, (token: string, payload: any) => Promise<
         }
       }
       
-      return !!result;
+      return result;
     } catch (error) {
       console.error('Error creating user:', error);
-      return false;
+      return null;
     }
   },
   Products: async (token, payload) => {
@@ -319,10 +319,13 @@ const createHandlers: Record<ViewType, (token: string, payload: any) => Promise<
       
       const result = await productAPI.createProducto(token, processedPayload);
       console.log('🔍 Products handler - resultado:', result);
-      return !!result;
+      console.log('🔍 Products handler - resultado type:', typeof result);
+      console.log('🔍 Products handler - resultado id:', result?.id);
+      console.log('🔍 Products handler - resultado nombre:', result?.nombre);
+      return result; // Retornar el producto creado en lugar de boolean
     } catch (error) {
       console.error('❌ Error creating product:', error);
-      return false;
+      return null;
     }
   },
   Categories: async (token, payload) => {
@@ -333,28 +336,28 @@ const createHandlers: Record<ViewType, (token: string, payload: any) => Promise<
         tiposIds = payload.tipos.map((tipo: any) => tipo.id ?? tipo);
       }
       const result = await categoryAPI.createCategoria(token, payload.nombre, tiposIds);
-      return !!result;
+      return result;
     } catch (error) {
       console.error('Error creating category:', error);
-      return false;
+      return null;
     }
   },
   Types: async (token, payload) => {
     try {
       const result = await typeAPI.createTipo(token, payload);
-      return !!result;
+      return result;
     } catch (error) {
       console.error('Error creating type:', error);
-      return false;
+      return null;
     }
   },
   Sizes: async (token, payload) => {
     try {
       const result = await sizeAPI.createTalle(token, payload);
-      return !!result;
+      return result;
     } catch (error) {
       console.error('Error creating size:', error);
-      return false;
+      return null;
     }
   },
   Addresses: async (token, payload) => {
@@ -372,19 +375,19 @@ const createHandlers: Record<ViewType, (token: string, payload: any) => Promise<
         direccion: nuevaDireccion
       });
       
-      return !!result;
+      return result;
     } catch (error) {
       console.error('Error creating address:', error);
-      return false;
+      return null;
     }
   },
   Orders: async (token, payload) => {
     try {
       const result = await orderAPI.createOrden(token, payload);
-      return !!result;
+      return result;
     } catch (error) {
       console.error('Error creating order:', error);
-      return false;
+      return null;
     }
   },
 };
@@ -467,9 +470,15 @@ export const CreateButtonBootstrap: React.FC<Props> = ({ view, onClose, onCreate
         console.log('🔍 handleSubmit - Products payload:', payload);
         
         const handler = createHandlers[view];
-        const ok = await handler(token, payload);
-        if (ok) {
+        const result = await handler(token, payload);
+        if (result) {
+          console.log('✅ Producto creado exitosamente:', result);
+          // Agregar el producto al store local
+          const productoStore = (await import('../../../../store/prodcutoStore')).productoStore;
+          productoStore.getState().agregarNuevoProducto(result);
+          console.log('🔄 Llamando onCreated callback desde Products...');
           onCreated?.();
+          console.log('🔄 onCreated callback ejecutado desde Products');
           onClose();
         } else {
           Swal.fire({ icon: 'error', title: 'Error', text: 'No se pudo crear el producto.' });
@@ -479,8 +488,10 @@ export const CreateButtonBootstrap: React.FC<Props> = ({ view, onClose, onCreate
       
       // Eliminar lógica de creación de nuevos Types en Categories
       const handler = createHandlers[view];
-      const ok = await handler(token, payload);
-      if (ok) {
+      const result = await handler(token, payload);
+      if (result) {
+        console.log(`✅ ${view} creado exitosamente:`, result);
+        
         // Actualizar stores según la vista
         if (view === "Categories") {
           // Actualizar categorías y tipos para reflejar la relación
@@ -509,7 +520,9 @@ export const CreateButtonBootstrap: React.FC<Props> = ({ view, onClose, onCreate
           const usuariosActualizados = await userAPI.getAllUsuarios(token);
           usuarioStore.getState().setArrayUsuarios(usuariosActualizados);
         }
+        console.log('🔄 Llamando onCreated callback...');
         onCreated?.();
+        console.log('🔄 onCreated callback ejecutado');
         onClose();
       } else {
         Swal.fire({ icon: 'error', title: 'Error', text: 'No se pudo crear el elemento.' });

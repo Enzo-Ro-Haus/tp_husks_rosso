@@ -17,11 +17,22 @@ export const productoStore = create<IProductoStore>((set) => ({
   productoActivo: null,
 
   // Agregar array
-  setArrayProductos: (productosIn) => set(() => ({ productos: productosIn })),
+  setArrayProductos: (productosIn) => {
+    console.log('🔍 setArrayProductos llamado con:', productosIn);
+    console.log('🔍 setArrayProductos - length:', productosIn ? productosIn.length : 0);
+    set(() => ({ productos: productosIn }));
+  },
 
   // Agregar un producto
-  agregarNuevoProducto: (nuevoProducto) =>
-    set((state) => ({ productos: [...state.productos, nuevoProducto] })),
+  agregarNuevoProducto: (nuevoProducto) => {
+    console.log('🔍 agregarNuevoProducto llamado con:', nuevoProducto);
+    set((state) => {
+      console.log('🔍 agregarNuevoProducto - state actual:', state.productos);
+      const newState = { productos: [...state.productos, nuevoProducto] };
+      console.log('🔍 agregarNuevoProducto - nuevo state:', newState.productos);
+      return newState;
+    });
+  },
 
   // Editar un producto
   editarUnProducto: (productoEditado) =>

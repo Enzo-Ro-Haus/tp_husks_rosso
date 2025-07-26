@@ -23,7 +23,16 @@ public class ProductoServiceImpl extends BaseServiceImpl<Producto, Long> impleme
     @Override
     @Transactional(readOnly = true)
     public List<Producto> findAll() {
-        return productoRepository.findAllWithRelations();
+        try {
+            System.out.println("=== DEBUG: ProductoServiceImpl.findAll called ===");
+            List<Producto> productos = productoRepository.findAllWithRelations();
+            System.out.println("=== DEBUG: Found " + productos.size() + " productos in findAll ===");
+            return productos;
+        } catch (Exception e) {
+            System.out.println("=== DEBUG: Exception in ProductoServiceImpl.findAll: " + e.getMessage() + " ===");
+            e.printStackTrace();
+            throw e;
+        }
     }
     
     @Override

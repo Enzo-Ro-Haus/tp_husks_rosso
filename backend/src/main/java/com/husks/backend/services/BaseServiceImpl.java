@@ -58,9 +58,13 @@ public class BaseServiceImpl<E extends Base, ID extends Serializable> implements
     @Transactional
     public E save(E entity) throws Exception {
         try {
+            System.out.println("=== DEBUG: BaseServiceImpl.save called for entity: " + entity.getClass().getSimpleName() + " ===");
             entity = baseRepository.save(entity);
+            System.out.println("=== DEBUG: Entity saved with ID: " + entity.getId() + " ===");
             return entity;
         } catch (Exception e) {
+            System.out.println("=== DEBUG: Exception in BaseServiceImpl.save: " + e.getMessage() + " ===");
+            e.printStackTrace();
             throw new Exception(e.getMessage());
         }
     }

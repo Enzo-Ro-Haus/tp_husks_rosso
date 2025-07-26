@@ -137,7 +137,11 @@ export const ListCard: React.FC<ListCardProps> = (props) => {
     if (variant === "Users" && usuario) return usuario;
     if (variant === "Client" && usuario) return usuario;
     if (variant === "Categories" && category) return category;
-    if (variant === "Types" && type) return type;
+    if (variant === "Types" && type) {
+      // Asegura que el objeto tenga la propiedad categorias como array de IDs
+      const categoriaIds = (categories ?? type.categorias ?? []).map((c: any) => c.id);
+      return { ...type, categorias: categoriaIds };
+    }
     if (variant === "Sizes") return { sistema: system, valor: value, id };
     if (variant === "Addresses" && usuarioDireccion) return usuarioDireccion;
     if (variant === "Orders") return { usuario, usuarioDireccion, detalle: detail, fecha: date, total, metodoPago: payMethod, estado: Dstatus, id };

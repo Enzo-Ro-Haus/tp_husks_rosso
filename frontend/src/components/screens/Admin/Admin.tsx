@@ -217,6 +217,15 @@ export const Admin = () => {
     }
   }, [token, role, navigate, getUsuarios, getProductos, getCategorias, getTipos, getTalles, getDirecciones, getOrdenes, getUsuarioDirecciones]);
 
+  useEffect(() => {
+    if (tipos && tipos.length > 0) {
+      console.log('DEBUG tipos:', tipos);
+      tipos.forEach((t) => {
+        console.log(`Tipo: ${t.nombre} (id: ${t.id}) - categorias:`, t.categorias);
+      });
+    }
+  }, [tipos]);
+
   // Callback personalizado para cuando se crea un usuario
   const handleUserCreated = async () => {
     console.log("🔄 handleUserCreated ejecutándose...");

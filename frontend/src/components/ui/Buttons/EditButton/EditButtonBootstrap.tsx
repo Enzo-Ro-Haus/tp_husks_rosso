@@ -666,9 +666,12 @@ export const EditButtonBootstrap: React.FC<Props> = ({ view, item, onClose, onUp
             : [],
         };
       case "Types":
+        // Inicializar con IDs de las categorías asociadas (ya es array de IDs)
         return {
           nombre: item.nombre || item.name || "",
-          categorias: item.categorias || [],
+          categorias: Array.isArray(item.categorias)
+            ? item.categorias
+            : [],
         };
       case "Sizes":
         return {
@@ -952,10 +955,12 @@ export const EditButtonBootstrap: React.FC<Props> = ({ view, item, onClose, onUp
 
     // Reemplazo el renderizado de la selección múltiple de categorías en Tipo
     if (view === "Types" && key === "categorias") {
-      const [search, setSearch] = useState("");
-      const selectedIds = (values.categorias || []).map((c: any) => c.id);
-      const categoriasSeleccionadas = categorias.filter((c) => selectedIds.includes(c.id));
-      const categoriasNoSeleccionadas = categorias.filter((c) => !selectedIds.includes(c.id) && c.nombre.toLowerCase().includes(search.toLowerCase()));
+      const [searchCategorias, setSearchCategorias] = useState("");
+      // IDs de categorías asociadas al Type
+      const selectedIds = (values.categorias || []).map((id: any) => Number(id));
+      // Mapear a objetos completos del store
+      const categoriasSeleccionadas = categorias.filter((c) => selectedIds.includes(Number(c.id)));
+      const categoriasNoSeleccionadas = categorias.filter((c) => !selectedIds.includes(Number(c.id)) && c.nombre.toLowerCase().includes(searchCategorias.toLowerCase()));
       return (
         <Col md={12} key={key}>
           <BootstrapForm.Group>
@@ -966,8 +971,8 @@ export const EditButtonBootstrap: React.FC<Props> = ({ view, item, onClose, onUp
                   <BootstrapForm.Control
                     type="text"
                     placeholder="Buscar categoría..."
-                    value={search}
-                    onChange={e => setSearch(e.target.value)}
+                    value={searchCategorias}
+                    onChange={e => setSearchCategorias(e.target.value)}
                     size="sm"
                   />
                 </Col>
@@ -976,7 +981,7 @@ export const EditButtonBootstrap: React.FC<Props> = ({ view, item, onClose, onUp
                     variant="outline-primary"
                     size="sm"
                     className="me-2"
-                    onClick={() => setFieldValue("categorias", categorias)}
+                    onClick={() => setFieldValue("categorias", categorias.map(c => Number(c.id)))}
                     disabled={categorias.length === 0}
                   >
                     Seleccionar todas
@@ -998,21 +1003,17 @@ export const EditButtonBootstrap: React.FC<Props> = ({ view, item, onClose, onUp
                     <span className="text-muted ms-2">Ninguna</span>
                   )}
                   {categoriasSeleccionadas.map((categoria: any) => (
-                    <label key={categoria.id} className="me-3 mb-2" style={{ cursor: 'pointer' }}>
-                      <input
-                        type="checkbox"
-                        checked={true}
-                        onChange={() => {
-                          // Quitar de seleccionadas
-                          setFieldValue(
-                            "categorias",
-                            categoriasSeleccionadas.filter((c: any) => c.id !== categoria.id)
-                          );
-                        }}
-                        className="me-1"
-                      />
-                      <span className="badge bg-info text-dark">{categoria.nombre}</span>
-                    </label>
+                    <Badge
+                      key={categoria.id}
+                      bg="info"
+                      text="dark"
+                      className="me-2 mb-2"
+                      style={{ cursor: "pointer" }}
+                      pill
+                      onClick={() => setFieldValue("categorias", selectedIds.filter((id: number) => id !== Number(categoria.id)))}
+                    >
+                      {categoria.nombre} <span style={{ marginLeft: 4, cursor: "pointer" }}>×</span>
+                    </Badge>
                   ))}
                 </div>
               </div>
@@ -1023,21 +1024,17 @@ export const EditButtonBootstrap: React.FC<Props> = ({ view, item, onClose, onUp
                     <span className="text-muted ms-2">Ninguna</span>
                   )}
                   {categoriasNoSeleccionadas.map((categoria: any) => (
-                    <label key={categoria.id} className="me-3 mb-2" style={{ cursor: 'pointer' }}>
-                      <input
-                        type="checkbox"
-                        checked={false}
-                        onChange={() => {
-                          // Agregar a seleccionadas
-                          setFieldValue(
-                            "categorias",
-                            [...categoriasSeleccionadas, categoria]
-                          );
-                        }}
-                        className="me-1"
-                      />
-                      <span>{categoria.nombre}</span>
-                    </label>
+                    <Badge
+                      key={categoria.id}
+                      bg="light"
+                      text="dark"
+                      className="me-2 mb-2"
+                      style={{ cursor: "pointer", border: "1px solid #0dcaf0" }}
+                      pill
+                      onClick={() => setFieldValue("categorias", [...selectedIds, Number(categoria.id)])}
+                    >
+                      {categoria.nombre} <span style={{ marginLeft: 4, color: "#0dcaf0" }}>+</span>
+                    </Badge>
                   ))}
                 </div>
               </div>
@@ -1509,208 +1506,229 @@ export const EditButtonBootstrap: React.FC<Props> = ({ view, item, onClose, onUp
           validationSchema={schemaMap[view]}
           onSubmit={handleSubmit}
         >
-          {({ values, setFieldValue, errors, touched }) => (
-            <Form>
-              <Row>
-                {Object.keys(initialValues).map((key) => 
-                  renderField(key, values, setFieldValue)
-                )}
+          {(formik) => {
+            // Sincronizar categorías seleccionadas cuando el store se cargue
+            React.useEffect(() => {
+              if (view === "Types" && item && categorias.length > 0) {
+                const idsAsociadas = Array.isArray(item.categorias)
+                  ? item.categorias.map((c: any) => c.id)
+                  : [];
+                const categoriasAsociadas = categorias.filter((cat) => idsAsociadas.includes(cat.id));
+                // Type guard para evitar error de propiedad inexistente
+                const valuesCategorias = Array.isArray((formik.values as any).categorias)
+                  ? (formik.values as any).categorias
+                  : [];
+                const idsFormik = valuesCategorias.map((c: any) => c.id).sort();
+                const idsStore = categoriasAsociadas.map((c) => c.id).sort();
+                if (JSON.stringify(idsFormik) !== JSON.stringify(idsStore)) {
+                  formik.setFieldValue("categorias", categoriasAsociadas);
+                }
+              }
+              // eslint-disable-next-line
+            }, [categorias, item]);
+            return (
+              <Form>
+                <Row>
+                  {Object.keys(initialValues).map((key) =>
+                    renderField(key, formik.values, formik.setFieldValue)
+                  )}
 
-                {view === "Products" && "imagenPublicId" in values && (
-                  <Col md={12}>
-                    <BootstrapForm.Group>
-                      <BootstrapForm.Label><strong>Imagen del producto</strong></BootstrapForm.Label>
-                      <ImageUpload
-                        label=""
-                        currentImagePublicId={values.imagenPublicId}
-                        onImageUpload={async (file) => {
-                          const publicId = await uploadImageToCloudinary(file, "productos");
-                          setFieldValue("imagenPublicId", publicId);
-                          return publicId;
-                        }}
-                        onImageRemove={() => setFieldValue("imagenPublicId", "")}
-                      />
-                    </BootstrapForm.Group>
-                  </Col>
-                )}
+                  {view === "Products" && "imagenPublicId" in formik.values && (
+                    <Col md={12}>
+                      <BootstrapForm.Group>
+                        <BootstrapForm.Label><strong>Imagen del producto</strong></BootstrapForm.Label>
+                        <ImageUpload
+                          label=""
+                          currentImagePublicId={formik.values.imagenPublicId}
+                          onImageUpload={async (file) => {
+                            const publicId = await uploadImageToCloudinary(file, "productos");
+                            formik.setFieldValue("imagenPublicId", publicId);
+                            return publicId;
+                          }}
+                          onImageRemove={() => formik.setFieldValue("imagenPublicId", "")}
+                        />
+                      </BootstrapForm.Group>
+                    </Col>
+                  )}
 
-                {view === "Users" && "imagenPerfilPublicId" in values && (
-                  <Col md={12}>
-                    <BootstrapForm.Group>
-                      <BootstrapForm.Label><strong>Imagen de perfil (opcional)</strong></BootstrapForm.Label>
-                      <ImageUpload
-                        label=""
-                        currentImagePublicId={values.imagenPerfilPublicId && values.imagenPerfilPublicId !== "" ? values.imagenPerfilPublicId : undefined}
-                        onImageUpload={async (file) => {
-                          const publicId = await uploadImageToCloudinary(file, "usuarios");
-                          setFieldValue("imagenPerfilPublicId", publicId);
-                          return publicId;
-                        }}
-                        onImageRemove={() => setFieldValue("imagenPerfilPublicId", "")}
-                      />
-                    </BootstrapForm.Group>
-                  </Col>
-                )}
+                  {view === "Users" && "imagenPerfilPublicId" in formik.values && (
+                    <Col md={12}>
+                      <BootstrapForm.Group>
+                        <BootstrapForm.Label><strong>Imagen de perfil (opcional)</strong></BootstrapForm.Label>
+                        <ImageUpload
+                          label=""
+                          currentImagePublicId={formik.values.imagenPerfilPublicId && formik.values.imagenPerfilPublicId !== "" ? formik.values.imagenPerfilPublicId : undefined}
+                          onImageUpload={async (file) => {
+                            const publicId = await uploadImageToCloudinary(file, "usuarios");
+                            formik.setFieldValue("imagenPerfilPublicId", publicId);
+                            return publicId;
+                          }}
+                          onImageRemove={() => formik.setFieldValue("imagenPerfilPublicId", "")}
+                        />
+                      </BootstrapForm.Group>
+                    </Col>
+                  )}
 
-                {view === "Orders" && (
-                  <Col md={12}>
-                    <BootstrapForm.Group>
-                      <BootstrapForm.Label><strong>Productos de la orden</strong></BootstrapForm.Label>
-                      <div className="border rounded p-3">
-                        {(values as any).detalles && Array.isArray((values as any).detalles) && (values as any).detalles.length > 0 ? (
-                          (values as any).detalles.map((item: any, index: number) => {
-                            const producto = productos.find(p => p.id === item.producto.id);
-                            const stockDisponible = producto?.cantidad || 0;
-                            const cantidadEnOrden = item.cantidad;
-                            const excedeStock = cantidadEnOrden > stockDisponible;
-                            return (
-                              <div key={index} className="d-flex justify-content-between align-items-center p-2 bg-light rounded mb-2">
-                                <span>
-                                  <strong>Producto:</strong> {producto?.nombre || 'Producto no encontrado'} | 
-                                  <strong>Cantidad:</strong> {item.cantidad || 0} | 
-                                  <strong>Stock:</strong> {stockDisponible}
-                                  {excedeStock && (
-                                    <Badge bg="danger" className="ms-2">⚠️ Excede stock</Badge>
-                                  )}
-                                </span>
+                  {view === "Orders" && (
+                    <Col md={12}>
+                      <BootstrapForm.Group>
+                        <BootstrapForm.Label><strong>Productos de la orden</strong></BootstrapForm.Label>
+                        <div className="border rounded p-3">
+                          {(formik.values as any).detalles && Array.isArray((formik.values as any).detalles) && (formik.values as any).detalles.length > 0 ? (
+                            (formik.values as any).detalles.map((item: any, index: number) => {
+                              const producto = productos.find(p => p.id === item.producto.id);
+                              const stockDisponible = producto?.cantidad || 0;
+                              const cantidadEnOrden = item.cantidad;
+                              const excedeStock = cantidadEnOrden > stockDisponible;
+                              return (
+                                <div key={index} className="d-flex justify-content-between align-items-center p-2 bg-light rounded mb-2">
+                                  <span>
+                                    <strong>Producto:</strong> {producto?.nombre || 'Producto no encontrado'} | 
+                                    <strong>Cantidad:</strong> {item.cantidad || 0} | 
+                                    <strong>Stock:</strong> {stockDisponible}
+                                    {excedeStock && (
+                                      <Badge bg="danger" className="ms-2">⚠️ Excede stock</Badge>
+                                    )}
+                                  </span>
+                                  <Button
+                                    variant="danger"
+                                    size="sm"
+                                    onClick={() => {
+                                      // Eliminar el producto del array de detalles completamente
+                                      const newDetalles = (formik.values as any).detalles.filter((detalle: any, i: number) => detalle.producto.id !== item.producto.id);
+                                      formik.setFieldValue("detalles", newDetalles);
+                                      // Recalcular el total
+                                      const nuevoTotal = newDetalles.reduce((sum: number, item: any) => {
+                                        const producto = productos.find(p => p.id === item.producto.id);
+                                        return sum + (producto?.precio || 0) * (item.cantidad || 0);
+                                      }, 0);
+                                      formik.setFieldValue("precioTotal", nuevoTotal);
+                                    }}
+                                  >
+                                    Eliminar
+                                  </Button>
+                                </div>
+                              );
+                            })
+                          ) : (
+                            <p className="text-muted fst-italic">No hay productos agregados</p>
+                          )}
+                          <div className="mt-3">
+                            <Row>
+                              <Col md={6}>
+                                <Field
+                                  as="select"
+                                  name="productoSeleccionado"
+                                  className="form-select"
+                                  onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
+                                    const productoId = +e.target.value;
+                                    if (productoId) {
+                                      formik.setFieldValue("productoSeleccionado", productoId);
+                                      formik.setFieldValue("cantidadProducto", 1);
+                                    }
+                                  }}
+                                  value={"productoSeleccionado" in formik.values ? formik.values.productoSeleccionado : ""}
+                                >
+                                  <option value="">Seleccionar producto</option>
+                                  {productos.map((p) => (
+                                    <option key={p.id} value={p.id}>
+                                      {p.nombre} - ${p.precio} (Stock: {p.cantidad})
+                                    </option>
+                                  ))}
+                                </Field>
+                              </Col>
+                              <Col md={3}>
+                                <Field
+                                  name="cantidadProducto"
+                                  type="number"
+                                  min="1"
+                                  placeholder="Cantidad"
+                                  className="form-control"
+                                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                                    const cantidad = parseInt(e.target.value) || 0;
+                                    const productoId = "productoSeleccionado" in formik.values ? formik.values.productoSeleccionado : undefined;
+                                    const producto = productos.find(p => p.id === productoId);
+                                    const stockDisponible = producto?.cantidad || 0;
+                                    if (cantidad > stockDisponible) {
+                                      e.target.setCustomValidity(`La cantidad no puede exceder el stock disponible (${stockDisponible})`);
+                                    } else {
+                                      e.target.setCustomValidity('');
+                                    }
+                                    formik.setFieldValue("cantidadProducto", cantidad);
+                                  }}
+                                  value={"cantidadProducto" in formik.values ? formik.values.cantidadProducto : 1}
+                                />
+                              </Col>
+                              <Col md={3}>
                                 <Button
-                                  variant="danger"
-                                  size="sm"
+                                  variant="success"
                                   onClick={() => {
-                                    // Eliminar el producto del array de detalles completamente
-                                    const newDetalles = (values as any).detalles.filter((detalle: any, i: number) => detalle.producto.id !== item.producto.id);
-                                    setFieldValue("detalles", newDetalles);
-                                    // Recalcular el total
-                                    const nuevoTotal = newDetalles.reduce((sum: number, item: any) => {
-                                      const producto = productos.find(p => p.id === item.producto.id);
-                                      return sum + (producto?.precio || 0) * (item.cantidad || 0);
-                                    }, 0);
-                                    setFieldValue("precioTotal", nuevoTotal);
+                                    const productoId = "productoSeleccionado" in formik.values ? formik.values.productoSeleccionado : undefined;
+                                    const cantidad = "cantidadProducto" in formik.values ? formik.values.cantidadProducto : 1;
+                                    const producto = productos.find(p => p.id === productoId);
+                                    const stockDisponible = producto?.cantidad || 0;
+                                    if (productoId && cantidad && cantidad > 0 && cantidad <= stockDisponible) {
+                                      // Buscar si ya existe el producto en detalles
+                                      const detallesActuales = (formik.values as any).detalles || [];
+                                      const indexExistente = detallesActuales.findIndex((item: any) => item.producto.id === productoId);
+                                      let newDetalles;
+                                      if (indexExistente !== -1) {
+                                        // Si ya existe, sumamos la cantidad
+                                        newDetalles = detallesActuales.map((item: any, idx: number) =>
+                                          idx === indexExistente
+                                            ? { ...item, cantidad: item.cantidad + cantidad }
+                                            : item
+                                        );
+                                      } else {
+                                        // Si no existe, lo agregamos
+                                        newDetalles = [...detallesActuales, { producto: { id: productoId }, cantidad }];
+                                      }
+                                      formik.setFieldValue("detalles", newDetalles);
+                                      formik.setFieldValue("productoSeleccionado", "");
+                                      formik.setFieldValue("cantidadProducto", 1);
+                                      // Recalcular el total
+                                      const nuevoTotal = newDetalles.reduce((sum: number, item: any) => {
+                                        const producto = productos.find(p => p.id === item.producto.id);
+                                        return sum + (producto?.precio || 0) * (item.cantidad || 0);
+                                      }, 0);
+                                      formik.setFieldValue("precioTotal", nuevoTotal);
+                                    } else if (cantidad && Number(cantidad) > stockDisponible) {
+                                      Swal.fire({
+                                        icon: 'error',
+                                        title: 'Stock insuficiente',
+                                        text: `La cantidad solicitada (${cantidad}) excede el stock disponible (${stockDisponible})`,
+                                      });
+                                    }
                                   }}
                                 >
-                                  Eliminar
+                                  Agregar
                                 </Button>
-                              </div>
-                            );
-                          })
-                        ) : (
-                          <p className="text-muted fst-italic">No hay productos agregados</p>
-                        )}
-                        <div className="mt-3">
-                          <Row>
-                            <Col md={6}>
-                              <Field
-                                as="select"
-                                name="productoSeleccionado"
-                                className="form-select"
-                                onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
-                                  const productoId = +e.target.value;
-                                  if (productoId) {
-                                    setFieldValue("productoSeleccionado", productoId);
-                                    setFieldValue("cantidadProducto", 1);
-                                  }
-                                }}
-                                value={"productoSeleccionado" in values ? values.productoSeleccionado : ""}
-                              >
-                                <option value="">Seleccionar producto</option>
-                                {productos.map((p) => (
-                                  <option key={p.id} value={p.id}>
-                                    {p.nombre} - ${p.precio} (Stock: {p.cantidad})
-                                  </option>
-                                ))}
-                              </Field>
-                            </Col>
-                            <Col md={3}>
-                              <Field
-                                name="cantidadProducto"
-                                type="number"
-                                min="1"
-                                placeholder="Cantidad"
-                                className="form-control"
-                                onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                                  const cantidad = parseInt(e.target.value) || 0;
-                                  const productoId = "productoSeleccionado" in values ? values.productoSeleccionado : undefined;
-                                  const producto = productos.find(p => p.id === productoId);
-                                  const stockDisponible = producto?.cantidad || 0;
-                                  if (cantidad > stockDisponible) {
-                                    e.target.setCustomValidity(`La cantidad no puede exceder el stock disponible (${stockDisponible})`);
-                                  } else {
-                                    e.target.setCustomValidity('');
-                                  }
-                                  setFieldValue("cantidadProducto", cantidad);
-                                }}
-                                value={"cantidadProducto" in values ? values.cantidadProducto : 1}
-                              />
-                            </Col>
-                            <Col md={3}>
-                              <Button
-                                variant="success"
-                                onClick={() => {
-                                  const productoId = "productoSeleccionado" in values ? values.productoSeleccionado : undefined;
-                                  const cantidad = "cantidadProducto" in values ? values.cantidadProducto : 1;
-                                  const producto = productos.find(p => p.id === productoId);
-                                  const stockDisponible = producto?.cantidad || 0;
-                                  if (productoId && cantidad && cantidad > 0 && cantidad <= stockDisponible) {
-                                    // Buscar si ya existe el producto en detalles
-                                    const detallesActuales = (values as any).detalles || [];
-                                    const indexExistente = detallesActuales.findIndex((item: any) => item.producto.id === productoId);
-                                    let newDetalles;
-                                    if (indexExistente !== -1) {
-                                      // Si ya existe, sumamos la cantidad
-                                      newDetalles = detallesActuales.map((item: any, idx: number) =>
-                                        idx === indexExistente
-                                          ? { ...item, cantidad: item.cantidad + cantidad }
-                                          : item
-                                      );
-                                    } else {
-                                      // Si no existe, lo agregamos
-                                      newDetalles = [...detallesActuales, { producto: { id: productoId }, cantidad }];
-                                    }
-                                    setFieldValue("detalles", newDetalles);
-                                    setFieldValue("productoSeleccionado", "");
-                                    setFieldValue("cantidadProducto", 1);
-                                    // Recalcular el total
-                                    const nuevoTotal = newDetalles.reduce((sum: number, item: any) => {
-                                      const producto = productos.find(p => p.id === item.producto.id);
-                                      return sum + (producto?.precio || 0) * (item.cantidad || 0);
-                                    }, 0);
-                                    setFieldValue("precioTotal", nuevoTotal);
-                                  } else if (cantidad && Number(cantidad) > stockDisponible) {
-                                    Swal.fire({
-                                      icon: 'error',
-                                      title: 'Stock insuficiente',
-                                      text: `La cantidad solicitada (${cantidad}) excede el stock disponible (${stockDisponible})`,
-                                    });
-                                  }
-                                }}
-                              >
-                                Agregar
-                              </Button>
-                            </Col>
-                          </Row>
-                          {"productoSeleccionado" in values && values.productoSeleccionado && (
-                            <small className="text-muted">
-                              Stock disponible: {productos.find(p => p.id === Number(values.productoSeleccionado))?.cantidad || 0} unidades
-                            </small>
-                          )}
+                              </Col>
+                            </Row>
+                            {(formik.values as any).productoSeleccionado && (
+                              <small className="text-muted">
+                                Stock disponible: {productos.find(p => p.id === Number((formik.values as any).productoSeleccionado))?.cantidad || 0} unidades
+                              </small>
+                            )}
+                          </div>
                         </div>
-                      </div>
-                      <ErrorMessage name="detalles" component="div" className="text-danger small" />
-                    </BootstrapForm.Group>
-                  </Col>
-                )}
-              </Row>
+                        <ErrorMessage name="detalles" component="div" className="text-danger small" />
+                      </BootstrapForm.Group>
+                    </Col>
+                  )}
+                </Row>
 
-              <Modal.Footer>
-                <Button variant="secondary" onClick={onClose}>
-                  Cancelar
-                </Button>
-                <Button variant="primary" type="submit">
-                  Actualizar
-                </Button>
-              </Modal.Footer>
-            </Form>
-          )}
+                <Modal.Footer>
+                  <Button variant="secondary" onClick={onClose}>
+                    Cancelar
+                  </Button>
+                  <Button variant="primary" type="submit">
+                    Actualizar
+                  </Button>
+                </Modal.Footer>
+              </Form>
+            );
+          }}
         </Formik>
       </Modal.Body>
     </Modal>

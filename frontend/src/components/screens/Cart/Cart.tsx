@@ -244,7 +244,7 @@ export const Cart = () => {
               ))
             ) : (
               <div style={{ width: '100%' }}>
-                <h3>Este carrito está vacío, cambiemos eso</h3>
+                <h3>This cart is empty, let's change that.</h3>
               </div>
             )}
           </div>
@@ -256,28 +256,28 @@ export const Cart = () => {
       <Footer />
       <Modal show={showModal} onHide={() => setShowModal(false)} centered>
         <Modal.Header closeButton>
-          <Modal.Title>Confirmar compra</Modal.Title>
+          <Modal.Title>Confirm Purchase</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <div>
-            <label><b>Dirección de entrega:</b></label>
+            <label><b>Delivery Address:</b></label>
             {direcciones.length > 0 ? (
               <select className="form-select" value={direccionActiva?.id || ''} onChange={e => {
                 const id = Number(e.target.value);
                 const dir = direcciones.find(d => d.id === id);
                 if (dir) setDireccionActiva(dir);
               }}>
-                <option value="">Selecciona una dirección</option>
+                <option value="">Select an address</option>
                 {direcciones.map(d => (
                   <option key={d.id} value={d.id}>{d.direccion.calle}, {d.direccion.localidad} ({d.direccion.cp})</option>
                 ))}
               </select>
             ) : (
-              <div className="alert alert-warning mt-2">No tienes direcciones registradas. Agrega una desde tu perfil.</div>
+              <div className="alert alert-warning mt-2">You don’t have any saved addresses. Add one from your profile</div>
             )}
           </div>
           <div className="mt-3">
-            <label><b>Método de pago:</b></label>
+            <label><b>Payment Method:</b></label>
             <select className="form-select" value={metodoPago} onChange={e => setMetodoPago(e.target.value as MetodoPago)}>
               {Object.values(MetodoPago).map(m => (
                 <option key={m} value={m}>{m}</option>
@@ -290,7 +290,7 @@ export const Cart = () => {
         </Modal.Body>
         <Modal.Footer>
           <div style={{ width: '100%', textAlign: 'center', marginBottom: '0.25rem', fontSize: '0.80rem', color: '#888' }}>
-            Para usar Mercado Pago debes seleccionar una dirección de entrega y el método de pago "Transferencia" o "Tarjeta".
+            To use Mercado Pago, you must select a delivery address and choose either "Bank Transfer" or "Card" as your payment method.
           </div>
           <MercadoLibreButton 
             onClick={handleMercadoPago} 
@@ -300,8 +300,8 @@ export const Cart = () => {
             }
             style={{ marginBottom: '0.5rem' }}
           />
-          <Button variant="success" onClick={handleComprar} disabled={loading || !direccionActiva || direcciones.length === 0}>{loading ? 'Procesando...' : 'Comprar'}</Button>
-          <Button variant="secondary" onClick={() => setShowModal(false)} disabled={loading}>Cancelar</Button>
+          <Button variant="success" onClick={handleComprar} disabled={loading || !direccionActiva || direcciones.length === 0}>{loading ? 'Processing...' : 'Buy'}</Button>
+          <Button variant="secondary" onClick={() => setShowModal(false)} disabled={loading}>Cancel</Button>
         </Modal.Footer>
       </Modal>
       {mensaje && <div className={estadoOrden === 'Entregado' ? 'success' : 'error'}>{mensaje}</div>}

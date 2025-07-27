@@ -22,6 +22,8 @@ import { useLocation } from 'react-router-dom';
 import axios from 'axios';
 import Swal from 'sweetalert2';
 import { MercadoLibreButton } from '../../ui/Buttons/MercadoLibreButton/MercadoLibreButton';
+import { getMisUsuarioDirecciones } from "../../../http/direccionHTTP";
+
 
 type ProductoMP = {
   id: string;
@@ -51,7 +53,7 @@ export const Cart = () => {
   const editarDetalle = cartStore((s) => s.editarDetalle);
 
   const usuario = usuarioStore((s) => s.usuarioActivo);
-  const direcciones = usuario?.direcciones || [];
+  const direcciones = direccionStore((s) => s.direcciones).filter(d => d.activo);
   const direccionActiva = direccionStore((s) => s.direccionActiva);
   const setDireccionActiva = direccionStore((s) => s.setDireccionActiva);
 
@@ -66,6 +68,21 @@ export const Cart = () => {
   useEffect(() => {
     setTotal(detalles);
   }, [detalles]);
+
+  useEffect(() => {
+    const fetchDirecciones = async () => {
+      if (!usuario?.token) return;
+
+      try {
+        const direccionesBackend = await getMisUsuarioDirecciones(usuario.token);
+        direccionStore.getState().setArrayDirecciones(direccionesBackend);
+      } catch (error) {
+        console.error("Error al cargar direcciones activas del usuario:", error);
+      }
+    };
+
+    fetchDirecciones();
+  }, [usuario]);
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
@@ -184,7 +201,7 @@ export const Cart = () => {
       });
       if (!response.ok) throw new Error('Error al generar link de pago');
       const mpResponse = await response.json();
-     
+
       // 2. Crear la orden en el backend con el preferenceId
       const nuevaOrden = await createOrden(usuario.token || null, {
         usuario,
@@ -196,7 +213,7 @@ export const Cart = () => {
         detalles,
         preferenceId: mpResponse.preferenceId,
       });
-      
+
       // 3. Redirigir al usuario
       window.location.href = mpResponse.url;
     } catch (error) {
@@ -249,7 +266,7 @@ export const Cart = () => {
             )}
           </div>
         </div>
-        <div style={{height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-start', minWidth: '220px', maxWidth: '260px', padding: '1rem 0.5rem', marginLeft: '1rem'}}>
+        <div style={{ height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-start', minWidth: '220px', maxWidth: '260px', padding: '1rem 0.5rem', marginLeft: '1rem' }}>
           <CartSideBar total={total} onBuy={() => setShowModal(true)} buyDisabled={detalles.length === 0} />
         </div>
       </div>
@@ -292,8 +309,8 @@ export const Cart = () => {
           <div style={{ width: '100%', textAlign: 'center', marginBottom: '0.25rem', fontSize: '0.80rem', color: '#888' }}>
             To use Mercado Pago, you must select a delivery address and choose either "Bank Transfer" or "Card" as your payment method.
           </div>
-          <MercadoLibreButton 
-            onClick={handleMercadoPago} 
+          <MercadoLibreButton
+            onClick={handleMercadoPago}
             disabled={
               !direccionActiva ||
               !(metodoPago === MetodoPago.Transferencia || metodoPago === MetodoPago.Tarjeta)

@@ -80,7 +80,7 @@ const UserProfileCard: React.FC<UserProfileCardProps> = ({ usuario, onEdited, on
           />
         ) : (
           <img
-            src="/assets/user_img.jpg"
+            src="src\assets\user_img.jpg"
             alt={usuario.nombre}
             style={{ width: '100%', height: '100%', objectFit: 'cover' }}
           />

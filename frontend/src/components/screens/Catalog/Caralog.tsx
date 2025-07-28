@@ -172,7 +172,7 @@ export const Catalog = () => {
           top: headerHeight,
           left: 0,
           width: '100vw',
-          zIndex: 2000,
+          zIndex: 10,
           borderRadius: '0 0 8px 8px',
           boxShadow: showFilters ? '0 4px 16px rgba(0,0,0,0.08)' : undefined,
           backgroundColor: '#f2f2f2',
